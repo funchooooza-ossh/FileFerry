@@ -1,0 +1,8 @@
+{
+    "python.autoComplete.extraPaths": [
+        "./fileferry/src"
+    ],
+    "python.analysis.extraPaths": [
+        "./fileferry/src"
+    ]
+}
