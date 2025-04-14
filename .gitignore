@@ -1,0 +1,4 @@
+*.env
+.venv
+redis_data
+postgres_data
