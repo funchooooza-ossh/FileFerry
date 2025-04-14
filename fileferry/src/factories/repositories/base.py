@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import (
     Dict,
     TypeVar,
@@ -6,18 +7,20 @@ from typing import (
     Any,
     Optional,
     Generic,
+    Type,
     ClassVar,
-    Awaitable,
 )
+from typing_extensions import Self
 from contextlib import AbstractAsyncContextManager
-from utils.registry import Registry
+from utils import Registry
 
-T = TypeVar("RepositoryType")
-R = TypeVar("RegistryClass", bound=Registry)
+T_repo = TypeVar("T_repo")
+R = TypeVar("Registry", bound="Registry[Any]")
+F = TypeVar("RepositoryFactoryType", bound="BaseRepositoryFactory")
 
 
-class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T]):
-    registry: ClassVar[Optional[R]] = None
+class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T_repo]):
+    registry: ClassVar[Registry] = None
 
     def __init__(
         self,
@@ -25,14 +28,14 @@ class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T]):
     ):
         self._session_ctx_factory = session_ctx_factory
         self._session: Optional[Any] = None
-        self._instances: Dict[str, T] = {}
+        self._instances: Dict[str, T_repo] = {}
 
     def __init_subclass__(cls):
         if cls.registry is None:
             raise TypeError(f"{cls.__name__} must define 'registry' class attribute")
         super().__init_subclass__()
 
-    async def __aenter__(self) -> "BaseRepositoryFactory":
+    async def __aenter__(self) -> Self:
         self._session_ctx = self._session_ctx_factory()
         self._session = await self._session_ctx.__aenter__()
         return self
@@ -42,7 +45,7 @@ class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T]):
         self._session = None
         self._instances.clear()
 
-    def get(self, name: str) -> T:
+    def get(self, name: str) -> T_repo:
         if not self._session:
             raise RuntimeError("RepositoryFactory must be used within an async context")
 
@@ -67,10 +70,10 @@ class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T]):
         return iter(self._instances.items())
 
     @classmethod
-    def with_session_factory(
-        cls, session_factory: Callable[[], AsyncGenerator[Any, None]]
-    ) -> Callable[[], Awaitable["BaseRepositoryFactory"]]:
-        async def dependency_provider() -> "BaseRepositoryFactory":
+    async def with_session_factory(
+        cls: Type[F], session_factory: Callable[[], AsyncGenerator[Any, None]]
+    ) -> F:
+        async def dependency_provider() -> F:
             return cls(session_factory)
 
-        return dependency_provider
+        return await dependency_provider()

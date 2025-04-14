@@ -1,14 +1,12 @@
-from typing import Callable, AsyncGenerator, TypeVar
+from typing import Callable, AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from repositories.sqlalchemy.base import BaseSqlAlchemyRepository
 from utils import SqlAlchemyRegistry
 from factories.repositories.base import BaseRepositoryFactory
 
-T_SQLAlchemy = TypeVar("T_SQLAlchemy", bound=BaseSqlAlchemyRepository)
 
-
-class RepositoryFactory(BaseRepositoryFactory[T_SQLAlchemy]):
+class SqlAlchemyFactory(BaseRepositoryFactory[BaseSqlAlchemyRepository]):
     registry = SqlAlchemyRegistry
 
     def __init__(
