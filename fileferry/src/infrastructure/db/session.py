@@ -10,7 +10,7 @@ from sqlalchemy.exc import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from exceptions.repositories import (
+from exceptions.infrastcructure.repositories import (
     RepositoryError,
     RepositoryIntegrityError,
     RepositoryNotFoundError,
@@ -43,28 +43,19 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
                 raise RepositoryNotFoundError() from exc
 
             if isinstance(exc, IntegrityError):
-                await session.rollback()
                 raise RepositoryIntegrityError from exc
 
             if isinstance(exc, OperationalError):
-                await session.rollback()
                 raise RepositoryOperationalError() from exc
 
             if isinstance(exc, ProgrammingError):
-                await session.rollback()
                 raise RepositoryProgrammingError() from exc
 
-            await session.rollback()
             raise RepositoryORMError() from exc
 
         except RepositoryError as exc:
-            await session.rollback()
             raise exc
 
         except Exception as exc:
             logger.exception(exc)
-            await session.rollback()
             raise RepositoryError from exc
-
-        else:
-            await session.commit()

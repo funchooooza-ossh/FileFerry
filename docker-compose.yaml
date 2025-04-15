@@ -5,7 +5,7 @@ services:
   service:
     container_name: fileferry
     build: ./fileferry
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn application.api.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./fileferry:/app
     depends_on:
@@ -36,6 +36,18 @@ services:
       - ./redis_data:/data
     restart: always
     command: ["redis-server", "--appendonly", "yes"]
+  
+
+  minio:
+    image: minio/minio
+    hostname: minio
+    restart: unless-stopped
+    volumes:
+      - ./minio_data:/data
+    command: server /data --console-address ":9001"
+    env_file:
+      - ./environments/minio.env
+
 
 volumes:
   postgres_data:

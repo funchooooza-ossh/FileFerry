@@ -748,6 +748,17 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "libmagic"
+version = "1.0"
+description = "libmagic bindings"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "libmagic-1.0.tar.gz", hash = "sha256:649f1ce7fb7c92796badbb812555e4a926351da4f5cdf82e810b5cd371aedf8d"},
+]
+
+[[package]]
 name = "loguru"
 version = "0.7.3"
 description = "Python logging made (stupidly) simple"
@@ -1681,4 +1692,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "7759f25d9e9a73db48194ae222ef8d8a3f9e27f99ecf0f6d4646040afca4d56f"
+content-hash = "f2e5f178637f58cd8daaa16eef52da3a96678f28d6b1e4563431062ddd2301ae"
