@@ -1,34 +1,42 @@
-from typing import Callable, Dict, Type, TypeVar, Generic
-
-from repositories.sqlalchemy.base import BaseSqlAlchemyRepository
-
-
-T_reg = TypeVar("T_reg")
+from typing import Dict, Type
+from enum import StrEnum
+from repositories.base import BaseRepository
 
 
-class Registry(Generic[T_reg]):
-    def __init__(self):
-        self._registry: Dict[str, Type[T_reg]] = {}
+class DBType(StrEnum):
+    SQLALCHEMY = "sqlalchemy"
+    REDIS = "redis"
 
-    def register(self, name: str) -> Callable[[Type[T_reg]], Type[T_reg]]:
-        """Декоратор для регистрации класса по имени"""
 
-        def wrapper(cls: Type[T_reg]) -> Type[T_reg]:
-            self._registry[name] = cls
-            return cls
+class RepositoryName(StrEnum):
+    FILE = "file"
+    USER = "user"
 
-        return wrapper
 
-    def get(self, name: str) -> Type[T_reg]:
-        """Получить класс по имени"""
+class Registrator:
+    registry: Dict[DBType, Dict[RepositoryName, Type[BaseRepository]]] = {
+        DBType.SQLALCHEMY: {},
+        DBType.REDIS: {},
+    }
+
+    @classmethod
+    def register(
+        cls, db_type: DBType, name: RepositoryName, repo_class: Type[BaseRepository]
+    ):
+        """Регистрируем репозиторий для указанного типа базы данных"""
+        if db_type not in cls.registry:
+            raise ValueError(f"Unsupported database type: {db_type}")
+        cls.registry[db_type][name] = repo_class
+
+    @classmethod
+    def get(cls, db_type: DBType, name: RepositoryName) -> Type[BaseRepository]:
+        """Получаем репозиторий для указанного типа базы данных"""
         try:
-            return self._registry[name]
+            return cls.registry[db_type][name]
         except KeyError:
-            raise ValueError(f"'{name}' is not registered.")
+            raise ValueError(f"'{name.value}' is not registered for {db_type.value}.")
 
-    def all(self) -> Dict[str, Type[T_reg]]:
-        """Получить все зарегистрированные классы"""
-        return dict(self._registry)
-
-
-SqlAlchemyRegistry = Registry[BaseSqlAlchemyRepository]()
+    @classmethod
+    def all(cls, db_type: DBType) -> Dict[RepositoryName, Type[BaseRepository]]:
+        """Получить все зарегистрированные классы для указанного типа базы данных"""
+        return cls.registry.get(db_type, {})

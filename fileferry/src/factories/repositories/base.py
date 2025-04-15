@@ -11,16 +11,16 @@ from typing import (
     ClassVar,
 )
 from typing_extensions import Self
+from repositories.base import BaseRepository
 from contextlib import AbstractAsyncContextManager
-from utils import Registry
+from utils import Registrator, DBType, RepositoryName
 
-T_repo = TypeVar("T_repo")
-R = TypeVar("Registry", bound="Registry[Any]")
+T_repo = TypeVar("T_repo", bound="BaseRepository")
 F = TypeVar("RepositoryFactoryType", bound="BaseRepositoryFactory")
 
 
 class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T_repo]):
-    registry: ClassVar[Registry] = None
+    registry: ClassVar[Registrator] = Registrator
 
     def __init__(
         self,
@@ -45,7 +45,7 @@ class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T_repo]):
         self._session = None
         self._instances.clear()
 
-    def get(self, name: str) -> T_repo:
+    def get(self, db_type: DBType, name: RepositoryName) -> T_repo:
         if not self._session:
             raise RuntimeError("RepositoryFactory must be used within an async context")
 
@@ -53,10 +53,10 @@ class BaseRepositoryFactory(AbstractAsyncContextManager, Generic[T_repo]):
             return self._instances[name]
 
         try:
-            repo_cls = self.registry.get(name)
+            repo_cls = self.registry.get(db_type, name)
         except ValueError as exc:
             raise KeyError(
-                f"Repository '{name}' is not registered in {self.__class__.__name__}"
+                f"Repository '{name.value}' is not registered for {db_type.value} in {self.__class__.__name__}"
             ) from exc
 
         repo = repo_cls(self._session)

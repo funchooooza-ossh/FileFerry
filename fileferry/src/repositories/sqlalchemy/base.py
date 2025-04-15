@@ -2,12 +2,12 @@ from typing import Generic, TypeVar, Optional, Type
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from exceptions.repositories import RepositoryORMError
-
+from repositories.base import BaseRepository
 
 ModelType = TypeVar("ModelType", bound=DeclarativeBase)
 
 
-class BaseSqlAlchemyRepository(Generic[ModelType]):
+class BaseSqlAlchemyRepository(Generic[ModelType], BaseRepository):
     model: Optional[Type[ModelType]] = None
 
     def __init_subclass__(cls):

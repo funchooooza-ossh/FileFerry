@@ -1,2 +1,1 @@
-from utils.registry import SqlAlchemyRegistry
-from utils.registry import Registry
+from utils.registry import Registrator, DBType, RepositoryName
