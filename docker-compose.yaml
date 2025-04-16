@@ -47,6 +47,9 @@ services:
     command: server /data --console-address ":9001"
     env_file:
       - ./environments/minio.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
 
 
 volumes:
