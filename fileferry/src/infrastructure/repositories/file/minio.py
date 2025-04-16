@@ -1,6 +1,6 @@
 from miniopy_async import Minio
 from typing import AsyncIterator
-from exceptions.infrastcructure.storage import StorageError, StorageNotFoundError
+from shared.exceptions.infrastcructure.storage import StorageError, StorageNotFoundError
 from infrastructure.utils.stream_reader import AsyncStreamReader
 
 

@@ -10,7 +10,7 @@ from sqlalchemy.exc import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from exceptions.infrastcructure.repositories import (
+from shared.exceptions.infrastcructure.repositories import (
     RepositoryError,
     RepositoryIntegrityError,
     RepositoryNotFoundError,
