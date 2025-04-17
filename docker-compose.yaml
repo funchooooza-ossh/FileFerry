@@ -8,6 +8,7 @@ services:
     command: uvicorn api.rest.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./fileferry:/app
+      - ./environments/minio.default.env:/app/minio.env
     depends_on:
       - db
       - redis
