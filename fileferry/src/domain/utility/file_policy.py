@@ -1,7 +1,5 @@
-
-
 class FilePolicy:
-    FORBIDDEN_TYPES = {"application/javascript", "text/html"}
+    FORBIDDEN_TYPES = {"application/javascript", "text/html", "application/x-empty"}
 
     @classmethod
     def is_allowed(cls, mime: str) -> bool | str:

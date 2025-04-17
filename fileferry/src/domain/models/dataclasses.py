@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from domain.models.enums import FileStatus
 
 
@@ -9,3 +10,4 @@ class FileMeta:
     content_type: str
     size: int
     status: FileStatus
+    reason: Optional[str] = None

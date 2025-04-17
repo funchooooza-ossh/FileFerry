@@ -1,13 +1,23 @@
 from typing import AsyncIterator
+from loguru import logger
 from domain.models.dataclasses import FileMeta
 from domain.models.enums import FileStatus
 from domain.protocols import UnitOfWork
 from domain.utility.file_policy import FilePolicy
 from domain.utility.file_helper import FileHelper
-from loguru import logger
+from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.infrastructure import InfrastructureError
 
 
 class UploadFileService:
+    """
+    Блок бизнес-логики.
+    Валидирует content-type входящего файла.
+    Связан "контрактом" с протокольным UnitOfWork.
+    В случае успешной валидации отдает команду на сохранение.
+    Работает только с бизнес-моделью FileMeta.
+    """
+
     def __init__(self, uow: UnitOfWork):
         self._uow = uow
 
@@ -15,13 +25,13 @@ class UploadFileService:
         self, file_id: str, file_name: str, data: AsyncIterator[bytes]
     ) -> FileMeta:
         stream = FileHelper.iterator_to_peekable_stream(data)
-        header = FileHelper.get_stream_header(stream)
+        header = await FileHelper.get_stream_header(stream)
         mime = FileHelper.detect_mime(header)
-        size = FileHelper.get_stream_size(stream)
+        size = await FileHelper.get_stream_size(stream)
 
         mime = FilePolicy.is_allowed(mime)
         if not mime:
-            raise Exception()
+            raise FilePolicyViolationEror("Невалидный файл")
 
         meta = FileMeta(
             id=file_id,
@@ -40,13 +50,14 @@ class UploadFileService:
                     length=size,
                     content_type=mime,
                 )
-                await self._uow.commit()
-            except Exception as exc:
-                logger.exception(exc)
+            except InfrastructureError as exc:
+                logger.warning(exc)
                 await self._uow.rollback()
                 meta.status = FileStatus.FAILED
+                meta.reason = exc.type
                 return meta
+            else:
+                await self._uow.commit()
+                meta.status = FileStatus.STORED
 
-        meta.status = FileStatus.STORED
-
-        return meta
+                return meta

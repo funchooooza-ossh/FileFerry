@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from infrastructure.models.sqlalchemy.file import File
-from shared.exceptions.infrastcructure.repositories import RepositoryNotFoundError
+from shared.exceptions.infrastructure import RepositoryNotFoundError
 from domain.models.dataclasses import FileMeta
 
 

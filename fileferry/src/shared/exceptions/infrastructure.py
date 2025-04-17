@@ -1,4 +1,22 @@
-class RepositoryError(Exception):
+class InfrastructureError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.type = self.__class__.__name__
+
+
+class StorageError(InfrastructureError):
+    """
+    Базовый класс для ошибок при работе с хранилищем.
+    """
+
+    pass
+
+
+class StorageNotFoundError(StorageError):
+    pass
+
+
+class RepositoryError(InfrastructureError):
     """
     Базовый класс для ошибок, при работе с паттерном репозиторий.
     """
