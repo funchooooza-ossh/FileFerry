@@ -23,7 +23,7 @@ class UploadFileService:
         self._uow = uow
 
     async def execute(self, meta: FileMeta, data: AsyncIterator[bytes]) -> FileMeta:
-        mime = FilePolicy.is_allowed(meta.content_type)
+        mime = FilePolicy.is_allowed(meta.content_type, meta.size)
         if not mime:
             raise FilePolicyViolationEror("Невалидный файл")
         meta.status = FileStatus.PENDING
