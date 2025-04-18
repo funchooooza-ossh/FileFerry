@@ -4,25 +4,34 @@ from loguru import logger
 from domain.models.dataclasses import FileMeta
 from domain.models.enums import FileStatus
 from domain.services.files.upload_file import UploadFileService
-from infrastructure.uow import SQLAlchemyMinioUnitOfWork
 from shared.exceptions.domain import FilePolicyViolationEror
 from shared.exceptions.application import (
     DomainRejectedError,
     StatusFailedError,
 )
-from application.di.minio.factory import create_minio_client
+from application.di.uow.factory import UnitOfWorkFactory, KnownUoW
 from infrastructure.utils.file_helper import FileHelper
 
 
 class ApplicationFileService:
+    """
+    Единая точка входа в application-слой на создание файла.
+    Принимает: name - имя файла, указанное юзером
+               stream - Итератор байтов, чтоб не загружать файл в память целиком.
+    Возвращает в случае успеха FileMeta - бизнес модель, либо ошибку.
+    Параметр бэкенд - литерал, который предустанавливает известные конфигурации.
+    Таким образом для тестов этого класса можно мокнуть фабрику UoW и все.
+    """
+
     @staticmethod
     async def create_file(
         name: str,
         stream: AsyncIterator[bytes],
+        *,
+        backend: KnownUoW = "minio-sqla",
     ) -> FileMeta:
         file_id = uuid.uuid4().hex
-        client = create_minio_client(_type="default")
-        uow = SQLAlchemyMinioUnitOfWork(client=client, bucket_name="default-bucket")
+        uow = UnitOfWorkFactory.create(config=backend)
         service = UploadFileService(uow=uow)
 
         stream, mime, size = await FileHelper.analyze(stream)
