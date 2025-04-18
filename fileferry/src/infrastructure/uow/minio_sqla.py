@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator, AsyncIterator
 from types import TracebackType
 from typing import Optional
 
+from loguru import logger
 from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +10,7 @@ from domain.models.dataclasses import FileMeta
 from infrastructure.db.session import get_async_session
 from infrastructure.repositories.file.minio import MinioRepository
 from infrastructure.repositories.file.sqlalchemy import FileRepository
+from shared.exceptions.infrastructure import InfrastructureError
 
 
 class SQLAlchemyMinioUnitOfWork:
@@ -35,14 +37,20 @@ class SQLAlchemyMinioUnitOfWork:
         return self
 
     async def save(self, meta: FileMeta, stream: AsyncIterator[bytes]) -> FileMeta:
-        db_result = await self.file_repo.add(meta)
-        await self.file_storage.store(
-            file_id=meta.id,
-            stream=stream,
-            length=meta.size,
-            content_type=meta.content_type,
-        )
-        return db_result
+        try:
+            db_result = await self.file_repo.add(meta)
+            await self.file_storage.store(
+                file_id=meta.id,
+                stream=stream,
+                length=meta.size,
+                content_type=meta.content_type,
+            )
+            return db_result
+        except InfrastructureError as exc:
+            raise exc
+        except Exception as exc:
+            logger.error(f"Unexpected error in save method: {exc!s}")
+            raise InfrastructureError(str(exc)) from exc
 
     async def __aexit__(
         self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
