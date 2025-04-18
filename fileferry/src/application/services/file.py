@@ -10,6 +10,7 @@ from shared.exceptions.application import (
     StatusFailedError,
 )
 from application.di.minio.factory import create_minio_client
+from infrastructure.utils.file_helper import FileHelper
 
 
 class ApplicationFileService:
@@ -23,10 +24,14 @@ class ApplicationFileService:
         uow = SQLAlchemyMinioUnitOfWork(client=client, bucket_name="default-bucket")
         service = UploadFileService(uow=uow)
 
+        stream, mime, size = await FileHelper.analyze(stream)
+        meta = FileMeta(
+            id=file_id, name=name, content_type=mime, size=size, status=None
+        )
+
         try:
             meta = await service.execute(
-                file_id=file_id,
-                file_name=name,
+                meta=meta,
                 data=stream,
             )
 

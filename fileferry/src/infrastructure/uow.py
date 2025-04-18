@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional, AsyncGenerator, AsyncIterator
 from miniopy_async import Minio
+from domain.models.dataclasses import FileMeta
 from infrastructure.repositories.file.sqlalchemy import FileRepository
 from infrastructure.repositories.file.minio import MinioRepository
 from infrastructure.db.session import get_async_session
-from typing import Optional, AsyncGenerator
 
 
 class SQLAlchemyMinioUnitOfWork:
@@ -28,6 +29,16 @@ class SQLAlchemyMinioUnitOfWork:
         self.file_storage = MinioRepository(self.client, self.bucket_name)
 
         return self
+
+    async def save(self, meta: FileMeta, stream: AsyncIterator[bytes]) -> FileMeta:
+        db_result = await self.file_repo.add(meta)
+        await self.file_storage.store(
+            file_id=meta.id,
+            stream=stream,
+            length=meta.size,
+            content_type=meta.content_type,
+        )
+        return db_result
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if hasattr(self, "_session_ctx"):

@@ -9,5 +9,5 @@ class FileMeta:
     name: str
     content_type: str
     size: int
-    status: FileStatus
+    status: Optional[FileStatus]
     reason: Optional[str] = None

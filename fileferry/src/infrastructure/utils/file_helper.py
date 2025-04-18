@@ -5,6 +5,17 @@ from shared.io.peekable_stream import PeekableAsyncStream
 
 class FileHelper:
     @staticmethod
+    async def analyze(data: AsyncIterator[bytes]) -> tuple[str, int]:
+        stream = FileHelper.iterator_to_peekable_stream(data)
+
+        header = await FileHelper.get_stream_header(stream)
+
+        mime = FileHelper.detect_mime(header)
+        size = await FileHelper.get_stream_size(stream)
+
+        return stream.iter(), mime, size
+
+    @staticmethod
     def iterator_to_peekable_stream(
         iterator: AsyncIterator[bytes],
     ) -> PeekableAsyncStream:
