@@ -37,10 +37,12 @@ class ApplicationFileService:
 
             if meta.status == FileStatus.FAILED:
                 # Ошибка от domain, но причина может быть связана с инфраструктурой
-                raise StatusFailedError(type=meta.reason)
+                raise StatusFailedError(message="Operation failed", type=meta.reason)
 
             return meta
 
         except FilePolicyViolationEror as exc:
             # Нарушение бизнес-правил домена
-            raise DomainRejectedError("File rejected due to domain rules") from exc
+            raise DomainRejectedError(
+                message="File rejected due to domain rules", type=exc.type
+            ) from exc

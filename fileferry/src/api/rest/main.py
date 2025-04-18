@@ -1,11 +1,6 @@
-from fastapi import FastAPI, Form, UploadFile, File
-from application.services.file import ApplicationFileService
-from shared.io.upload_stream import file_to_iterator
+from fastapi import FastAPI
+from api.rest.routers.root import root_router
 
 app = FastAPI()
 
-
-@app.post("/test")
-async def create_file(name: str = Form(...), file: UploadFile = File(...)):
-    stream = file_to_iterator(file)
-    return await ApplicationFileService.create_file(name=name, stream=stream)
+app.include_router(router=root_router)

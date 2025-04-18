@@ -3,7 +3,9 @@ class DomainError(Exception):
     Базовый класс ошибок, которые возникают бизнес слое
     """
 
-    pass
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.type = self.__class__.__name__
 
 
 class FilePolicyViolationEror(DomainError):

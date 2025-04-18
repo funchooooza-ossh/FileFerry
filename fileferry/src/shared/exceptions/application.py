@@ -1,12 +1,22 @@
+from typing import Optional
+
+
 class ApplicationError(Exception):
     """
     Базовый класс ошибок слоя приложения.
     """
 
-    pass
+    def __init__(
+        self,
+        message: str,
+        *,
+        type: Optional[str] = None,
+    ):
+        super().__init__(message)
+        self.type = type or self.__class__.__name__
 
 
-class DomainRejectedError(Exception):
+class DomainRejectedError(ApplicationError):
     """
     Доменный слой "отказал" в исполнении логики.
     """
@@ -14,11 +24,9 @@ class DomainRejectedError(Exception):
     pass
 
 
-class StatusFailedError(Exception):
+class StatusFailedError(ApplicationError):
     """
-    Доменный слой вернул status Failed
+    Доменный слой вернул status failed
     """
 
-    def __init__(self, type: str, *args):
-        super().__init__(*args)
-        self.type = type
+    pass
