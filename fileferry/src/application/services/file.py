@@ -1,5 +1,6 @@
 import uuid
 from typing import AsyncIterator
+from loguru import logger
 from domain.models.dataclasses import FileMeta
 from domain.models.enums import FileStatus
 from domain.services.files.upload_file import UploadFileService
@@ -37,6 +38,7 @@ class ApplicationFileService:
 
             if meta.status == FileStatus.FAILED:
                 # Ошибка от domain, но причина может быть связана с инфраструктурой
+                logger.warning(f"File upload failed: {meta.reason}")
                 raise StatusFailedError(message="Operation failed", type=meta.reason)
 
             return meta

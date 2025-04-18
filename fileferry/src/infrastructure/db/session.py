@@ -32,30 +32,35 @@ async_session_maker = async_sessionmaker(
 
 @asynccontextmanager
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        try:
+    """
+    Генератор сессий, по большей части заточен под использование внутри своего же блока.
+    Реализовал его по принципу "лишним не будет" но вряд ли он будет использоваться так.
+    Потому что я решил реализовывать UnitOfWork
+    """
+    try:
+        async with async_session_maker() as session:
             yield session
 
-        except SQLAlchemyError as exc:
-            logger.exception(exc)
+    except SQLAlchemyError as exc:
+        logger.exception(exc)
 
-            if isinstance(exc, NoResultFound):
-                raise RepositoryNotFoundError() from exc
+        if isinstance(exc, NoResultFound):
+            raise RepositoryNotFoundError() from exc
 
-            if isinstance(exc, IntegrityError):
-                raise RepositoryIntegrityError from exc
+        if isinstance(exc, IntegrityError):
+            raise RepositoryIntegrityError from exc
 
-            if isinstance(exc, OperationalError):
-                raise RepositoryOperationalError() from exc
+        if isinstance(exc, OperationalError):
+            raise RepositoryOperationalError() from exc
 
-            if isinstance(exc, ProgrammingError):
-                raise RepositoryProgrammingError() from exc
+        if isinstance(exc, ProgrammingError):
+            raise RepositoryProgrammingError() from exc
 
-            raise RepositoryORMError() from exc
+        raise RepositoryORMError() from exc
 
-        except RepositoryError as exc:
-            raise exc
+    except RepositoryError as exc:
+        raise exc
 
-        except Exception as exc:
-            logger.exception(exc)
-            raise RepositoryError from exc
+    except Exception as exc:
+        logger.exception(exc)
+        raise RepositoryError from exc

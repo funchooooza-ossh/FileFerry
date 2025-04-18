@@ -24,8 +24,8 @@ async def create_file(
         error = Error(msg="Incorrect result from service", type="Internal Server Error")
         logger.exception(f"Incorrect result from service: {exc}")
     except StatusFailedError as exc:
-        error = Error(msg=exc, type=exc.type)
-        logger.exception(f"Upload file failed: {exc}")
+        logger.exception(f"Upload file failed: {exc.type}")
+        error = Error(msg="Upload failed", type=exc.type)
 
     except DomainRejectedError as exc:
         logger.warning("Upload rejected")

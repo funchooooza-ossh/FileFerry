@@ -30,7 +30,7 @@ class UploadFileService:
             try:
                 await self._uow.save(meta=meta, stream=data)
             except InfrastructureError as exc:
-                logger.warning(exc)
+                logger.warning(f"Infrasctructure error {exc}")
                 await self._uow.rollback()
                 meta.status = FileStatus.FAILED
                 meta.reason = exc.type
