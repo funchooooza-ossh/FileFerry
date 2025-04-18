@@ -1,25 +1,31 @@
+import functools
+from collections.abc import Awaitable, Callable
+from typing import Any, TypeVar
+
+from loguru import logger
 from sqlalchemy.exc import (
-    SQLAlchemyError,
-    NoResultFound,
     IntegrityError,
+    NoResultFound,
     OperationalError,
     ProgrammingError,
+    SQLAlchemyError,
 )
+
 from shared.exceptions.infrastructure import (
     RepositoryError,
-    RepositoryNotFoundError,
     RepositoryIntegrityError,
+    RepositoryNotFoundError,
     RepositoryOperationalError,
-    RepositoryProgrammingError,
     RepositoryORMError,
+    RepositoryProgrammingError,
 )
-import functools
-from loguru import logger
+
+F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 
-def sqlalchemy_handle(func):
+def sqlalchemy_handle(func: F) -> Callable[..., Awaitable[Any]]:
     @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return await func(*args, **kwargs)
 

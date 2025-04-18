@@ -1,6 +1,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from loguru import logger
 from sqlalchemy.exc import (
     IntegrityError,
     NoResultFound,
@@ -10,6 +11,7 @@ from sqlalchemy.exc import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from settings import settings
 from shared.exceptions.infrastructure import (
     RepositoryError,
     RepositoryIntegrityError,
@@ -18,8 +20,6 @@ from shared.exceptions.infrastructure import (
     RepositoryORMError,
     RepositoryProgrammingError,
 )
-from settings import settings
-from loguru import logger
 
 engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG)
 

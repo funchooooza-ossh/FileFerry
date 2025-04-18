@@ -1,5 +1,6 @@
+from collections.abc import AsyncIterator
+
 from fastapi import UploadFile
-from typing import AsyncIterator
 
 
 async def file_to_iterator(

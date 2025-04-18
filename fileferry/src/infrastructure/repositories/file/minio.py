@@ -1,11 +1,13 @@
+from collections.abc import AsyncIterator
+
 from miniopy_async import Minio
-from typing import AsyncIterator
-from shared.exceptions.infrastructure import StorageError, StorageNotFoundError
+
 from infrastructure.utils.stream_reader import AsyncStreamReader
+from shared.exceptions.infrastructure import StorageError, StorageNotFoundError
 
 
 class MinioRepository:
-    def __init__(self, client: Minio, bucket_name: str):
+    def __init__(self, client: Minio, bucket_name: str) -> None:
         self._client = client
         self._bucket = bucket_name
 

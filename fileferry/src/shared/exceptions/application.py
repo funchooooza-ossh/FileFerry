@@ -11,7 +11,7 @@ class ApplicationError(Exception):
         message: str,
         *,
         type: Optional[str] = None,
-    ):
+    ) -> None:
         super().__init__(message)
         self.type = type or self.__class__.__name__
 

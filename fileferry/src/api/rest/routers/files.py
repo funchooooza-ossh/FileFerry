@@ -1,18 +1,21 @@
-from pydantic import ValidationError
+from typing import Annotated
+
+from fastapi import APIRouter, File, Form, UploadFile
 from loguru import logger
-from fastapi import APIRouter, Form, UploadFile, File
-from application.services.file import ApplicationFileService
-from shared.io.upload_stream import file_to_iterator
-from api.rest.schemas.responses import Response, Error
+from pydantic import ValidationError
+
 from api.rest.schemas.models import UploadFileResponse
+from api.rest.schemas.responses import Error, Response
+from application.services.file import ApplicationFileService
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
+from shared.io.upload_stream import file_to_iterator
 
 file_router = APIRouter()
 
 
 @file_router.post("/create", tags=["files"])
 async def create_file(
-    file: UploadFile = File(...), name: str = Form(...)
+    file: Annotated[UploadFile, File()] = ..., name: Annotated[str, Form()] = ...
 ) -> Response[UploadFileResponse]:
     error = None
     data = None
@@ -31,5 +34,4 @@ async def create_file(
         logger.warning("Upload rejected")
         error = Error(msg="File rejected", type=exc.type)
 
-    finally:
-        return Response[UploadFileResponse](data=data, error=error)
+    return Response[UploadFileResponse](data=data, error=error)

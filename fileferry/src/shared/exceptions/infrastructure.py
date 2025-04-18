@@ -1,5 +1,8 @@
+from typing import Any
+
+
 class InfrastructureError(Exception):
-    def __init__(self, *args):
+    def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         self.type = self.__class__.__name__
 

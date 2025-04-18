@@ -1,13 +1,14 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from infrastructure.models.sqlalchemy.file import File
-from shared.exceptions.infrastructure import RepositoryNotFoundError
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from domain.models.dataclasses import FileMeta
+from infrastructure.models.sqlalchemy.file import File
 from infrastructure.utils.handler import sqlalchemy_handle
+from shared.exceptions.infrastructure import RepositoryNotFoundError
 
 
 class FileRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
     @sqlalchemy_handle

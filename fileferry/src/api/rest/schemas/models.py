@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+
 from domain.models.dataclasses import FileMeta
 from domain.models.enums import FileStatus
 

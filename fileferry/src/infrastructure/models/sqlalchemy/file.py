@@ -1,7 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, BigInteger
-from infrastructure.models.sqlalchemy.base import Base
 from domain.models.dataclasses import FileMeta
+from infrastructure.models.sqlalchemy.base import Base
+from sqlalchemy import BigInteger, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class File(Base):

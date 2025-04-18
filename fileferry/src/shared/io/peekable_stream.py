@@ -1,12 +1,12 @@
-from collections import deque
-from typing import AsyncIterator, Deque
 import asyncio
+from collections import deque
+from collections.abc import AsyncGenerator, AsyncIterator
 
 
 class PeekableAsyncStream:
-    def __init__(self, source: AsyncIterator[bytes]):
+    def __init__(self, source: AsyncIterator[bytes]) -> None:
         self._source = source
-        self._buffer: Deque[bytes] = deque()
+        self._buffer: deque[bytes] = deque()
         self._cached: list[bytes] = []
         self._fully_buffered = False
         self._lock = asyncio.Lock()
@@ -39,7 +39,7 @@ class PeekableAsyncStream:
     def iter(self) -> AsyncIterator[bytes]:
         return self._stream()
 
-    async def _stream(self):
+    async def _stream(self) -> AsyncGenerator[bytes, None]:
         async with self._lock:
             while self._buffer:
                 yield self._buffer.popleft()

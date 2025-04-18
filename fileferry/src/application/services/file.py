@@ -1,17 +1,19 @@
 import uuid
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
+
 from loguru import logger
+
+from application.di.uow.factory import KnownUoW, UnitOfWorkFactory
 from domain.models.dataclasses import FileMeta
-from domain.protocols import UnitOfWork
 from domain.models.enums import FileStatus
+from domain.protocols import UnitOfWork
 from domain.services.files.upload_file import UploadFileService
-from shared.exceptions.domain import FilePolicyViolationEror
+from infrastructure.utils.file_helper import FileHelper
 from shared.exceptions.application import (
     DomainRejectedError,
     StatusFailedError,
 )
-from application.di.uow.factory import UnitOfWorkFactory, KnownUoW
-from infrastructure.utils.file_helper import FileHelper
+from shared.exceptions.domain import FilePolicyViolationEror
 
 
 class ApplicationFileService:

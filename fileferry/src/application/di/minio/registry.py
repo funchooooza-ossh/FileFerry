@@ -1,5 +1,7 @@
-from typing import Literal, Dict
+from typing import Literal
+
 from pydantic_settings import BaseSettings
+
 from shared.types.minio_creds import MinioCreds
 
 
@@ -30,6 +32,6 @@ minio_default = MinioDefaultCredentials()
 
 KnownMinioClients = Literal["default", "archive", "private"]
 
-minio_clients: Dict[KnownMinioClients, MinioCreds] = {
+minio_clients: dict[KnownMinioClients, MinioCreds] = {
     "default": minio_default.to_typed_dict()
 }

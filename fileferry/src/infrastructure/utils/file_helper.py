@@ -1,5 +1,7 @@
+from collections.abc import AsyncIterator
+
 from magic import Magic
-from typing import AsyncIterator
+
 from shared.io.peekable_stream import PeekableAsyncStream
 
 

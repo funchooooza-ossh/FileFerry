@@ -1,8 +1,8 @@
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 
 class AsyncStreamReader:
-    def __init__(self, stream: AsyncIterator[bytes]):
+    def __init__(self, stream: AsyncIterator[bytes]) -> None:
         self._stream = stream.__aiter__()
         self._buffer = b""
 

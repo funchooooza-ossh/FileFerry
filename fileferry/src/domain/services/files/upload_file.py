@@ -1,5 +1,7 @@
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
+
 from loguru import logger
+
 from domain.models.dataclasses import FileMeta
 from domain.models.enums import FileStatus
 from domain.protocols import UnitOfWork
@@ -17,7 +19,7 @@ class UploadFileService:
     Работает только с бизнес-моделью FileMeta.
     """
 
-    def __init__(self, uow: UnitOfWork):
+    def __init__(self, uow: UnitOfWork) -> None:
         self._uow = uow
 
     async def execute(self, meta: FileMeta, data: AsyncIterator[bytes]) -> FileMeta:

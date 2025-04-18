@@ -1,5 +1,6 @@
 from miniopy_async import Minio
-from application.di.minio.registry import minio_clients, KnownMinioClients
+
+from application.di.minio.registry import KnownMinioClients, minio_clients
 
 
 def create_minio_client(_type: KnownMinioClients) -> Minio:

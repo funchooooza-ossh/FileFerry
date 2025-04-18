@@ -1,8 +1,8 @@
 import os
-
-from pydantic_settings import BaseSettings
 from typing import Any
+
 from loguru import logger
+from pydantic_settings import BaseSettings
 
 logger = logger.bind(logger_name="core")
 
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         case_sensitive = False
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
     @property
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
         debug_env = os.getenv("APP_DEBUG", "False").lower() == "true"
         return debug_env
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Settings [secure]>"
 
 

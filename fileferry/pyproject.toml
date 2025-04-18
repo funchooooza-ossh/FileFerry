@@ -20,6 +20,53 @@ dependencies = [
 ]
 
 
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+lint.select = [
+    "I",      
+    "Q",
+    "E",      
+    "W",      
+    "F",      
+    "UP",     
+    "C",      
+    "B",      
+    "S",      
+    "ISC",    
+    "ASYNC",  
+    "T20",    
+    "ANN",    
+    "TCH",    
+    "PT",     
+    "RUF",    
+    "PT",     
+    "C90",    
+    "FAST",   
+    "SIM",   
+]
+lint.ignore = [
+    "E501",   # line too long, handled by black
+    "B008",   # do not perform function calls in argument defaults
+    "F821",   # checks for uses of undefined names, breaks sqlalchemy models
+    "UP007",  # large models are unreadable
+    "UP032",  # allows str .format
+    "ANN401", # allows type Any
+    "RUF012", # typing.ClassVar
+    "RUF002", # docstring contains ambiguous
+    "RUF001",
+    "RUF003",
+    "RUF100", # Unused `noqa` directive
+    "W291",   # Trailing whitespace
+    "TC003",  # Type-checking block
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"conftest.py" = ["F401"]
+"tests/*" = ["S"]
+
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
