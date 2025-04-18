@@ -24,15 +24,16 @@ class ApplicationFileService:
     Таким образом для тестов этого класса можно мокнуть фабрику UoW и все.
     """
 
+    @classmethod
     async def create_file(
-        self,
+        cls,
         name: str,
         stream: AsyncIterator[bytes],
         *,
         backend: KnownUoW = "minio-sqla",
     ) -> FileMeta:
         file_id = uuid.uuid4().hex
-        uow = self.get_uow(backend)
+        uow = cls.get_uow(backend)
         service = UploadFileService(uow=uow)
 
         stream, mime, size = await FileHelper.analyze(stream)
@@ -50,7 +51,6 @@ class ApplicationFileService:
                 # Ошибка от domain, но причина может быть связана с инфраструктурой
                 logger.warning(f"File upload failed: {meta.reason}")
                 raise StatusFailedError(message="Operation failed", type=meta.reason)
-
             return meta
 
         except FilePolicyViolationEror as exc:
