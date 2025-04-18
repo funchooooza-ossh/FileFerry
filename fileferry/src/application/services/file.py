@@ -2,6 +2,7 @@ import uuid
 from typing import AsyncIterator
 from loguru import logger
 from domain.models.dataclasses import FileMeta
+from domain.protocols import UnitOfWork
 from domain.models.enums import FileStatus
 from domain.services.files.upload_file import UploadFileService
 from shared.exceptions.domain import FilePolicyViolationEror
@@ -23,15 +24,15 @@ class ApplicationFileService:
     Таким образом для тестов этого класса можно мокнуть фабрику UoW и все.
     """
 
-    @staticmethod
     async def create_file(
+        self,
         name: str,
         stream: AsyncIterator[bytes],
         *,
         backend: KnownUoW = "minio-sqla",
     ) -> FileMeta:
         file_id = uuid.uuid4().hex
-        uow = UnitOfWorkFactory.create(config=backend)
+        uow = self.get_uow(backend)
         service = UploadFileService(uow=uow)
 
         stream, mime, size = await FileHelper.analyze(stream)
@@ -57,3 +58,7 @@ class ApplicationFileService:
             raise DomainRejectedError(
                 message="File rejected due to domain rules", type=exc.type
             ) from exc
+
+    @staticmethod
+    def get_uow(config: KnownUoW) -> UnitOfWork:
+        return UnitOfWorkFactory.create(config=config)
