@@ -17,4 +17,4 @@ class UploadFileResponse(BaseModel):
 
     @classmethod
     def from_domain(cls, meta: FileMeta) -> "UploadFileResponse":
-        return cls(id=meta.id, name=meta.name, status=meta.status, reason=meta.reason)
+        return cls(id=meta.id, name=meta.name)

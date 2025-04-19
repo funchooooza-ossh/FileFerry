@@ -1,8 +1,7 @@
 import pytest
 import asyncio
-from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 from domain.services.files.upload_file import UploadFileService
-from domain.models.enums import FileStatus
 from tests.mocks.uow.base import FakeUoW
 from tests.mocks.types.iterator import EmptyAsyncIterator, SimpleAsyncIterator
 
@@ -12,9 +11,8 @@ async def test_succesful_upload(valid_filemeta, fake_stream):
     uow = FakeUoW()
     service = UploadFileService(uow)
 
-    result = await service.execute(valid_filemeta, fake_stream)
+    await service.execute(valid_filemeta, fake_stream)
 
-    assert result.status == FileStatus.STORED
     assert uow.committed is True
     assert uow.saved_meta == valid_filemeta
 
@@ -35,10 +33,9 @@ async def test_infrastructure_error_triggers_rollback(fake_stream, valid_filemet
     uow = FakeUoW(fail=True)
     service = UploadFileService(uow)
     valid_filemeta
-    result = await service.execute(valid_filemeta, fake_stream)
+    with pytest.raises(FileUploadFailedError):
+        await service.execute(valid_filemeta, fake_stream)
 
-    assert result.status == FileStatus.FAILED
-    assert result.reason == "InfrastructureError"
     assert uow.rolled_back is True
     assert uow.committed is False
 
@@ -53,15 +50,14 @@ async def test_concurrent_file_upload(valid_filemeta):
 
     meta_1 = valid_filemeta
     meta_2 = valid_filemeta
-    meta_2.name = "file2.pdf"
 
     task1 = service.execute(meta_1, fake_stream_1)
     task2 = service.execute(meta_2, fake_stream_2)
 
     result_1, result_2 = await asyncio.gather(task1, task2)
 
-    assert result_1.status == FileStatus.STORED
-    assert result_2.status == FileStatus.STORED
+    assert uow.committed
+    assert not uow.rolled_back
 
 
 @pytest.mark.asyncio
@@ -86,5 +82,4 @@ async def test_file_meta_saved_properly(valid_filemeta, fake_stream):
     assert result.id == meta.id
     assert result.name == meta.name
     assert result.content_type == meta.content_type
-    assert result.status == FileStatus.STORED
     assert result.size == meta.size

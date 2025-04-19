@@ -1,12 +1,9 @@
 from collections.abc import AsyncIterator
 
-from loguru import logger
-
 from domain.models.dataclasses import FileMeta
-from domain.models.enums import FileStatus
 from domain.protocols import UnitOfWork
 from domain.utility.file_policy import FilePolicy
-from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 from shared.exceptions.infrastructure import InfrastructureError
 
 
@@ -26,19 +23,14 @@ class UploadFileService:
         mime = FilePolicy.is_allowed(meta.content_type, meta.size)
         if not mime:
             raise FilePolicyViolationEror("Невалидный файл")
-        meta.status = FileStatus.PENDING
 
         async with self._uow:
             try:
                 await self._uow.save(meta=meta, stream=data)
             except InfrastructureError as exc:
-                logger.warning(f"Infrasctructure error {exc}")
                 await self._uow.rollback()
-                meta.status = FileStatus.FAILED
-                meta.reason = exc.type
-                return meta
+                raise FileUploadFailedError("Не удалось загрузить файл") from exc
             else:
                 await self._uow.commit()
-                meta.status = FileStatus.STORED
 
                 return meta

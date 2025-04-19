@@ -1,9 +1,8 @@
 import pytest
 from domain.models.dataclasses import FileMeta
-from domain.models.enums import FileStatus
 from application.services.file import ApplicationFileService
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
-from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 from tests.helpers import aiter
 
 
@@ -16,12 +15,11 @@ async def test_create_file_success(mocker):
         name="test.txt",
         content_type="text/plain",
         size=100,
-        status=FileStatus.STORED,
     )
 
     mock_upload_service.return_value.execute.return_value = mock_file
     mocker.patch(
-        "application.services.file.UploadFileService",
+        "domain.services.files.upload_file.UploadFileService.execute",
         return_value=mock_upload_service.return_value,
     )
     mocker.patch(
@@ -36,7 +34,6 @@ async def test_create_file_success(mocker):
     result = await ApplicationFileService.create_file(
         name="test.txt", stream=aiter([b"data"])
     )
-    assert result.status == FileStatus.STORED
     assert result.id == "id"
     assert result.name == "test.txt"
     assert result.size == 100
@@ -62,11 +59,10 @@ async def test_create_file_domain_violation(mocker):
 async def test_create_file_failed_status(mocker, failed_filemeta):
     uow = mocker.AsyncMock()
 
-
     service_mock = mocker.patch(
         "application.services.file.UploadFileService",
         return_value=mocker.AsyncMock(
-            execute=mocker.AsyncMock(return_value=failed_filemeta)
+            execute=mocker.AsyncMock(side_effect=FileUploadFailedError),
         ),
     )
     mocker.patch.object(ApplicationFileService, "get_uow", return_value=uow)
@@ -76,8 +72,8 @@ async def test_create_file_failed_status(mocker, failed_filemeta):
             name="bad.pdf", stream=aiter([b"data"])
         )
 
-    assert "Operation failed" in str(exc_info.value)
-    assert exc_info.value.type == "StatusFailedError"
+    assert "Не удалось загрузить файл" in str(exc_info.value)
+    assert exc_info.value.type == "FileUploadFailedError"
     service_mock.assert_called_once()
 
 
