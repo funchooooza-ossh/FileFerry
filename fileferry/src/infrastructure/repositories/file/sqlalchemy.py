@@ -19,7 +19,7 @@ class FileRepository:
 
     @sqlalchemy_handle
     async def get(self, file_id: str) -> FileMeta:
-        query = await self._session.execute(select(File).filter(File.id == file_id))
+        query = await self._session.execute(select(File).where(File.id == file_id))
         file_model = query.scalar_one_or_none()
 
         if file_model:
