@@ -12,9 +12,7 @@ class File(Base):
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     def to_domain(self) -> FileMeta:
-        return FileMeta(
-            id=self.id, name=self.name, content_type=self.mime_type, size=self.size
-        )
+        return FileMeta(id=self.id, name=self.name, content_type=self.mime_type, size=self.size, status=None)
 
     @classmethod
     def from_domain(cls, file_meta: FileMeta) -> "File":
