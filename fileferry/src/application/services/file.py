@@ -1,11 +1,7 @@
-import uuid
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 
-from application.di.uow.factory import KnownUoW, UnitOfWorkFactory
+from application.protocols import FileAnalyzer, FileService
 from domain.models.dataclasses import FileMeta
-from domain.protocols import UnitOfWork
-from domain.services.files.upload_file import UploadFileService
-from infrastructure.utils.file_helper import FileHelper
 from shared.exceptions.application import (
     DomainRejectedError,
     StatusFailedError,
@@ -14,43 +10,29 @@ from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedEr
 
 
 class ApplicationFileService:
-    """
-    Единая точка входа в application-слой на создание файла.
-    Принимает: name - имя файла, указанное юзером
-               stream - Итератор байтов, чтоб не загружать файл в память целиком.
-    Возвращает в случае успеха FileMeta - бизнес модель, либо ошибку.
-    Параметр бэкенд - литерал, который предустанавливает известные конфигурации.
-    Таким образом для тестов этого класса можно мокнуть фабрику UoW и все.
-    """
+    def __init__(
+        self,
+        file_analyzer: FileAnalyzer,
+        upload_service: FileService,
+        meta_factory: Callable[[str, int, str], FileMeta],
+    ) -> None:
+        self._analyzer = file_analyzer
+        self._uploader = upload_service
+        self._meta_factory = meta_factory
 
-    @classmethod
     async def create_file(
-        cls,
+        self,
         name: str,
         stream: AsyncIterator[bytes],
-        *,
-        backend: KnownUoW = "minio-sqla",
     ) -> FileMeta:
-        file_id = uuid.uuid4().hex
-        uow = cls.get_uow(backend)
-        service = UploadFileService(uow=uow)
-
-        stream, mime, size = await FileHelper.analyze(stream)
-        meta = FileMeta(id=file_id, name=name, content_type=mime, size=size)
+        stream, mime, size = await self._analyzer.analyze(stream)
+        meta = self._meta_factory(name, size, mime)
 
         try:
-            meta = await service.execute(
-                meta=meta,
-                data=stream,
-            )
+            return await self._uploader.execute(meta=meta, data=stream)
 
         except FileUploadFailedError as exc:
-            raise StatusFailedError("Не удалось загрузить файл", type=exc.type) from exc
+            raise StatusFailedError("Upload failed", type=exc.type) from exc
 
         except FilePolicyViolationEror as exc:
-            # Нарушение бизнес-правил домена
-            raise DomainRejectedError(message="File rejected due to domain rules", type=exc.type) from exc
-
-    @staticmethod
-    def get_uow(config: KnownUoW) -> UnitOfWork:
-        return UnitOfWorkFactory.create(config=config)
+            raise DomainRejectedError("File rejected by policy", type=exc.type) from exc

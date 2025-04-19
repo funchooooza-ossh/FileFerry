@@ -30,3 +30,12 @@ class StatusFailedError(ApplicationError):
     """
 
     pass
+
+
+class InvalidFileParameters(ApplicationError):
+    """
+    От пользователя пришел заведомо невалидный файл.
+    Пустой или с неопределяемым mime'ом или слишком длинным именем и тд.
+    """
+
+    pass

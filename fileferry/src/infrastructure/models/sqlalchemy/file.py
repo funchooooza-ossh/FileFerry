@@ -17,8 +17,8 @@ class File(Base):
     @classmethod
     def from_domain(cls, file_meta: FileMeta) -> "File":
         return cls(
-            id=file_meta.id,
-            name=file_meta.name,
-            mime_type=file_meta.content_type,
-            size=file_meta.size,
+            id=file_meta.id.value,
+            name=file_meta.name.value,
+            mime_type=file_meta.content_type.value,
+            size=file_meta.size.value,
         )

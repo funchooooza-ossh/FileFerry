@@ -40,10 +40,10 @@ class SQLAlchemyMinioUnitOfWork:
         try:
             db_result = await self.file_repo.add(meta)
             await self.file_storage.store(
-                file_id=meta.id,
+                file_id=meta.id.value,
                 stream=stream,
-                length=meta.size,
-                content_type=meta.content_type,
+                length=meta.size.value,
+                content_type=meta.content_type.value,
             )
             return db_result
         except InfrastructureError as exc:

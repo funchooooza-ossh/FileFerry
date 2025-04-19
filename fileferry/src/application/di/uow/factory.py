@@ -1,5 +1,5 @@
 from collections.abc import AsyncGenerator, Callable
-from typing import Any, Final, Literal
+from typing import Any, Literal
 
 from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,16 +13,15 @@ KnownUoW = Literal["minio-sqla", "sftp-mongo"]
 
 
 class UnitOfWorkFactory:
-    LITERAL_CONFIGURATION_MAPPING: Final[dict[KnownUoW, Callable]] = {
-        "minio-sqla": lambda **kwargs: UnitOfWorkFactory.create_minio_sqlalchemy(**kwargs),
-    }
-
     @classmethod
     def create(cls, config: KnownUoW, **kwargs: Any) -> Callable:
-        factory_method = cls.LITERAL_CONFIGURATION_MAPPING.get(config)
-        if not factory_method:
-            raise ValueError(f"Unknown UnitOfWork configuration: {config}")
-        return factory_method(**kwargs)
+        match config:
+            case "minio-sqla":
+                return cls.create_minio_sqlalchemy(**kwargs)
+            case "sftp-mongo":
+                return
+            case _:
+                raise ValueError("Unknown UoW")
 
     @staticmethod
     def create_minio_sqlalchemy(
