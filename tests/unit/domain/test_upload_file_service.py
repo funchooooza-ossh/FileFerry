@@ -1,6 +1,5 @@
 import pytest
 import asyncio
-from domain.models.dataclasses import FileMeta
 from shared.exceptions.domain import FilePolicyViolationEror
 from domain.services.files.upload_file import UploadFileService
 from domain.models.enums import FileStatus
@@ -9,45 +8,34 @@ from tests.mocks.types.iterator import EmptyAsyncIterator, SimpleAsyncIterator
 
 
 @pytest.mark.asyncio
-async def test_succesful_upload(fake_stream):
+async def test_succesful_upload(valid_filemeta, fake_stream):
     uow = FakeUoW()
     service = UploadFileService(uow)
-    meta = FileMeta(
-        id="some id", name="test.txt", content_type="text/plain", size=123, status=None
-    )
 
-    result = await service.execute(meta, fake_stream)
+    result = await service.execute(valid_filemeta, fake_stream)
 
     assert result.status == FileStatus.STORED
     assert uow.committed is True
-    assert uow.saved_meta == meta
+    assert uow.saved_meta == valid_filemeta
 
 
 @pytest.mark.asyncio
-async def test_disallowed_content_type_raises(fake_stream):
+async def test_disallowed_content_type_raises(
+    fake_stream, invalid_content_type_filemeta
+):
     uow = FakeUoW()
     service = UploadFileService(uow)
-    meta = FileMeta(
-        id="2",
-        name="evil.js",
-        content_type="application/javascript",
-        size=456,
-        status=None,
-    )
 
     with pytest.raises(FilePolicyViolationEror, match="Невалидный файл"):
-        await service.execute(meta, fake_stream)
+        await service.execute(invalid_content_type_filemeta, fake_stream)
 
 
 @pytest.mark.asyncio
-async def test_infrastructure_error_triggers_rollback(fake_stream):
+async def test_infrastructure_error_triggers_rollback(fake_stream, valid_filemeta):
     uow = FakeUoW(fail=True)
     service = UploadFileService(uow)
-    meta = FileMeta(
-        id="3", name="fail.pdf", content_type="application/pdf", size=789, status=None
-    )
-
-    result = await service.execute(meta, fake_stream)
+    valid_filemeta
+    result = await service.execute(valid_filemeta, fake_stream)
 
     assert result.status == FileStatus.FAILED
     assert result.reason == "InfrastructureError"
@@ -56,19 +44,16 @@ async def test_infrastructure_error_triggers_rollback(fake_stream):
 
 
 @pytest.mark.asyncio
-async def test_concurrent_file_upload():
+async def test_concurrent_file_upload(valid_filemeta):
     uow = FakeUoW()
     service = UploadFileService(uow)
 
     fake_stream_1 = SimpleAsyncIterator(b"file1-data")
     fake_stream_2 = SimpleAsyncIterator(b"file2-data")
 
-    meta_1 = FileMeta(
-        id="6", name="file1.pdf", content_type="application/pdf", size=123, status=None
-    )
-    meta_2 = FileMeta(
-        id="7", name="file2.pdf", content_type="application/pdf", size=456, status=None
-    )
+    meta_1 = valid_filemeta
+    meta_2 = valid_filemeta
+    meta_2.name = "file2.pdf"
 
     task1 = service.execute(meta_1, fake_stream_1)
     task2 = service.execute(meta_2, fake_stream_2)
@@ -80,25 +65,21 @@ async def test_concurrent_file_upload():
 
 
 @pytest.mark.asyncio
-async def test_empty_stream_triggers_error():
+async def test_empty_stream_triggers_error(invalid_size_filemeta):
     uow = FakeUoW()
     service = UploadFileService(uow)
     empty_stream = EmptyAsyncIterator()
-    meta = FileMeta(
-        id="5", name="empty.pdf", content_type="application/pdf", size=0, status=None
-    )
+    invalid_size_filemeta
 
     with pytest.raises(FilePolicyViolationEror, match="Невалидный файл"):
-        await service.execute(meta, empty_stream)
+        await service.execute(invalid_size_filemeta, empty_stream)
 
 
 @pytest.mark.asyncio
-async def test_file_meta_saved_properly(fake_stream):
+async def test_file_meta_saved_properly(valid_filemeta, fake_stream):
     uow = FakeUoW()
     service = UploadFileService(uow)
-    meta = FileMeta(
-        id="9", name="test.pdf", content_type="application/pdf", size=456, status=None
-    )
+    meta = valid_filemeta
 
     result = await service.execute(meta, fake_stream)
 
