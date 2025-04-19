@@ -1,26 +1,10 @@
 import pytest
-from typing import AsyncIterator, TypeVar
 from domain.models.dataclasses import FileMeta
 from domain.models.enums import FileStatus
 from application.services.file import ApplicationFileService
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.exceptions.domain import FilePolicyViolationEror
-
-T = TypeVar("T")
-
-
-class aiter:
-    def __init__(self, items: list[T]):
-        self._items = iter(items)
-
-    def __aiter__(self) -> AsyncIterator[T]:
-        return self
-
-    async def __anext__(self) -> T:
-        try:
-            return next(self._items)
-        except StopIteration:
-            raise StopAsyncIteration
+from tests.helpers import aiter
 
 
 @pytest.mark.asyncio
@@ -75,22 +59,14 @@ async def test_create_file_domain_violation(mocker):
 
 
 @pytest.mark.asyncio
-async def test_create_file_failed_status(mocker):
+async def test_create_file_failed_status(mocker, failed_filemeta):
     uow = mocker.AsyncMock()
 
-    failed_meta = FileMeta(
-        id="xyz123",
-        name="bad.pdf",
-        content_type="application/pdf",
-        size=123,
-        status=FileStatus.FAILED,
-        reason="upload-failed",
-    )
 
     service_mock = mocker.patch(
         "application.services.file.UploadFileService",
         return_value=mocker.AsyncMock(
-            execute=mocker.AsyncMock(return_value=failed_meta)
+            execute=mocker.AsyncMock(return_value=failed_filemeta)
         ),
     )
     mocker.patch.object(ApplicationFileService, "get_uow", return_value=uow)
@@ -101,7 +77,7 @@ async def test_create_file_failed_status(mocker):
         )
 
     assert "Operation failed" in str(exc_info.value)
-    assert exc_info.value.type == "upload-failed"
+    assert exc_info.value.type == "StatusFailedError"
     service_mock.assert_called_once()
 
 
