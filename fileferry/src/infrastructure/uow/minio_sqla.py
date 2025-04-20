@@ -7,13 +7,14 @@ from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.models.dataclasses import FileMeta
+from domain.protocols import UnitOfWork
 from infrastructure.db.session import get_async_session
 from infrastructure.repositories.file.minio import MinioRepository
 from infrastructure.repositories.file.sqlalchemy import FileRepository
 from shared.exceptions.infrastructure import InfrastructureError
 
 
-class SQLAlchemyMinioUnitOfWork:
+class SQLAlchemyMinioUnitOfWork(UnitOfWork):
     def __init__(
         self,
         client: Minio,

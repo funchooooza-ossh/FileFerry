@@ -1,8 +1,9 @@
 from typing import Literal
 
 from application.protocols import FileService
-from domain.protocols import UnitOfWork
+from domain.protocols import FilePolicy, UnitOfWork
 from domain.services.files.upload_file import UploadFileService
+from domain.utility.file_policy import FilePolicyDefault
 
 FileUseCase = Literal["upload", "retrieve"]
 
@@ -12,10 +13,11 @@ class FileServiceFactory:
     def create(
         uow: UnitOfWork,
         use_case: FileUseCase,
+        policy: FilePolicy = FilePolicyDefault,
     ) -> FileService:
         match use_case:
             case "upload":
-                return UploadFileService(uow)
+                return UploadFileService(uow=uow, file_policy=policy)
             case "retrieve":
                 return
             case _:

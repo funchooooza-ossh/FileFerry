@@ -1,13 +1,13 @@
 from collections.abc import AsyncIterator
 
+from application.protocols import FileService
 from domain.models.dataclasses import FileMeta
-from domain.protocols import UnitOfWork
-from domain.utility.file_policy import FilePolicy
+from domain.protocols import FilePolicy, UnitOfWork
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 from shared.exceptions.infrastructure import InfrastructureError
 
 
-class UploadFileService:
+class UploadFileService(FileService):
     """
     Блок бизнес-логики.
     Валидирует content-type входящего файла.
@@ -16,12 +16,12 @@ class UploadFileService:
     Работает только с бизнес-моделью FileMeta.
     """
 
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(self, uow: UnitOfWork, file_policy: FilePolicy) -> None:
         self._uow = uow
+        self._policy = file_policy
 
     async def execute(self, meta: FileMeta, data: AsyncIterator[bytes]) -> FileMeta:
-        mime = FilePolicy.is_allowed(meta.content_type, meta.size)
-        if not mime:
+        if not self._policy.is_allowed(meta.content_type, meta.size):
             raise FilePolicyViolationEror("Невалидный файл")
 
         async with self._uow:

@@ -6,8 +6,8 @@ from pydantic import ValidationError
 
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
-from application.di.bootstrap.upload_minio_sqla import bootstrap_minio_sqla_upload
 from application.services.file import ApplicationFileService
+from composition.bootstrap.upload_minio_sqla import bootstrap_minio_sqla_upload
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.io.upload_stream import file_to_iterator
 

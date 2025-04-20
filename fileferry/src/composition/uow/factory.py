@@ -4,8 +4,8 @@ from typing import Any, Literal
 from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from application.di.minio.factory import create_minio_client
-from application.di.minio.registry import KnownMinioClients
+from composition.minio.factory import create_minio_client
+from composition.minio.registry import KnownMinioClients
 from infrastructure.db.session import get_async_session
 from infrastructure.uow.minio_sqla import SQLAlchemyMinioUnitOfWork
 

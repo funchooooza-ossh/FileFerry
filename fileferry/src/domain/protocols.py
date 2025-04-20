@@ -3,6 +3,7 @@ from types import TracebackType
 from typing import Protocol
 
 from domain.models.dataclasses import FileMeta
+from domain.models.value_objects import ContentType, FileSize
 
 
 class FileRepository(Protocol):
@@ -26,3 +27,7 @@ class UnitOfWork(Protocol):
     async def save(meta: FileMeta, file_id: str, stream: AsyncIterator[bytes]) -> FileMeta: ...
     async def commit(self) -> None: ...
     async def rollback(self) -> None: ...
+
+
+class FilePolicy(Protocol):
+    def is_allowewd(cls, mime: ContentType, size: FileSize) -> bool: ...

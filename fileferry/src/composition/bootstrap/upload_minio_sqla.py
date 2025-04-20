@@ -1,7 +1,7 @@
-from application.di.filemeta import create_filemeta
-from application.di.uow.factory import UnitOfWorkFactory
-from application.di.upload_service.factory import FileServiceFactory
 from application.services.file import ApplicationFileService
+from composition.filemeta import create_filemeta
+from composition.uow.factory import UnitOfWorkFactory
+from composition.upload_service.factory import FileServiceFactory
 from infrastructure.utils.file_helper import FileHelper
 
 
