@@ -3,7 +3,7 @@ from typing import Literal
 from application.protocols import FileService
 from domain.protocols import FilePolicy, UnitOfWork
 from domain.services.files.upload_file import UploadFileService
-from domain.utility.file_policy import FilePolicyDefault
+from domain.utils.file_policy import FilePolicyDefault
 
 FileUseCase = Literal["upload", "retrieve"]
 

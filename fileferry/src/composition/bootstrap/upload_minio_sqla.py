@@ -1,8 +1,8 @@
 from application.services.file import ApplicationFileServiceImpl
 from composition.contracts import DependencyContext
+from composition.domain_service.factory import FileServiceFactory
 from composition.filemeta import create_filemeta
 from composition.uow.factory import UnitOfWorkFactory
-from composition.upload_service.factory import FileServiceFactory
 from infrastructure.utils.file_helper import FileHelper
 
 
