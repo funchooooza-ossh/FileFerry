@@ -1,24 +1,33 @@
 from typing import Literal
 
-from application.protocols import FileService
+from application.protocols import RetrieveFileService, UploadFileService
 from domain.protocols import FilePolicy, UnitOfWork
-from domain.services.files.upload_file import UploadFileService
+from domain.services.files.retrieve_file import RetrieveFileServiceImpl
+from domain.services.files.upload_file import UploadFileServiceImpl
 from domain.utils.file_policy import FilePolicyDefault
 
 FileUseCase = Literal["upload", "retrieve"]
 
 
-class FileServiceFactory:
+class UploadFileServiceFactory:
     @staticmethod
     def create(
         uow: UnitOfWork,
         use_case: FileUseCase,
         policy: FilePolicy = FilePolicyDefault,
-    ) -> FileService:
+    ) -> UploadFileService:
         match use_case:
             case "upload":
-                return UploadFileService(uow=uow, file_policy=policy)
+                return UploadFileServiceImpl(uow=uow, file_policy=policy)
+            case _:
+                raise ValueError(f"Unknown file use case: {use_case}")
+
+
+class RetrieveFileServiceFactory:
+    @staticmethod
+    def create(uow: UnitOfWork, use_case: FileUseCase) -> RetrieveFileService:
+        match use_case:
             case "retrieve":
-                return
+                return RetrieveFileServiceImpl(uow=uow)
             case _:
                 raise ValueError(f"Unknown file use case: {use_case}")

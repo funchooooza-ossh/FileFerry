@@ -7,6 +7,7 @@ from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.models.dataclasses import FileMeta
+from domain.models.value_objects import FileId
 from domain.protocols import UnitOfWork
 from infrastructure.db.session import get_async_session
 from infrastructure.repositories.files.minio import MinioRepository
@@ -51,6 +52,17 @@ class SQLAlchemyMinioUnitOfWork(UnitOfWork):
             raise exc
         except Exception as exc:
             logger.error(f"Unexpected error in save method: {exc!s}")
+            raise InfrastructureError(str(exc)) from exc
+
+    async def retrieve(self, file_id: FileId) -> tuple[FileMeta, AsyncIterator[bytes]]:
+        try:
+            db_result = await self.file_repo.get(file_id=file_id.value)
+            storage_result = await self.file_storage.retrieve(file_id=file_id.value)
+            return db_result, storage_result
+        except InfrastructureError as exc:
+            raise exc
+        except Exception as exc:
+            logger.error(f"Unexpected error in retrieve method: {exc!s}")
             raise InfrastructureError(str(exc)) from exc
 
     async def __aexit__(

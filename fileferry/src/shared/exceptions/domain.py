@@ -25,3 +25,7 @@ class FileUploadFailedError(DomainError):
     """
 
     pass
+
+
+class FileRetrieveFailedError(DomainError):
+    pass

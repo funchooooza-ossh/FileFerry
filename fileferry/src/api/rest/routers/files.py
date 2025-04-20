@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi.responses import StreamingResponse
 from loguru import logger
 from pydantic import ValidationError
 
@@ -40,3 +41,18 @@ async def create_file(
         error = Error(msg="File rejected", type=exc.type)
 
     return Response[UploadFileResponse](data=data, error=error)
+
+
+@file_router.post("/retrieve", tags=["files"])
+async def retrieve_file(
+    file_id: Annotated[str, Form()] = ...,
+    ctx: Annotated[DependencyContext, Depends(resolve_context_from_headers)] = ...,
+) -> StreamingResponse:
+    service = di_resolver(ctx)
+    meta, stream = await service.get(file_id=file_id)
+
+    return StreamingResponse(
+        content=stream,
+        media_type=meta.content_type.value,
+        headers={"X-Filename": meta.name.value, "X-FileSize": str(meta.size.value), "X-FileId": meta.id.value},
+    )

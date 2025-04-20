@@ -11,9 +11,7 @@ class MinioRepository:
         self._client = client
         self._bucket = bucket_name
 
-    async def store(
-        self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str
-    ) -> None:
+    async def store(self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str) -> None:
         try:
             stream = AsyncStreamReader(stream)
             await self._client.put_object(
@@ -28,8 +26,16 @@ class MinioRepository:
 
     async def retrieve(self, file_id: str) -> AsyncIterator[bytes]:
         try:
-            response = await self._client.get_object(self._bucket, file_id)
-            async for chunk in response.stream(4096):
-                yield chunk
+            response = await self._client.get_object(
+                bucket_name=self._bucket, object_name=file_id, session=self._client._client_session()
+            )
+
+            async def stream() -> AsyncIterator[bytes]:
+                async with response:
+                    async for chunk in response.content.iter_chunked(4096):
+                        yield chunk
+
+            return stream()
         except Exception as exc:
+            raise exc
             raise StorageNotFoundError(f"Object {file_id} not found") from exc

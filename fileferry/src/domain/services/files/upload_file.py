@@ -1,13 +1,13 @@
 from collections.abc import AsyncIterator
 
-from application.protocols import FileService
+from application.protocols import UploadFileService
 from domain.models.dataclasses import FileMeta
 from domain.protocols import FilePolicy, UnitOfWork
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 from shared.exceptions.infrastructure import InfrastructureError
 
 
-class UploadFileService(FileService):
+class UploadFileServiceImpl(UploadFileService):
     """
     Блок бизнес-логики.
     Валидирует content-type входящего файла.
