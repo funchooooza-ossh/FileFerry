@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterator, Callable
 
 from application.protocols import FileAnalyzer, FileService
+from composition.contracts import ApplicationFileService
 from domain.models.dataclasses import FileMeta
 from shared.exceptions.application import (
     DomainRejectedError,
@@ -9,18 +10,18 @@ from shared.exceptions.application import (
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 
 
-class ApplicationFileService:
+class ApplicationFileServiceImpl(ApplicationFileService):
     def __init__(
         self,
         file_analyzer: FileAnalyzer,
-        upload_service: FileService,
+        service: FileService,
         meta_factory: Callable[[str, int, str], FileMeta],
     ) -> None:
         self._analyzer = file_analyzer
-        self._uploader = upload_service
+        self._service = service
         self._meta_factory = meta_factory
 
-    async def create_file(
+    async def create(
         self,
         name: str,
         stream: AsyncIterator[bytes],
@@ -29,7 +30,7 @@ class ApplicationFileService:
         meta = self._meta_factory(name, size, mime)
 
         try:
-            return await self._uploader.execute(meta=meta, data=stream)
+            return await self._service.execute(meta=meta, data=stream)
 
         except FileUploadFailedError as exc:
             raise StatusFailedError("Upload failed", type=exc.type) from exc
