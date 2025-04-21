@@ -1,6 +1,9 @@
-from fastapi import Header, HTTPException
+from typing import Annotated
 
-from contracts.composition import DependencyContext
+from fastapi import Depends, Header, HTTPException
+
+from composition.resolver import di_resolver
+from contracts.composition import ApplicationFileService, DependencyContext
 
 
 def resolve_context_from_headers(
@@ -9,10 +12,14 @@ def resolve_context_from_headers(
     x_action: str = Header(..., alias="X-Action"),
 ) -> DependencyContext:
     try:
-        return DependencyContext(
+        ctx = DependencyContext(
             scenario=x_scenario,
             bucket_name=x_bucket,
             action=x_action,
         )
+        return di_resolver(ctx)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=f"Invalid header value: {exc}") from exc
+
+
+ApplicationDI = Annotated[ApplicationFileService, Depends(resolve_context_from_headers)]

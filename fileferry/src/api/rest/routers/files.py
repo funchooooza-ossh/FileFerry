@@ -1,15 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 from loguru import logger
 from pydantic import ValidationError
 
-from api.rest.context import resolve_context_from_headers
+from api.rest.context import ApplicationDI
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
-from contracts.composition import DependencyContext
-from composition.resolver import di_resolver
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.io.upload_stream import file_to_iterator
 
@@ -18,15 +16,14 @@ file_router = APIRouter()
 
 @file_router.post("/create", tags=["files"])
 async def create_file(
+    service: ApplicationDI,
     file: Annotated[UploadFile, File()] = ...,
     name: Annotated[str, Form()] = ...,
-    ctx: Annotated[DependencyContext, Depends(resolve_context_from_headers)] = ...,
 ) -> Response[UploadFileResponse]:
     error = None
     data = None
     stream = file_to_iterator(file)
     try:
-        service = di_resolver(ctx)
         data = await service.create(name=name, stream=stream)
         data = UploadFileResponse.from_domain(data)
     except ValidationError as exc:
@@ -45,10 +42,9 @@ async def create_file(
 
 @file_router.post("/retrieve", tags=["files"])
 async def retrieve_file(
+    service: ApplicationDI,
     file_id: Annotated[str, Form()] = ...,
-    ctx: Annotated[DependencyContext, Depends(resolve_context_from_headers)] = ...,
 ) -> StreamingResponse:
-    service = di_resolver(ctx)
     meta, stream = await service.get(file_id=file_id)
 
     return StreamingResponse(

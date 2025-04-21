@@ -1,9 +1,9 @@
 from collections.abc import AsyncIterator
 
 from contracts.application import RetrieveFileService
+from contracts.domain import UnitOfWork
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId
-from contracts.domain import UnitOfWork
 from shared.exceptions.domain import FileRetrieveFailedError
 from shared.exceptions.infrastructure import InfrastructureError
 
