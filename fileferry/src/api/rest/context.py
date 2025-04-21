@@ -1,6 +1,6 @@
 from fastapi import Header, HTTPException
 
-from composition.contracts import DependencyContext
+from contracts.composition import DependencyContext
 
 
 def resolve_context_from_headers(

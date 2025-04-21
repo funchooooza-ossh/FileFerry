@@ -1,7 +1,7 @@
 from typing import Literal
 
-from application.protocols import RetrieveFileService, UploadFileService
-from domain.protocols import FilePolicy, UnitOfWork
+from contracts.application import RetrieveFileService, UploadFileService
+from contracts.domain import FilePolicy, UnitOfWork
 from domain.services.files.retrieve_file import RetrieveFileServiceImpl
 from domain.services.files.upload_file import UploadFileServiceImpl
 from domain.utils.file_policy import FilePolicyDefault

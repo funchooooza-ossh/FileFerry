@@ -1,5 +1,5 @@
 from domain.models.value_objects import ContentType, FileSize
-from domain.protocols import FilePolicy
+from contracts.domain import FilePolicy
 
 
 class FilePolicyDefault(FilePolicy):

@@ -1,5 +1,5 @@
 from composition.bootstrap.upload_minio_sqla import bootstrap_minio_sqla
-from composition.contracts import ApplicationFileService, DependencyContext
+from contracts.composition import ApplicationFileService, DependencyContext
 
 
 def di_resolver(ctx: DependencyContext) -> ApplicationFileService:

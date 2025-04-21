@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from api.rest.context import resolve_context_from_headers
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
-from composition.contracts import DependencyContext
+from contracts.composition import DependencyContext
 from composition.resolver import di_resolver
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.io.upload_stream import file_to_iterator
