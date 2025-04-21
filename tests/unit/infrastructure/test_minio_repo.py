@@ -1,6 +1,6 @@
 import pytest
-from unittest.mock import AsyncMock
-from infrastructure.repositories.file.minio import MinioRepository
+from unittest.mock import AsyncMock, MagicMock, Mock
+from infrastructure.repositories.files.minio import MinioRepository
 from tests.helpers import aiter
 from shared.exceptions.infrastructure import StorageError, StorageNotFoundError
 
@@ -37,30 +37,64 @@ async def test_store_raises_storage_error(mocker):
     assert "RuntimeError: boom" in str(err.value)
 
 
+async def mock_chunk_generator():
+    yield b"chunk1"
+    yield b"chunk2"
+
+async def mock_async_iterable():
+    async for item in mock_chunk_generator():
+        yield item
+
+
+
+
 @pytest.mark.asyncio
-async def test_retrieve_success(mocker):
-    client = AsyncMock()
-    response = AsyncMock()
-    response.stream = lambda _: aiter([b"chunk1", b"chunk2"])
-    client.get_object.return_value = response
+async def test_retrieve_returns_chunks():
+    mock_client = MagicMock()
+    mock_client._client_session = Mock(return_value="fake_session")
 
-    repo = MinioRepository(client, "my-bucket")
+    mock_content = MagicMock()
+    mock_content.iter_chunked = Mock(return_value=mock_chunk_generator())
 
-    result = []
-    async for chunk in repo.retrieve("file123"):
-        result.append(chunk)
+    mock_response = AsyncMock()
+    mock_response.__aenter__.return_value = mock_response
+    mock_response.__aexit__.return_value = None
+    mock_response.content = mock_content
+
+    mock_client.get_object = AsyncMock(return_value=mock_response)
+
+    repo = MinioRepository(client=mock_client, bucket_name="test-bucket")
+
+    stream = await repo.retrieve("some_file.txt")
+    result = [chunk async for chunk in stream]
 
     assert result == [b"chunk1", b"chunk2"]
-    client.get_object.assert_awaited_once_with("my-bucket", "file123")
+    mock_client._client_session.assert_called_once()
+    mock_client.get_object.assert_awaited_once_with(
+        bucket_name="test-bucket",
+        object_name="some_file.txt",
+        session="fake_session",
+    )
+
 
 
 @pytest.mark.asyncio
-async def test_retrieve_not_found(mocker):
-    client = AsyncMock()
-    client.get_object.side_effect = Exception("no such key")
+async def test_retrieve_raises_not_found_error():
+    mock_client = MagicMock()
+    mock_client._client_session = Mock(return_value="fake_session")
 
-    repo = MinioRepository(client, "bucket-x")
+    mock_client.get_object = AsyncMock(side_effect=Exception("object does not exist"))
 
-    with pytest.raises(StorageNotFoundError):
-        async for _ in repo.retrieve("not-there"):
-            pass
+    repo = MinioRepository(client=mock_client, bucket_name="test-bucket")
+
+    with pytest.raises(StorageNotFoundError) as exc_info:
+        await repo.retrieve("missing_file.txt")
+
+    assert "missing_file.txt" in str(exc_info.value)
+
+    mock_client._client_session.assert_called_once()
+    mock_client.get_object.assert_awaited_once_with(
+        bucket_name="test-bucket",
+        object_name="missing_file.txt",
+        session="fake_session",
+    )

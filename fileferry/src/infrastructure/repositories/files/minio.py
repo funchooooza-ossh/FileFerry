@@ -37,5 +37,4 @@ class MinioRepository:
 
             return stream()
         except Exception as exc:
-            raise exc
             raise StorageNotFoundError(f"Object {file_id} not found") from exc

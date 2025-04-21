@@ -1,7 +1,5 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from domain.models.dataclasses import FileMeta
-from infrastructure.repositories.file.sqlalchemy import FileRepository
 from sqlalchemy.exc import (
     SQLAlchemyError,
     NoResultFound,
@@ -17,6 +15,9 @@ from shared.exceptions.infrastructure import (
     RepositoryProgrammingError,
     RepositoryORMError,
 )
+from infrastructure.models.sqlalchemy.file import File
+from infrastructure.repositories.files.sqlalchemy import FileRepository
+from domain.models.dataclasses import FileMeta
 
 
 @pytest.mark.asyncio
@@ -35,7 +36,7 @@ async def test_add_invalid_filemeta_raises_error(mocker):
     session = AsyncMock()
 
     from_domain_mock = mocker.patch(
-        "src.infrastructure.repositories.file.sqlalchemy.File.from_domain",
+        "src.infrastructure.repositories.files.sqlalchemy.File.from_domain",
         side_effect=ValueError("invalid meta"),
     )
 
@@ -117,9 +118,10 @@ async def test_add_while_session_flush_wraps_sqlalchemy_error(
 
 
 @pytest.mark.asyncio
-async def test_get_success(valid_filemeta, valid_file):
+async def test_get_success(valid_filemeta):
     session_mock = AsyncMock()
     mock_query = MagicMock()
+    valid_file = File.from_domain(file_meta=valid_filemeta)
     session_mock.execute.return_value = mock_query
     mock_query.scalar_one_or_none.return_value = valid_file
 

@@ -1,99 +1,92 @@
 import pytest
-from domain.models.dataclasses import FileMeta
-from application.services.file import ApplicationFileService
+from unittest.mock import MagicMock, AsyncMock
+from application.services.file import ApplicationFileServiceImpl
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
-from tests.helpers import aiter
 
 
 @pytest.mark.asyncio
-async def test_create_file_success(mocker):
-    mock_uow = mocker.MagicMock()
-    mock_upload_service = mocker.AsyncMock()
-    mock_file = FileMeta(
-        id="id",
-        name="test.txt",
-        content_type="text/plain",
-        size=100,
+async def test_create_file_success(valid_filemeta, fake_stream):
+    file_analyzer = AsyncMock()
+    file_analyzer.analyze.return_value = (
+        fake_stream,
+        valid_filemeta.content_type,
+        valid_filemeta.size,
     )
 
-    mock_upload_service.return_value.execute.return_value = mock_file
-    mocker.patch(
-        "domain.services.files.upload_file.UploadFileService.execute",
-        return_value=mock_upload_service.return_value,
-    )
-    mocker.patch(
-        "application.services.file.ApplicationFileService.get_uow",
-        return_value=mock_uow,
-    )
-    mocker.patch(
-        "application.services.file.FileHelper.analyze",
-        return_value=(aiter([b"data"]), "text/plain", 100),
+    meta_factory = MagicMock()
+    meta_factory.return_value = valid_filemeta
+
+    upload_service = AsyncMock()
+    upload_service.execute.return_value = valid_filemeta
+
+    application = ApplicationFileServiceImpl(
+        file_analyzer=file_analyzer,
+        meta_factory=meta_factory,
+        upload_service=upload_service,
     )
 
-    result = await ApplicationFileService.create_file(
-        name="test.txt", stream=aiter([b"data"])
-    )
-    assert result.id == "id"
-    assert result.name == "test.txt"
-    assert result.size == 100
-    assert result.content_type == "text/plain"
+    result = await application.create(name=valid_filemeta.name, stream=fake_stream)
+
+    assert result == valid_filemeta
+    file_analyzer.analyze.assert_awaited_once()
+    meta_factory.assert_called_once()
+    upload_service.execute.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_create_file_domain_violation(mocker):
-    uow = mocker.AsyncMock()
-    uow.save.side_effect = FilePolicyViolationEror()
+async def test_create_file_policy_violation(valid_filemeta, fake_stream):
+    file_analyzer = AsyncMock()
+    file_analyzer.analyze.return_value = (
+        fake_stream,
+        valid_filemeta.content_type,
+        valid_filemeta.size,
+    )
 
-    ApplicationFileService.get_uow = lambda _: uow
+    meta_factory = MagicMock()
+    meta_factory.return_value = valid_filemeta
 
-    with pytest.raises(DomainRejectedError) as err:
-        await ApplicationFileService.create_file(
-            name="virus.exe",
-            stream=aiter([b"MZ..."]),
-        )
-    assert err.value.type == "FilePolicyViolationEror"
+    upload_service = AsyncMock()
+    upload_service.execute.side_effect = FilePolicyViolationEror("Test")
+
+    application = ApplicationFileServiceImpl(
+        file_analyzer=file_analyzer,
+        meta_factory=meta_factory,
+        upload_service=upload_service,
+    )
+
+    with pytest.raises(DomainRejectedError, match="File rejected"):
+        await application.create(name=valid_filemeta.name, stream=fake_stream)
+
+    file_analyzer.analyze.assert_awaited_once()
+    meta_factory.assert_called_once()
+    upload_service.execute.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_create_file_failed_status(mocker, failed_filemeta):
-    uow = mocker.AsyncMock()
-
-    service_mock = mocker.patch(
-        "application.services.file.UploadFileService",
-        return_value=mocker.AsyncMock(
-            execute=mocker.AsyncMock(side_effect=FileUploadFailedError),
-        ),
-    )
-    mocker.patch.object(ApplicationFileService, "get_uow", return_value=uow)
-
-    with pytest.raises(StatusFailedError) as exc_info:
-        await ApplicationFileService.create_file(
-            name="bad.pdf", stream=aiter([b"data"])
-        )
-
-    assert "Не удалось загрузить файл" in str(exc_info.value)
-    assert exc_info.value.type == "FileUploadFailedError"
-    service_mock.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_create_file_unexpected_error(mocker):
-    uow = mocker.AsyncMock()
-
-    service_mock = mocker.patch(
-        "application.services.file.UploadFileService",
-        return_value=mocker.AsyncMock(
-            execute=mocker.AsyncMock(side_effect=RuntimeError("unexpected error"))
-        ),
+async def test_create_file_failed(valid_filemeta, fake_stream):
+    file_analyzer = AsyncMock()
+    file_analyzer.analyze.return_value = (
+        fake_stream,
+        valid_filemeta.content_type,
+        valid_filemeta.size,
     )
 
-    mocker.patch.object(ApplicationFileService, "get_uow", return_value=uow)
+    meta_factory = MagicMock()
+    meta_factory.return_value = valid_filemeta
 
-    with pytest.raises(RuntimeError) as exc_info:
-        await ApplicationFileService.create_file(
-            name="x.pdf", stream=aiter([b"x-data"])
-        )
+    upload_service = AsyncMock()
+    upload_service.execute.side_effect = FileUploadFailedError("Test")
 
-    assert "unexpected error" in str(exc_info.value)
-    service_mock.assert_called_once()
+    application = ApplicationFileServiceImpl(
+        file_analyzer=file_analyzer,
+        meta_factory=meta_factory,
+        upload_service=upload_service,
+    )
+
+    with pytest.raises(StatusFailedError, match="Upload failed"):
+        await application.create(name=valid_filemeta.name, stream=fake_stream)
+
+    file_analyzer.analyze.assert_awaited_once()
+    meta_factory.assert_called_once()
+    upload_service.execute.assert_called_once()
