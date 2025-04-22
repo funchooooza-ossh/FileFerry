@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator, Callable
 from typing import Optional
 
-from contracts.application import FileAnalyzer, RetrieveFileService, UploadFileService
+from contracts.api import FileAnalyzer, RetrieveFileService, UploadFileService
 from contracts.composition import FileAPIAdapterContract
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId

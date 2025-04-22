@@ -5,7 +5,7 @@ from domain.services.upload_policy import FilePolicyDefault as FilePolicy
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId, FileName, ContentType, FileSize
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
-from application.services.upload_file import UploadFileServiceImpl
+from application.usecases.upload_file import UploadFileServiceImpl
 from tests.mocks.uow.base import FakeUoW
 from tests.mocks.types.iterator import EmptyAsyncIterator, SimpleAsyncIterator
 

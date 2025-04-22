@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock
-from api.adapter import FileAPIAdapter
+from application.orchestrators.adapter import FileAPIAdapter
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 

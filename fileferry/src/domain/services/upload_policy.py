@@ -1,5 +1,6 @@
-from contracts.domain import FilePolicy
+from contracts.application import FilePolicy
 from domain.models.value_objects import ContentType, FileSize
+from shared.exceptions.domain import FilePolicyViolationEror
 
 
 class FilePolicyDefault(FilePolicy):
@@ -7,6 +8,6 @@ class FilePolicyDefault(FilePolicy):
 
     @classmethod
     def is_allowed(cls, mime: ContentType, size: FileSize) -> bool:
-        if mime.value in cls.FORBIDDEN_TYPES:
-            return False
-        return not size.value <= 0
+        if mime.value in cls.FORBIDDEN_TYPES or size.value <= 0:
+            raise FilePolicyViolationEror("Невалидный файл")
+        return True

@@ -2,36 +2,28 @@ from collections.abc import AsyncGenerator
 from types import TracebackType
 from typing import Optional
 
-from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from contracts.domain import UnitOfWork
+from contracts.application import UnitOfWork
 from infrastructure.db.session import get_async_session
-from infrastructure.repositories.files.minio import MinioRepository
 from infrastructure.repositories.files.sqlalchemy import FileRepository
 from infrastructure.utils.handler import sqlalchemy_handle
 
 
-class SQLAlchemyMinioUnitOfWork(UnitOfWork):
+class SQLAlchemyUnitOfWork(UnitOfWork):
     def __init__(
         self,
-        client: Minio,
-        bucket_name: str,
         session_factory: AsyncGenerator[AsyncSession, None] = get_async_session,
     ) -> None:
         self._session_factory = session_factory
         self._session: Optional[AsyncSession] = None
         self.file_repo: Optional[FileRepository] = None
-        self.file_storage: Optional[MinioRepository] = None
-        self.bucket_name = bucket_name
-        self.client = client
 
-    async def __aenter__(self) -> "SQLAlchemyMinioUnitOfWork":
+    async def __aenter__(self) -> "SQLAlchemyUnitOfWork":
         self._session_ctx = self._session_factory()
         self._session = await self._session_ctx.__aenter__()
 
         self.file_repo = FileRepository(self._session)
-        self.file_storage = MinioRepository(self.client, self.bucket_name)
 
         return self
 
