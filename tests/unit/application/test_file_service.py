@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock
-from application.services.file import ApplicationFileServiceImpl
+from api.adapter import FileAPIAdapter
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.exceptions.domain import FilePolicyViolationEror, FileUploadFailedError
 
@@ -20,7 +20,7 @@ async def test_create_file_success(valid_filemeta, fake_stream):
     upload_service = AsyncMock()
     upload_service.execute.return_value = valid_filemeta
 
-    application = ApplicationFileServiceImpl(
+    application = FileAPIAdapter(
         file_analyzer=file_analyzer,
         meta_factory=meta_factory,
         upload_service=upload_service,
@@ -49,7 +49,7 @@ async def test_create_file_policy_violation(valid_filemeta, fake_stream):
     upload_service = AsyncMock()
     upload_service.execute.side_effect = FilePolicyViolationEror("Test")
 
-    application = ApplicationFileServiceImpl(
+    application = FileAPIAdapter(
         file_analyzer=file_analyzer,
         meta_factory=meta_factory,
         upload_service=upload_service,
@@ -78,7 +78,7 @@ async def test_create_file_failed(valid_filemeta, fake_stream):
     upload_service = AsyncMock()
     upload_service.execute.side_effect = FileUploadFailedError("Test")
 
-    application = ApplicationFileServiceImpl(
+    application = FileAPIAdapter(
         file_analyzer=file_analyzer,
         meta_factory=meta_factory,
         upload_service=upload_service,

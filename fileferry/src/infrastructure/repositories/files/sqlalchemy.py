@@ -25,19 +25,3 @@ class FileRepository:
         if file_model:
             return file_model.to_domain()
         raise RepositoryNotFoundError(f"File meta {file_id} not found")
-
-    @sqlalchemy_handle
-    async def commit(self) -> None:
-        """
-        НЕ ИСПОЛЬЗОВАТЬ НАПРЯМУЮ,
-        ТОЛЬКО ДЛЯ КОНТЕКСТА UoW
-        """
-        await self._session.commit()
-
-    @sqlalchemy_handle
-    async def rollback(self) -> None:
-        """
-        НЕ ИСПОЛЬЗОВАТЬ НАПРЯМУЮ,
-        ТОЛЬКО ДЛЯ КОНТЕКСТА UoW
-        """
-        await self._session.rollback()

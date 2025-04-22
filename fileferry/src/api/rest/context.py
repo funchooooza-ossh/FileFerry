@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, Header, HTTPException
 
 from composition.resolver import di_resolver
-from contracts.composition import ApplicationFileService, DependencyContext
+from contracts.composition import DependencyContext, FileAPIAdapterContract
 
 
 def resolve_context_from_headers(
@@ -22,4 +22,4 @@ def resolve_context_from_headers(
         raise HTTPException(status_code=400, detail=f"Invalid header value: {exc}") from exc
 
 
-ApplicationDI = Annotated[ApplicationFileService, Depends(resolve_context_from_headers)]
+ApplicationDI = Annotated[FileAPIAdapterContract, Depends(resolve_context_from_headers)]

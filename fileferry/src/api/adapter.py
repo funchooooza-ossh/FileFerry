@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator, Callable
 from typing import Optional
 
 from contracts.application import FileAnalyzer, RetrieveFileService, UploadFileService
-from contracts.composition import ApplicationFileService
+from contracts.composition import FileAPIAdapterContract
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId
 from shared.exceptions.application import (
@@ -12,7 +12,7 @@ from shared.exceptions.application import (
 from shared.exceptions.domain import FilePolicyViolationEror, FileRetrieveFailedError, FileUploadFailedError
 
 
-class ApplicationFileServiceImpl(ApplicationFileService):
+class FileAPIAdapter(FileAPIAdapterContract):
     def __init__(
         self,
         file_analyzer: FileAnalyzer,

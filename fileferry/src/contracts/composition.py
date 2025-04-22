@@ -17,7 +17,7 @@ class DependencyContext(BaseModel):
     action: Literal["get", "upload"]
 
 
-class ApplicationFileService(Protocol):
+class FileAPIAdapterContract(Protocol):
     async def create(
         self,
         name: str,

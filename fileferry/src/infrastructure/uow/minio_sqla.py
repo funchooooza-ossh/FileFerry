@@ -1,18 +1,15 @@
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncGenerator
 from types import TracebackType
 from typing import Optional
 
-from loguru import logger
 from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from contracts.domain import UnitOfWork
-from domain.models.dataclasses import FileMeta
-from domain.models.value_objects import FileId
 from infrastructure.db.session import get_async_session
 from infrastructure.repositories.files.minio import MinioRepository
 from infrastructure.repositories.files.sqlalchemy import FileRepository
-from shared.exceptions.infrastructure import InfrastructureError
+from infrastructure.utils.handler import sqlalchemy_handle
 
 
 class SQLAlchemyMinioUnitOfWork(UnitOfWork):
@@ -38,45 +35,16 @@ class SQLAlchemyMinioUnitOfWork(UnitOfWork):
 
         return self
 
-    async def save(self, meta: FileMeta, stream: AsyncIterator[bytes]) -> FileMeta:
-        try:
-            db_result = await self.file_repo.add(meta)
-            await self.file_storage.store(
-                file_id=meta.id.value,
-                stream=stream,
-                length=meta.size.value,
-                content_type=meta.content_type.value,
-            )
-            return db_result
-        except InfrastructureError as exc:
-            raise exc
-        except Exception as exc:
-            logger.error(f"Unexpected error in save method: {exc!s}")
-            raise InfrastructureError(str(exc)) from exc
-
-    async def retrieve(self, file_id: FileId) -> tuple[FileMeta, AsyncIterator[bytes]]:
-        try:
-            db_result = await self.file_repo.get(file_id=file_id.value)
-            storage_result = await self.file_storage.retrieve(file_id=file_id.value)
-            return db_result, storage_result
-        except InfrastructureError as exc:
-            raise exc
-        except Exception as exc:
-            logger.error(f"Unexpected error in retrieve method: {exc!s}")
-            raise InfrastructureError(str(exc)) from exc
-
     async def __aexit__(
         self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
     ) -> None:
         if hasattr(self, "_session_ctx"):
             await self._session_ctx.__aexit__(exc_type, exc_val, exc_tb)
 
+    @sqlalchemy_handle
     async def commit(self) -> None:
-        """Выполнить commit для репозитория SQLAlchemy"""
-        if self.file_repo:
-            await self.file_repo.commit()
+        await self._session.commit()
 
+    @sqlalchemy_handle
     async def rollback(self) -> None:
-        """Выполнить rollback для репозитория SQLAlchemy"""
-        if self.file_repo:
-            await self.file_repo.rollback()
+        await self._session.rollback()

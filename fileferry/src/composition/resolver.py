@@ -1,5 +1,5 @@
 from composition.bootstrap.minio_sqla import bootstrap_minio_sqla
-from contracts.composition import ApplicationFileService, DependencyContext, ScenarioName
+from contracts.composition import DependencyContext, FileAPIAdapterContract, ScenarioName
 
 _BOOTSTRAP_REGISTRY: dict[ScenarioName, callable] = {
     ScenarioName.MINIO_SQLA: bootstrap_minio_sqla,
@@ -7,7 +7,7 @@ _BOOTSTRAP_REGISTRY: dict[ScenarioName, callable] = {
 }
 
 
-def di_resolver(ctx: DependencyContext) -> ApplicationFileService:
+def di_resolver(ctx: DependencyContext) -> FileAPIAdapterContract:
     try:
         return _BOOTSTRAP_REGISTRY[ctx.scenario](ctx)
     except KeyError:

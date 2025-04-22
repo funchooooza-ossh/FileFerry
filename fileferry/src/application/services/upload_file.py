@@ -8,14 +8,6 @@ from shared.exceptions.infrastructure import InfrastructureError
 
 
 class UploadFileServiceImpl(UploadFileService):
-    """
-    Блок бизнес-логики.
-    Валидирует content-type входящего файла.
-    Связан "контрактом" с протокольным UnitOfWork.
-    В случае успешной валидации отдает команду на сохранение.
-    Работает только с бизнес-моделью FileMeta.
-    """
-
     def __init__(self, uow: UnitOfWork, file_policy: FilePolicy) -> None:
         self._uow = uow
         self._policy = file_policy
@@ -24,9 +16,12 @@ class UploadFileServiceImpl(UploadFileService):
         if not self._policy.is_allowed(meta.content_type, meta.size):
             raise FilePolicyViolationEror("Невалидный файл")
 
-        async with self._uow:
+        async with self._uow as uow:
             try:
-                await self._uow.save(meta=meta, stream=data)
+                await uow.file_repo.add(meta)
+                await uow.file_storage.store(
+                    stream=data, file_id=meta.id.value, length=meta.size.value, content_type=meta.content_type.value
+                )
             except InfrastructureError as exc:
                 await self._uow.rollback()
                 raise FileUploadFailedError("Не удалось загрузить файл") from exc
