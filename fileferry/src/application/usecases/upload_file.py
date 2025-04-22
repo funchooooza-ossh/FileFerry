@@ -3,7 +3,7 @@ from collections.abc import AsyncIterator
 from contracts.application import FilePolicy, FileStorage, UnitOfWork, UploadFileService
 from domain.models.dataclasses import FileMeta
 from shared.exceptions.domain import FileUploadFailedError
-from shared.exceptions.infrastructure import InfrastructureError
+from shared.exceptions.infrastructure import InfrastructureError, NoSuchBucketError
 
 
 class UploadFileServiceImpl(UploadFileService):
@@ -14,18 +14,19 @@ class UploadFileServiceImpl(UploadFileService):
 
     async def execute(self, meta: FileMeta, data: AsyncIterator[bytes]) -> FileMeta:
         self._policy.is_allowed(meta.content_type, meta.size)
-
-        async with self._uow as uow:
-            try:
+        try:
+            async with self._uow as uow:
                 await uow.file_repo.add(meta)
-                await self._storage.store(
-                    stream=data,
-                    file_id=meta.id.value,
-                    length=meta.size.value,
-                    content_type=meta.content_type.value,
-                )
-            except InfrastructureError as exc:
-                raise FileUploadFailedError("Не удалось загрузить файл") from exc
-
+            await self._storage.store(
+                stream=data,
+                file_id=meta.id.value,
+                length=meta.size.value,
+                content_type=meta.content_type.value,
+            )
+        except NoSuchBucketError as exc:
+            raise FileUploadFailedError("Запрошенный ресурс не существует") from exc
+        except InfrastructureError as exc:
+            raise FileUploadFailedError("Не удалось загрузить файл") from exc
+        else:
             await uow.commit()
             return meta

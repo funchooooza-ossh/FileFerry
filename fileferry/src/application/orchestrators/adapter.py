@@ -7,9 +7,8 @@ from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId
 from shared.exceptions.application import (
     DomainRejectedError,
-    StatusFailedError,
 )
-from shared.exceptions.domain import FilePolicyViolationEror, FileRetrieveFailedError, FileUploadFailedError
+from shared.exceptions.domain import FilePolicyViolationEror
 
 
 class FileAPIAdapter(FileAPIAdapterContract):
@@ -41,10 +40,6 @@ class FileAPIAdapter(FileAPIAdapterContract):
 
         try:
             return await self._uploader.execute(meta=meta, data=stream)
-
-        except FileUploadFailedError as exc:
-            raise StatusFailedError("Upload failed", type=exc.type) from exc
-
         except FilePolicyViolationEror as exc:
             raise DomainRejectedError("File rejected by policy", type=exc.type) from exc
 
@@ -54,7 +49,4 @@ class FileAPIAdapter(FileAPIAdapterContract):
         except ValueError as exc:
             raise exc
 
-        try:
-            return await self._retriever.execute(file_id=file_id_vo)
-        except FileRetrieveFailedError as exc:
-            raise StatusFailedError("Retrieve failed", type=exc.type) from exc
+        return await self._retriever.execute(file_id=file_id_vo)

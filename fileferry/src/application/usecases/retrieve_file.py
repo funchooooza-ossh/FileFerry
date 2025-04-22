@@ -4,7 +4,7 @@ from contracts.application import FileStorage, RetrieveFileService, UnitOfWork
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId
 from shared.exceptions.domain import FileRetrieveFailedError
-from shared.exceptions.infrastructure import InfrastructureError
+from shared.exceptions.infrastructure import InfrastructureError, RepositoryNotFoundError
 
 
 class RetrieveFileServiceImpl(RetrieveFileService):
@@ -16,7 +16,10 @@ class RetrieveFileServiceImpl(RetrieveFileService):
         try:
             async with self._uow as uow:
                 meta = await uow.file_repo.get(file_id=file_id.value)
-                stream = await self._storage.retrieve(file_id=file_id.value)
-                return meta, stream
+            stream = await self._storage.retrieve(file_id=file_id.value)
+        except RepositoryNotFoundError as exc:
+            raise FileRetrieveFailedError("Файл не найден") from exc
         except InfrastructureError as exc:
             raise FileRetrieveFailedError("Ошибка получения файла") from exc
+        else:
+            return meta, stream

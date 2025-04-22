@@ -1,9 +1,11 @@
 from collections.abc import AsyncIterator
 
 from miniopy_async import Minio
+from miniopy_async.error import S3Error
 
+from infrastructure.enums.s3error import CODE_TO_ERROR_MAPPING, S3ErrorCode
 from infrastructure.utils.stream_reader import AsyncStreamReader
-from shared.exceptions.infrastructure import StorageError, StorageNotFoundError
+from shared.exceptions.infrastructure import StorageError
 
 
 class MinioRepository:
@@ -21,8 +23,9 @@ class MinioRepository:
                 length=length,
                 content_type=content_type,
             )
-        except Exception as exc:
-            raise StorageError(f"{type(exc).__name__}: {exc}") from exc
+        except S3Error as exc:
+            err_cls = CODE_TO_ERROR_MAPPING.get(S3ErrorCode(exc.code), StorageError)
+            raise err_cls(f"S3 error while upload: {exc.message}") from exc
 
     async def retrieve(self, file_id: str) -> AsyncIterator[bytes]:
         try:
@@ -36,5 +39,6 @@ class MinioRepository:
                         yield chunk
 
             return stream()
-        except Exception as exc:
-            raise StorageNotFoundError(f"Object {file_id} not found") from exc
+        except S3Error as exc:
+            err_cls = CODE_TO_ERROR_MAPPING.get(S3ErrorCode(exc.code), StorageError)
+            raise err_cls(f"S3 error while retrieve: {exc.message}") from exc
