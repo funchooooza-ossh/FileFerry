@@ -3,7 +3,19 @@ from types import TracebackType
 from typing import Protocol
 
 from domain.models.dataclasses import FileMeta
-from domain.models.value_objects import ContentType, FileSize
+from domain.models.value_objects import ContentType, FileId, FileSize
+
+
+class FileAnalyzer(Protocol):
+    async def analyze(self, stream: AsyncIterator[bytes]) -> tuple[AsyncIterator[bytes], str, int]: ...
+
+
+class UploadFileService(Protocol):
+    async def execute(self, meta: FileMeta, data: AsyncIterator[bytes]) -> FileMeta: ...
+
+
+class RetrieveFileService(Protocol):
+    async def execute(self, file_id: FileId) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
 class FileStorage(Protocol):

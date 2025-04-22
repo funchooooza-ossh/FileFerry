@@ -1,7 +1,6 @@
 from collections.abc import AsyncIterator
 
-from contracts.api import UploadFileService
-from contracts.application import FilePolicy, FileStorage, UnitOfWork
+from contracts.application import FilePolicy, FileStorage, UnitOfWork, UploadFileService
 from domain.models.dataclasses import FileMeta
 from shared.exceptions.domain import FileUploadFailedError
 from shared.exceptions.infrastructure import InfrastructureError

@@ -1,7 +1,6 @@
 from collections.abc import AsyncIterator
 
-from contracts.api import RetrieveFileService
-from contracts.application import FileStorage, UnitOfWork
+from contracts.application import FileStorage, RetrieveFileService, UnitOfWork
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId
 from shared.exceptions.domain import FileRetrieveFailedError

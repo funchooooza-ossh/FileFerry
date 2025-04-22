@@ -1,13 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 from loguru import logger
 from pydantic import ValidationError
 
-from api.rest.context import ApplicationDI
+from api.rest.context import make_di_resolver
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
+from contracts.composition import FileAPIAdapterContract
 from shared.exceptions.application import DomainRejectedError, StatusFailedError
 from shared.io.upload_stream import file_to_iterator
 
@@ -16,7 +17,7 @@ file_router = APIRouter()
 
 @file_router.post("/create", tags=["files"])
 async def create_file(
-    service: ApplicationDI,
+    service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("upload"))] = ...,
     file: Annotated[UploadFile, File()] = ...,
     name: Annotated[str, Form()] = ...,
 ) -> Response[UploadFileResponse]:
@@ -42,7 +43,7 @@ async def create_file(
 
 @file_router.post("/retrieve", tags=["files"])
 async def retrieve_file(
-    service: ApplicationDI,
+    service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("get"))] = ...,
     file_id: Annotated[str, Form()] = ...,
 ) -> StreamingResponse:
     meta, stream = await service.get(file_id=file_id)
