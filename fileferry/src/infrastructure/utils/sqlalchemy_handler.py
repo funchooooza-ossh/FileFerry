@@ -23,7 +23,7 @@ from shared.exceptions.infrastructure import (
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 
-def sqlalchemy_handle(func: F) -> Callable[..., Awaitable[Any]]:
+def wrap_sqlalchemy_failure(func: F) -> Callable[..., Awaitable[Any]]:
     @functools.wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
@@ -33,7 +33,7 @@ def sqlalchemy_handle(func: F) -> Callable[..., Awaitable[Any]]:
             raise
 
         except SQLAlchemyError as exc:
-            logger.exception(f"[SQLAlchemy] Error in {func.__qualname__}")
+            logger.warning(f"[SQLAlchemy] Error in {func.__qualname__}")
 
             if isinstance(exc, NoResultFound):
                 raise RepositoryNotFoundError() from exc

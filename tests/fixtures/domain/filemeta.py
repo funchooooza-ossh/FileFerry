@@ -1,6 +1,6 @@
 import pytest
 from domain.models.dataclasses import FileMeta
-from composition.filemeta import create_filemeta
+from composition.meta_factory import create_filemeta
 
 
 @pytest.fixture(scope="function")

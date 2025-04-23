@@ -24,23 +24,7 @@ class DomainRejectedError(ApplicationError):
     pass
 
 
-class FileUploadFailedError(ApplicationError):
-    """
-    Инфраструктурный слой отработал некорректно.
-    """
-
-    pass
-
-
-class FileRetrieveFailedError(ApplicationError):
-    pass
-
-
-class StatusFailedError(ApplicationError):
-    """
-    Доменный слой вернул status failed
-    """
-
+class FileOperationFailed(ApplicationError):
     pass
 
 

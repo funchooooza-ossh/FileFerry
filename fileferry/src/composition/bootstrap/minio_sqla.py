@@ -1,6 +1,6 @@
-from application.orchestrators.adapter import FileAPIAdapter
+from application.orchestrators.file_adapter import FileAPIAdapter
 from composition.application_service.factory import RetrieveFileServiceFactory, UploadFileServiceFactory
-from composition.filemeta import create_filemeta
+from composition.meta_factory import create_filemeta
 from composition.minio.factory import create_minio_client
 from composition.uow.factory import UnitOfWorkFactory
 from contracts.composition import DependencyContext

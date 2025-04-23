@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from miniopy_async.error import S3Error
+
 from shared.exceptions.infrastructure import (
     InfrastructureError,
     InvalidBucketNameError,
@@ -32,3 +34,8 @@ CODE_TO_ERROR_MAPPING: dict[S3ErrorCode, type[InfrastructureError]] = {
     S3ErrorCode.NO_SUCH_BUCKET: NoSuchBucketError,
     S3ErrorCode.INVALID_BUCKET_NAME: InvalidBucketNameError,
 }
+
+
+def map_s3_error(exc: S3Error) -> InfrastructureError:
+    cls = CODE_TO_ERROR_MAPPING.get(S3ErrorCode(exc.code), StorageError)
+    return cls(f"S3 error ({exc.code}): {exc.message}")
