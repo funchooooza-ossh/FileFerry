@@ -26,6 +26,8 @@ class MinioRepository:
         except S3Error as exc:
             err_cls = CODE_TO_ERROR_MAPPING.get(S3ErrorCode(exc.code), StorageError)
             raise err_cls(f"S3 error while upload: {exc.message}") from exc
+        except Exception as exc:
+            raise StorageError(f"Unexpected error: {exc}") from exc
 
     async def retrieve(self, file_id: str) -> AsyncIterator[bytes]:
         try:
@@ -42,3 +44,5 @@ class MinioRepository:
         except S3Error as exc:
             err_cls = CODE_TO_ERROR_MAPPING.get(S3ErrorCode(exc.code), StorageError)
             raise err_cls(f"S3 error while retrieve: {exc.message}") from exc
+        except Exception as exc:
+            raise StorageError(f"Unexpected error: {exc}") from exc

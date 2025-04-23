@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, Mock
+from miniopy_async.error import S3Error
 from infrastructure.repositories.files.minio import MinioRepository
 from tests.helpers import aiter
 from shared.exceptions.infrastructure import StorageError, StorageNotFoundError
@@ -34,18 +35,17 @@ async def test_store_raises_storage_error(mocker):
     with pytest.raises(StorageError) as err:
         await repo.store("file-id", aiter([b"1", b"2"]), 2, "application/pdf")
 
-    assert "RuntimeError: boom" in str(err.value)
+    assert "Unexpected error: boom" in str(err.value)
 
 
 async def mock_chunk_generator():
     yield b"chunk1"
     yield b"chunk2"
 
+
 async def mock_async_iterable():
     async for item in mock_chunk_generator():
         yield item
-
-
 
 
 @pytest.mark.asyncio
@@ -77,20 +77,28 @@ async def test_retrieve_returns_chunks():
     )
 
 
-
 @pytest.mark.asyncio
 async def test_retrieve_raises_not_found_error():
     mock_client = MagicMock()
     mock_client._client_session = Mock(return_value="fake_session")
 
-    mock_client.get_object = AsyncMock(side_effect=Exception("object does not exist"))
+    mock_client.get_object = AsyncMock(
+        side_effect=S3Error(
+            code="NoSuchKey",
+            message="Test message",
+            request_id="some id",
+            resource="test resource",
+            host_id="some host id",
+            response="resp"
+        )
+    )
 
     repo = MinioRepository(client=mock_client, bucket_name="test-bucket")
 
     with pytest.raises(StorageNotFoundError) as exc_info:
         await repo.retrieve("missing_file.txt")
 
-    assert "missing_file.txt" in str(exc_info.value)
+    assert "S3 error while retrieve" in str(exc_info.value)
 
     mock_client._client_session.assert_called_once()
     mock_client.get_object.assert_awaited_once_with(
