@@ -5,9 +5,7 @@ from contracts.application import FileAnalyzer, RetrieveFileService, UploadFileS
 from contracts.composition import FileAPIAdapterContract
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import FileId
-from shared.exceptions.application import (
-    DomainRejectedError,
-)
+from shared.exceptions.application import DomainRejectedError, InvalidValueError
 from shared.exceptions.domain import FilePolicyViolationEror
 
 
@@ -47,6 +45,6 @@ class FileAPIAdapter(FileAPIAdapterContract):
         try:
             file_id_vo = FileId(value=file_id)
         except ValueError as exc:
-            raise exc
+            raise InvalidValueError("Невалидный id файла") from exc
 
         return await self._retriever.execute(file_id=file_id_vo)

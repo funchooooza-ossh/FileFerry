@@ -61,7 +61,3 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
     except RepositoryError as exc:
         raise exc
-
-    except Exception as exc:
-        logger.exception(exc)
-        raise RepositoryError from exc

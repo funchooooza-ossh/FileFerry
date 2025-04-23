@@ -9,7 +9,7 @@ from api.rest.context import make_di_resolver
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
 from contracts.composition import FileAPIAdapterContract
-from shared.exceptions.application import DomainRejectedError, StatusFailedError
+from shared.exceptions.application import DomainRejectedError, FileRetrieveFailedError, FileUploadFailedError
 from shared.io.upload_stream import file_to_iterator
 
 file_router = APIRouter()
@@ -29,9 +29,9 @@ async def create_file(
         data = UploadFileResponse.from_domain(data)
     except ValidationError as exc:
         error = Error(msg="Incorrect result from service", type="Internal Server Error")
-        logger.exception(f"Incorrect result from service: {exc}")
-    except StatusFailedError as exc:
-        logger.exception(f"Upload file failed: {exc.type}")
+        logger.warning(f"Incorrect result from service: {exc}")
+    except FileUploadFailedError as exc:
+        logger.warning(f"Upload file failed: {exc.type}")
         error = Error(msg="Upload failed", type=exc.type)
 
     except DomainRejectedError as exc:
@@ -46,8 +46,12 @@ async def retrieve_file(
     service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("get"))] = ...,
     file_id: Annotated[str, Form()] = ...,
 ) -> StreamingResponse:
-    meta, stream = await service.get(file_id=file_id)
-
+    try:
+        meta, stream = await service.get(file_id=file_id)
+    except FileRetrieveFailedError as exc:
+        logger.warning(f"Retrieve file failed: {exc.type}")
+        error = Error(msg="Retrieve Failed", type=exc.type)
+        return Response(data=None, error=error)
     return StreamingResponse(
         content=stream,
         media_type=meta.content_type.value,

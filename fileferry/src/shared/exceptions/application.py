@@ -24,6 +24,18 @@ class DomainRejectedError(ApplicationError):
     pass
 
 
+class FileUploadFailedError(ApplicationError):
+    """
+    Инфраструктурный слой отработал некорректно.
+    """
+
+    pass
+
+
+class FileRetrieveFailedError(ApplicationError):
+    pass
+
+
 class StatusFailedError(ApplicationError):
     """
     Доменный слой вернул status failed
@@ -39,3 +51,10 @@ class InvalidFileParameters(ApplicationError):
     """
 
     pass
+
+
+class InvalidValueError(ApplicationError):
+    """
+    Возникает, когда слой приложения не может преобразовать
+    пользовательские данные в валидные VO.
+    """
