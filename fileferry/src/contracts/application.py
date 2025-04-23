@@ -40,4 +40,6 @@ class UnitOfWork(Protocol):
 
 
 class FilePolicy(Protocol):
-    def is_allowewd(cls, mime: ContentType, size: FileSize) -> bool: ...
+    FORBIDDEN_TYPES: set[str]
+
+    def is_allowed(cls, mime: ContentType, size: FileSize) -> bool: ...
