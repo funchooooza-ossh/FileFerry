@@ -19,6 +19,14 @@ class StorageNotFoundError(StorageError):
     pass
 
 
+class NoSuchBucketError(StorageError):
+    pass
+
+
+class InvalidBucketNameError(StorageError):
+    pass
+
+
 class RepositoryError(InfrastructureError):
     """
     Базовый класс для ошибок, при работе с паттерном репозиторий.

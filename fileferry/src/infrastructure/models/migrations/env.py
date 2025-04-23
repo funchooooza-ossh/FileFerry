@@ -6,12 +6,12 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from infrastructure.config.db import pg_settings
 from infrastructure.models.sqlalchemy import Base
-from settings import settings
 
 config = context.config
 
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL + "?async_fallback=True")
+config.set_main_option("sqlalchemy.url", pg_settings.url + "?async_fallback=True")
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

@@ -11,7 +11,8 @@ from sqlalchemy.exc import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from settings import settings
+from infrastructure.config.db import pg_settings
+from shared.config import settings
 from shared.exceptions.infrastructure import (
     RepositoryError,
     RepositoryIntegrityError,
@@ -21,7 +22,7 @@ from shared.exceptions.infrastructure import (
     RepositoryProgrammingError,
 )
 
-engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG)
+engine = create_async_engine(pg_settings.url, echo=settings.app_debug)
 
 async_session_maker = async_sessionmaker(
     bind=engine,
@@ -60,7 +61,3 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
     except RepositoryError as exc:
         raise exc
-
-    except Exception as exc:
-        logger.exception(exc)
-        raise RepositoryError from exc

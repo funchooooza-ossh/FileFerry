@@ -9,6 +9,8 @@ services:
     volumes:
       - ./fileferry:/app
       - ./environments/minio.default.env:/app/minio.env
+      - ./environments/postgres.env:/app/postgres.env
+      - ./environments/redis.env:/app/redis.env
     depends_on:
       - db
       - redis

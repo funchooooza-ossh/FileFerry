@@ -1,4 +1,5 @@
 from domain.models.dataclasses import FileMeta
+from domain.models.value_objects import ContentType, FileId, FileName, FileSize
 from infrastructure.models.sqlalchemy.base import Base
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -13,14 +14,17 @@ class File(Base):
 
     def to_domain(self) -> FileMeta:
         return FileMeta(
-            id=self.id, name=self.name, content_type=self.mime_type, size=self.size
+            id=FileId(self.id),
+            name=FileName(self.name),
+            content_type=ContentType(self.mime_type),
+            size=FileSize(self.size),
         )
 
     @classmethod
     def from_domain(cls, file_meta: FileMeta) -> "File":
         return cls(
-            id=file_meta.id,
-            name=file_meta.name,
-            mime_type=file_meta.content_type,
-            size=file_meta.size,
+            id=file_meta.id.value,
+            name=file_meta.name.value,
+            mime_type=file_meta.content_type.value,
+            size=file_meta.size.value,
         )

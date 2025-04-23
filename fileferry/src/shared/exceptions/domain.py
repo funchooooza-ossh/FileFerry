@@ -17,11 +17,3 @@ class FilePolicyViolationEror(DomainError):
     """
 
     pass
-
-
-class FileUploadFailedError(DomainError):
-    """
-    Инфраструктурный слой отработал некорректно.
-    """
-
-    pass
