@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator
 
 from miniopy_async import Minio
 
-from infrastructure.utils.s3_handler import wrap_s3_failure
+from infrastructure.utils.handlers.s3_handler import wrap_s3_failure
 from infrastructure.utils.stream_reader import AsyncStreamReader
 
 

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from contracts.application import UnitOfWork
 from infrastructure.db.session import get_async_session
 from infrastructure.repositories.files.sqlalchemy import FileRepository
-from infrastructure.utils.sqlalchemy_handler import wrap_sqlalchemy_failure
+from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_failure
 
 
 class SQLAlchemyUnitOfWork(UnitOfWork):

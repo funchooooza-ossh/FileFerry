@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.models.dataclasses import FileMeta
 from infrastructure.models.sqlalchemy.file import File
-from infrastructure.utils.sqlalchemy_handler import wrap_sqlalchemy_failure
+from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_failure
 from shared.exceptions.infrastructure import RepositoryNotFoundError
 
 

@@ -5,7 +5,7 @@ from typing import Any
 from loguru import logger
 from miniopy_async.error import S3Error
 
-from infrastructure.enums.s3error import map_s3_error
+from infrastructure.enums.s3_errors import map_s3_error
 from shared.exceptions.infrastructure import StorageError
 
 

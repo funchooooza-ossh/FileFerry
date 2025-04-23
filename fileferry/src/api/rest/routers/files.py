@@ -5,6 +5,7 @@ from fastapi.responses import StreamingResponse
 
 from api.rest.context import make_di_resolver
 from api.rest.schemas.models import UploadFileResponse
+from api.rest.schemas.requests import FileRetrieve
 from api.rest.schemas.responses import Response
 from api.rest.utils.handler import api_response
 from contracts.composition import FileAPIAdapterContract
@@ -28,10 +29,10 @@ async def create_file(
 @file_router.post("/retrieve", tags=["files"])
 @api_response(expected_type=None)
 async def retrieve_file(
-    service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("get"))],
-    file_id: Annotated[str, Form()],
+    service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("retrieve"))],
+    request: FileRetrieve,
 ) -> StreamingResponse:
-    meta, stream = await service.get(file_id=file_id)
+    meta, stream = await service.get(file_id=request.file_id)
     return StreamingResponse(
         content=stream,
         media_type=meta.content_type.value,

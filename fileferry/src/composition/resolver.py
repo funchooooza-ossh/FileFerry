@@ -1,9 +1,12 @@
 from collections.abc import Callable
 
-from composition.bootstrap.minio_sqla import bootstrap_minio_sqla
+from composition.scenarios.minio_sqla import bootstrap_minio_sqla
 from contracts.composition import DependencyContext, FileAPIAdapterContract, ScenarioName
 
-_BOOTSTRAP_REGISTRY: dict[ScenarioName, Callable[[DependencyContext], FileAPIAdapterContract]] = {
+BOOTSTRAP_FN = Callable[[DependencyContext], FileAPIAdapterContract]
+
+
+_BOOTSTRAP_REGISTRY: dict[ScenarioName, BOOTSTRAP_FN] = {
     ScenarioName.MINIO_SQLA: bootstrap_minio_sqla,
     # ScenarioName.SFTP_MONGO: bootstrap_sftp_mongo,
 }

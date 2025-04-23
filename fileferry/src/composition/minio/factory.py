@@ -1,7 +1,7 @@
 from aiohttp import ClientSession
 from miniopy_async import Minio
 
-from composition.minio.registry import KnownMinioClients, minio_clients
+from composition.minio.config import KnownMinioClients, minio_clients
 
 
 def create_minio_client(_type: KnownMinioClients) -> Minio:

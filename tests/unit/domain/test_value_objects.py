@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from domain.models.value_objects import FileId, FileName, FileSize, ContentType
+from domain.models.value_objects import FileId, FileName
 
 
 @pytest.mark.asyncio
