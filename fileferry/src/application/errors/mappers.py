@@ -1,3 +1,5 @@
+from starlette import status
+
 from application.errors.infra_codes import InfrastructureErrorCode
 from shared.exceptions.infrastructure import (
     InfrastructureError,
@@ -54,3 +56,31 @@ class InfrastructureErrorMapper:
     @classmethod
     def get_message(cls, exc: Exception) -> str:
         return cls._code_to_message.get(cls.get_code(exc), "Неизвестная ошибка инфраструктуры.")
+
+
+def _map_code_to_http_status(code: InfrastructureErrorCode) -> int:  # noqa: C901
+    match code:
+        case InfrastructureErrorCode.NO_SUCH_BUCKET:
+            return status.HTTP_404_NOT_FOUND
+        case InfrastructureErrorCode.STORAGE_NOT_FOUND:
+            return status.HTTP_404_NOT_FOUND
+        case InfrastructureErrorCode.REPO_NOT_FOUND:
+            return status.HTTP_404_NOT_FOUND
+        case InfrastructureErrorCode.REPO_INTEGRITY:
+            return status.HTTP_409_CONFLICT
+        case InfrastructureErrorCode.REPO_OPERATIONAL:
+            return status.HTTP_503_SERVICE_UNAVAILABLE
+        case InfrastructureErrorCode.REPO_PROGRAMMING:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+        case InfrastructureErrorCode.REPO_ORM:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+        case InfrastructureErrorCode.REPOSITORY:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+        case InfrastructureErrorCode.STORAGE:
+            return status.HTTP_502_BAD_GATEWAY
+        case InfrastructureErrorCode.INVALID_BUCKET_NAME:
+            return status.HTTP_400_BAD_REQUEST
+        case InfrastructureErrorCode.INFRA:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+        case InfrastructureErrorCode.UNKNOWN:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR

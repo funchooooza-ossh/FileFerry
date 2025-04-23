@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 
 from api.rest.context import make_di_resolver
+from api.rest.docs.file_create import create_file_responses
+from api.rest.docs.file_retrieve import retrieve_file_responses
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.requests import FileRetrieve
 from api.rest.schemas.responses import Response
@@ -14,7 +16,9 @@ from shared.io.upload_stream import file_to_iterator
 file_router = APIRouter()
 
 
-@file_router.post("/create", tags=["files"], response_model=Response[UploadFileResponse])
+@file_router.post(
+    "/create", tags=["files"], response_model=Response[UploadFileResponse], responses=create_file_responses
+)
 @api_response(expected_type=UploadFileResponse)
 async def create_file(
     service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("upload"))],
@@ -26,7 +30,7 @@ async def create_file(
     return UploadFileResponse.from_domain(result)
 
 
-@file_router.post("/retrieve", tags=["files"])
+@file_router.post("/retrieve", tags=["files"], responses=retrieve_file_responses)
 @api_response(expected_type=None)
 async def retrieve_file(
     service: Annotated[FileAPIAdapterContract, Depends(make_di_resolver("retrieve"))],

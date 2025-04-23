@@ -4,7 +4,7 @@ from typing import Any, TypeVar
 
 from loguru import logger
 
-from application.errors.mappers import InfrastructureErrorMapper
+from application.errors.mappers import InfrastructureErrorMapper, _map_code_to_http_status
 from shared.exceptions.application import FileOperationFailed
 from shared.exceptions.infrastructure import InfrastructureError
 
@@ -20,7 +20,8 @@ def wrap_infrastructure_failures(func: F) -> Callable[..., Awaitable[Any]]:
         except InfrastructureError as exc:
             code = InfrastructureErrorMapper.get_code(exc)
             message = InfrastructureErrorMapper.get_message(exc)
+            status = _map_code_to_http_status(code)
             logger.warning(f"Handled infrastructure error: {exc}")
-            raise FileOperationFailed(message, type=code.value) from exc
+            raise FileOperationFailed(message, type=code.value, status_code=status) from exc
 
     return wrapper
