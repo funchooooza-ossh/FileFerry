@@ -24,13 +24,13 @@ class UploadFileServiceImpl(UploadFileService):
         try:
             async with self._uow as uow:
                 await uow.file_repo.add(meta)
-                await uow.commit()
                 await self._storage.store(
                     stream=data,
                     file_id=meta.id.value,
                     length=meta.size.value,
                     content_type=meta.content_type.value,
                 )
+                await uow.commit()
         except InvalidBucketNameError as exc:
             raise FileUploadFailedError("Имя запрошенного ресурса не валидно", type=exc.type) from exc
         except NoSuchBucketError as exc:
