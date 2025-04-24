@@ -1,7 +1,7 @@
 import contextvars
 import sys
-from typing import Any
 
+from loguru import Record
 from loguru import logger as _logger
 
 request_id_ctx_var: contextvars.ContextVar[str] = contextvars.ContextVar(
@@ -27,7 +27,7 @@ def setup_logging() -> None:
         diagnose=False,
     )
 
-    def add_request_id(record: dict[str, Any]) -> None:
+    def add_request_id(record: Record) -> None:
         record["extra"]["request_id"] = request_id_ctx_var.get()
 
     _logger.configure(patcher=add_request_id)

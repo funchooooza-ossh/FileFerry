@@ -30,13 +30,11 @@ class FileStorage(Protocol):
 
 
 class FileRepository(Protocol):
-    async def add(self, file: FileMeta) -> None: ...
+    async def add(self, file_meta: FileMeta) -> None: ...
     async def get(self, file_id: str) -> FileMeta: ...
 
 
 class UnitOfWork(Protocol):
-    file_repo: FileRepository
-
     async def __aenter__(self) -> "UnitOfWork": ...
     async def __aexit__(
         self,
@@ -51,4 +49,5 @@ class UnitOfWork(Protocol):
 class FilePolicy(Protocol):
     FORBIDDEN_TYPES: set[str]
 
+    @classmethod
     def is_allowed(cls, mime: ContentType, size: FileSize) -> bool: ...

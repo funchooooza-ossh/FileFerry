@@ -1,0 +1,13 @@
+{
+    "include": [
+        "fileferry/src"
+    ],
+    "exclude": [
+        "tests",
+        "**/__pycache__"
+    ],
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "typeCheckingMode": "strict",
+    "pythonVersion": "3.12"
+}

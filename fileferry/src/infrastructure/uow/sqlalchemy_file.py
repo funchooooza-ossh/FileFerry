@@ -1,4 +1,5 @@
-from collections.abc import AsyncGenerator
+from collections.abc import Callable
+from contextlib import AbstractAsyncContextManager
 from types import TracebackType
 from typing import Optional
 
@@ -13,11 +14,13 @@ from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_fai
 class SQLAlchemyUnitOfWork(UnitOfWork):
     def __init__(
         self,
-        session_factory: AsyncGenerator[AsyncSession, None] = get_async_session,
+        session_factory: Callable[
+            [], AbstractAsyncContextManager[AsyncSession]
+        ] = get_async_session,
     ) -> None:
         self._session_factory = session_factory
         self._session: Optional[AsyncSession] = None
-        self.file_repo: Optional[FileRepository] = None
+        self.file_repo: Optional[FileRepository]
 
     async def __aenter__(self) -> "SQLAlchemyUnitOfWork":
         self._session_ctx = self._session_factory()
@@ -38,8 +41,10 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
 
     @wrap_sqlalchemy_failure
     async def commit(self) -> None:
-        await self._session.commit()
+        if self._session:
+            await self._session.commit()
 
     @wrap_sqlalchemy_failure
     async def rollback(self) -> None:
-        await self._session.rollback()
+        if self._session:
+            await self._session.rollback()
