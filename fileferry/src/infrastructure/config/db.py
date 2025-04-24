@@ -24,4 +24,4 @@ class PostgresSettings(DBSettings):
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
 
 
-pg_settings = PostgresSettings()
+pg_settings = PostgresSettings()  # type: ignore
