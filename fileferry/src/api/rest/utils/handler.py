@@ -25,7 +25,7 @@ def api_response(expected_type: type[BaseModel] | None = None) -> Callable[[T], 
                 if expected_type and isinstance(result, expected_type):
                     return JSONResponse(
                         status_code=200,
-                        content=Response.success(result).model_dump(),
+                        content=Response[expected_type].success(result).model_dump(),
                     )
 
                 return result
