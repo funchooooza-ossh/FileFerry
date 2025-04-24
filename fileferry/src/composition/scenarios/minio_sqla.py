@@ -1,4 +1,5 @@
-from application.orchestrators.file_adapter import FileAPIAdapter
+from application.orchestrators.retrieve_file_adapter import RetrieveFileAPIAdapter
+from application.orchestrators.upload_file_adapter import UploadFileAPIAdapter
 from composition.meta_factory import create_filemeta
 from composition.minio.factory import create_minio_client
 from composition.uow.factory import UnitOfWorkFactory
@@ -6,12 +7,12 @@ from composition.usecases.factory import (
     RetrieveFileServiceFactory,
     UploadFileServiceFactory,
 )
-from contracts.composition import DependencyContext, FileAction
+from contracts.composition import DependencyContext, FileAction, FileAPIAdapterContract
 from infrastructure.repositories.files.minio_storage import MinioRepository
 from infrastructure.utils.file_helper import FileHelper
 
 
-def bootstrap_minio_sqla(ctx: DependencyContext) -> FileAPIAdapter:
+def bootstrap_minio_sqla(ctx: DependencyContext) -> FileAPIAdapterContract:
     uow = UnitOfWorkFactory.create(config="sqla")
     file_analyzer = FileHelper()
     client = create_minio_client(_type="default")
@@ -19,17 +20,15 @@ def bootstrap_minio_sqla(ctx: DependencyContext) -> FileAPIAdapter:
     match ctx.action:
         case FileAction.UPLOAD:
             service = UploadFileServiceFactory.create(uow=uow, storage=storage)
-            return FileAPIAdapter(
+            return UploadFileAPIAdapter(
                 file_analyzer=file_analyzer,
                 upload_service=service,
                 meta_factory=create_filemeta,
             )
         case FileAction.RETRIEVE:
             service = RetrieveFileServiceFactory.create(uow=uow, storage=storage)
-            return FileAPIAdapter(
-                file_analyzer=file_analyzer,
+            return RetrieveFileAPIAdapter(
                 retrieve_service=service,
-                meta_factory=create_filemeta,
             )
         case _:
             raise NotImplementedError("Such action not implemented")

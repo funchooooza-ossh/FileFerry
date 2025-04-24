@@ -1,6 +1,6 @@
 from collections.abc import AsyncIterator
 from enum import StrEnum
-from typing import Protocol
+from typing import Protocol, Union
 
 from pydantic import BaseModel
 
@@ -23,11 +23,16 @@ class DependencyContext(BaseModel):
     action: FileAction
 
 
-class FileAPIAdapterContract(Protocol):
+class UploadAPIAdapterContract(Protocol):
     async def create(
         self,
         name: str,
         stream: AsyncIterator[bytes],
     ) -> FileMeta: ...
 
+
+class RetrieveAPIAdapterContract(Protocol):
     async def get(self, file_id: str) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
+
+
+FileAPIAdapterContract = Union[UploadAPIAdapterContract, RetrieveAPIAdapterContract]
