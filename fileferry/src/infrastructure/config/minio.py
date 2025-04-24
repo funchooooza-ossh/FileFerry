@@ -10,12 +10,12 @@ class MinioCredentials(BaseSettings):
     secure: bool
 
     def to_typed_dict(self) -> MinioCreds:
-        return MinioCreds(
-            access=self.access,
-            secret=self.secret,
-            endpoint=self.endpoint,
-            secure=self.secure,
-        )
+        return {
+            "access": self.access,
+            "secret": self.secret,
+            "endpoint": self.endpoint,
+            "secure": self.secure,
+        }
 
     def __repr__(self) -> str:
         return "<MiniOCredentials [secure]>"
