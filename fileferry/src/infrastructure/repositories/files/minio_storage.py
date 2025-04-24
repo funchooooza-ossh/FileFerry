@@ -2,11 +2,12 @@ from collections.abc import AsyncIterator
 
 from miniopy_async import Minio
 
+from contracts.application import FileStorage
 from infrastructure.utils.handlers.s3_handler import wrap_s3_failure
 from infrastructure.utils.stream_reader import AsyncStreamReader
 
 
-class MinioRepository:
+class MinioRepository(FileStorage):
     def __init__(self, client: Minio, bucket_name: str) -> None:
         self._client = client
         self._bucket = bucket_name

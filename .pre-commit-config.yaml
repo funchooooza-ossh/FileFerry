@@ -12,13 +12,4 @@ repos:
         args: ["."]
 
 
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.15.0
-  #   hooks:
-  #     - id: mypy
-  #       args:
-  #         - "--config-file=./fileferry/pyproject.toml"
-  #         - "--explicit-package-bases"
-  #         - "--show-traceback"
-  #         # - "./fileferry/src"
 
