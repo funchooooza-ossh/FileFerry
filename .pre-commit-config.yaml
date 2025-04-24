@@ -11,5 +11,11 @@ repos:
       - id: black
         args: ["."]
 
+  - repo: https://github.com/pre-commit/mirrors-pyright
+    rev: v1.1.400
+    hooks:
+      - id: pyright
+        name: pyright type check
+        additional_dependencies: []
 
 
