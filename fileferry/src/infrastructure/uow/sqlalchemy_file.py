@@ -14,19 +14,23 @@ from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_fai
 class SQLAlchemyUnitOfWork(UnitOfWork):
     def __init__(
         self,
-        session_factory: Callable[
-            [], AbstractAsyncContextManager[AsyncSession]
-        ] = get_async_session,
+        session_factory: Callable[[], AbstractAsyncContextManager[AsyncSession]] = get_async_session,
     ) -> None:
         self._session_factory = session_factory
         self._session: Optional[AsyncSession] = None
-        self.file_repo: Optional[FileRepository]
+        self._file_repo: Optional[FileRepository] = None
+
+    @property
+    def file_repo(self) -> FileRepository:
+        if self._file_repo is None:
+            raise RuntimeError("Repository accessed before initialization")
+        return self._file_repo
 
     async def __aenter__(self) -> "SQLAlchemyUnitOfWork":
         self._session_ctx = self._session_factory()
         self._session = await self._session_ctx.__aenter__()
 
-        self.file_repo = FileRepository(self._session)
+        self._file_repo = FileRepository(self._session)
 
         return self
 
