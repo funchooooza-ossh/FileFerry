@@ -10,7 +10,7 @@ from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.requests import FileRetrieve
 from api.rest.schemas.responses import Response
 from api.rest.utils.handler import api_response
-from contracts.composition import RetrieveAPIAdapterContract, UploadAPIAdapterContract
+from contracts.composition import FileAction, RetrieveAPIAdapterContract, UploadAPIAdapterContract
 from shared.io.upload_stream import file_to_iterator
 
 file_router = APIRouter()
@@ -24,7 +24,7 @@ file_router = APIRouter()
 )
 @api_response(expected_type=UploadFileResponse)
 async def create_file(
-    service: Annotated[UploadAPIAdapterContract, Depends(make_di_resolver("upload"))],
+    service: Annotated[UploadAPIAdapterContract, Depends(make_di_resolver(FileAction.UPLOAD))],
     file: Annotated[UploadFile, File()],
     name: Annotated[str, Form()],
 ) -> UploadFileResponse:
@@ -36,9 +36,7 @@ async def create_file(
 @file_router.post("/retrieve", tags=["files"], responses=retrieve_file_responses)
 @api_response(expected_type=None)
 async def retrieve_file(
-    service: Annotated[
-        RetrieveAPIAdapterContract, Depends(make_di_resolver("retrieve"))
-    ],
+    service: Annotated[RetrieveAPIAdapterContract, Depends(make_di_resolver(FileAction.RETRIEVE))],
     request: FileRetrieve,
 ) -> StreamingResponse:
     meta, stream = await service.get(file_id=request.file_id)
