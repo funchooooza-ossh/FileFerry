@@ -15,7 +15,7 @@ class UploadFileServiceFactory:
     def create(
         uow: UnitOfWork,
         storage: FileStorage,
-        policy: FilePolicy = FilePolicyDefault,
+        policy: FilePolicy = FilePolicyDefault(),
     ) -> UploadFileService:
         return UploadFileServiceImpl(uow=uow, file_policy=policy, storage=storage)
 
