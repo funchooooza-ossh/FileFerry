@@ -6,6 +6,15 @@ class AsyncStreamReader:
         self._stream = stream.__aiter__()
         self._buffer = b""
 
+    def __aiter__(self) -> "AsyncStreamReader":
+        return self
+
+    async def __anext__(self) -> bytes:
+        try:
+            return await self._stream.__anext__()
+        except StopAsyncIteration:
+            raise StopAsyncIteration from None
+
     async def read(self, n: int = -1) -> bytes:
         while len(self._buffer) < n or n == -1:
             try:
