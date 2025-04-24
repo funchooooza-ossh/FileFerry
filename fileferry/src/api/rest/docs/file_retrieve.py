@@ -1,8 +1,10 @@
+from typing import Any
+
 from starlette import status
 
 from api.rest.schemas.responses import Error, Response
 
-retrieve_file_responses = {
+retrieve_file_responses: dict[int | str, dict[str, Any]] = {
     status.HTTP_200_OK: {
         "description": "Файл успешно возвращён как поток",
         "content": {"application/octet-stream": {"example": b"binary file content"}},
