@@ -1,5 +1,7 @@
-import pytest
+import random
 import uuid
+
+import pytest
 from domain.models.value_objects import FileId, FileName
 
 
@@ -40,3 +42,34 @@ async def test_filename_initialize():
 
     assert file_name is not None
     assert file_name.value == string_name
+
+
+@pytest.mark.asyncio
+async def test_filename_illegal_chars():
+    string_name = "name\\name"
+
+    with pytest.raises(ValueError, match="File name contains illegal characters"):
+        filename = FileName(value=string_name)
+
+        assert filename is not None
+
+
+@pytest.mark.asyncio
+async def test_filename_too_long():
+    chars = ["a", "b", "c", "d", "e"]
+    string_name = "".join(random.choice(chars) for _ in range(256))
+
+    with pytest.raises(ValueError, match="File name too long"):
+        filename = FileName(value=string_name)
+
+        assert filename is not None
+
+
+@pytest.mark.asyncio
+async def test_filename_empty():
+    string_name = ""
+
+    with pytest.raises(ValueError, match="File name cannot be empty"):
+        filename = FileName(value=string_name)
+
+        assert filename is not None
