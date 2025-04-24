@@ -7,7 +7,9 @@ from shared.io.peekable_stream import PeekableAsyncStream
 
 class FileHelper:
     @staticmethod
-    async def analyze(data: AsyncIterator[bytes]) -> tuple[str, int]:
+    async def analyze(
+        data: AsyncIterator[bytes],
+    ) -> tuple[AsyncIterator[bytes], str, int]:
         stream = FileHelper.iterator_to_peekable_stream(data)
 
         header = await FileHelper.get_stream_header(stream)
