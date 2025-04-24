@@ -17,6 +17,9 @@ _BOOTSTRAP_REGISTRY: dict[ScenarioName, BOOTSTRAP_FN] = {
 
 
 def di_resolver(ctx: DependencyContext) -> FileAPIAdapterContract:
+    """
+    DI-resolver. Резолвит известные конфигурации, выбирает Bootstrap'ы
+    """
     try:
         return _BOOTSTRAP_REGISTRY[ctx.scenario](ctx)
     except KeyError:
