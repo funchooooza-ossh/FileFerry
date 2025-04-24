@@ -1,9 +1,11 @@
+from typing import Any
+
 from starlette import status
 
 from api.rest.schemas.models import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
 
-create_file_responses = {
+create_file_responses: dict[int | str, dict[str, Any]] = {
     status.HTTP_200_OK: {
         "model": Response[UploadFileResponse],
         "description": "Файл успешно загружен",
