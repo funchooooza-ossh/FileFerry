@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 
-from api.rest.context import make_di_resolver
+from api.rest.di_context import make_di_resolver
 from api.rest.docs.file_create import create_file_responses
 from api.rest.docs.file_retrieve import retrieve_file_responses
 from api.rest.schemas.models import UploadFileResponse
@@ -17,7 +17,10 @@ file_router = APIRouter()
 
 
 @file_router.post(
-    "/create", tags=["files"], response_model=Response[UploadFileResponse], responses=create_file_responses
+    "/create",
+    tags=["files"],
+    response_model=Response[UploadFileResponse],
+    responses=create_file_responses,
 )
 @api_response(expected_type=UploadFileResponse)
 async def create_file(
@@ -40,5 +43,9 @@ async def retrieve_file(
     return StreamingResponse(
         content=stream,
         media_type=meta.content_type.value,
-        headers={"X-Filename": meta.name.value, "X-FileSize": str(meta.size.value), "X-FileId": meta.id.value},
+        headers={
+            "X-Filename": meta.name.value,
+            "X-FileSize": str(meta.size.value),
+            "X-FileId": meta.id.value,
+        },
     )

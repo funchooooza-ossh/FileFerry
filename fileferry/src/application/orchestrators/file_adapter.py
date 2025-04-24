@@ -18,7 +18,9 @@ class FileAPIAdapter(FileAPIAdapterContract):
         retrieve_service: Optional[RetrieveFileService] = None,
     ) -> None:
         if (upload_service is None) == (retrieve_service is None):
-            raise ValueError("Provide exactly one of upload_service or retrieve_service")
+            raise ValueError(
+                "Provide exactly one of upload_service or retrieve_service"
+            )
 
         self._analyzer = file_analyzer
         self._uploader = upload_service

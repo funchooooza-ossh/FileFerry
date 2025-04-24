@@ -4,7 +4,7 @@ from typing import Any, Literal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.db.session import get_async_session
-from infrastructure.uow.sqlalchemy import SQLAlchemyUnitOfWork
+from infrastructure.uow.sqlalchemy_file import SQLAlchemyUnitOfWork
 
 KnownUoW = Literal["sqla", "mongo"]
 

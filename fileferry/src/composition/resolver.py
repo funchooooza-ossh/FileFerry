@@ -1,7 +1,11 @@
 from collections.abc import Callable
 
 from composition.scenarios.minio_sqla import bootstrap_minio_sqla
-from contracts.composition import DependencyContext, FileAPIAdapterContract, ScenarioName
+from contracts.composition import (
+    DependencyContext,
+    FileAPIAdapterContract,
+    ScenarioName,
+)
 
 BOOTSTRAP_FN = Callable[[DependencyContext], FileAPIAdapterContract]
 

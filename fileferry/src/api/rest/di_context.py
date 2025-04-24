@@ -17,6 +17,8 @@ def make_di_resolver(action: str) -> FileAPIAdapterContract:
             )
             return di_resolver(ctx)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=f"Invalid header value: {exc}") from exc
+            raise HTTPException(
+                status_code=400, detail=f"Invalid header value: {exc}"
+            ) from exc
 
     return _resolver

@@ -9,7 +9,9 @@ from infrastructure.enums.s3_errors import map_s3_error
 from shared.exceptions.infrastructure import StorageError
 
 
-def wrap_s3_failure(func: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
+def wrap_s3_failure(
+    func: Callable[..., Awaitable[Any]],
+) -> Callable[..., Awaitable[Any]]:
     @functools.wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:

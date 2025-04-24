@@ -6,7 +6,9 @@ from domain.models.dataclasses import FileMeta
 
 
 class UploadFileServiceImpl(UploadFileService):
-    def __init__(self, uow: UnitOfWork, file_policy: FilePolicy, storage: FileStorage) -> None:
+    def __init__(
+        self, uow: UnitOfWork, file_policy: FilePolicy, storage: FileStorage
+    ) -> None:
         self._uow = uow
         self._policy = file_policy
         self._storage = storage

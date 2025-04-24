@@ -1,7 +1,12 @@
-
 from application.usecases.retrieve_file import RetrieveFileServiceImpl
 from application.usecases.upload_file import UploadFileServiceImpl
-from contracts.application import FilePolicy, FileStorage, RetrieveFileService, UnitOfWork, UploadFileService
+from contracts.application import (
+    FilePolicy,
+    FileStorage,
+    RetrieveFileService,
+    UnitOfWork,
+    UploadFileService,
+)
 from domain.services.upload_policy import FilePolicyDefault
 
 

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from contracts.application import UnitOfWork
 from infrastructure.db.session import get_async_session
-from infrastructure.repositories.files.sqlalchemy import FileRepository
+from infrastructure.repositories.files.sqlalchemy_repo import FileRepository
 from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_failure
 
 
@@ -28,7 +28,10 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
         return self
 
     async def __aexit__(
-        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         if hasattr(self, "_session_ctx"):
             await self._session_ctx.__aexit__(exc_type, exc_val, exc_tb)

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from api.rest.routers.root import root_router
 from shared.config import settings
-from shared.logging.config import setup_logging
+from shared.logging.configuration import setup_logging
 from shared.logging.middleware import RequestIdMiddleware
 
 DEBUG = settings.app_debug

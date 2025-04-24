@@ -7,7 +7,9 @@ from domain.models.value_objects import ContentType, FileId, FileSize
 
 
 class FileAnalyzer(Protocol):
-    async def analyze(self, stream: AsyncIterator[bytes]) -> tuple[AsyncIterator[bytes], str, int]: ...
+    async def analyze(
+        self, stream: AsyncIterator[bytes]
+    ) -> tuple[AsyncIterator[bytes], str, int]: ...
 
 
 class UploadFileService(Protocol):
@@ -15,11 +17,15 @@ class UploadFileService(Protocol):
 
 
 class RetrieveFileService(Protocol):
-    async def execute(self, file_id: FileId) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
+    async def execute(
+        self, file_id: FileId
+    ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
 class FileStorage(Protocol):
-    async def store(self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str) -> None: ...
+    async def store(
+        self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str
+    ) -> None: ...
     async def retrieve(self, file_id: str) -> AsyncIterator[bytes]: ...
 
 
@@ -33,7 +39,10 @@ class UnitOfWork(Protocol):
 
     async def __aenter__(self) -> "UnitOfWork": ...
     async def __aexit__(
-        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None: ...
     async def commit(self) -> None: ...
     async def rollback(self) -> None: ...
