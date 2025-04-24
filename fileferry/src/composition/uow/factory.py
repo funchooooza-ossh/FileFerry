@@ -24,7 +24,9 @@ class UnitOfWorkFactory:
 
     @staticmethod
     def create_sqlalchemy(
-        session_factory: Callable[[], AbstractAsyncContextManager[AsyncSession]] = get_async_session,
+        session_factory: Callable[
+            [], AbstractAsyncContextManager[AsyncSession]
+        ] = get_async_session,
     ) -> SQLAlchemyUnitOfWork:
         return SQLAlchemyUnitOfWork(
             session_factory=session_factory,

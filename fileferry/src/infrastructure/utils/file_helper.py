@@ -27,7 +27,9 @@ class FileHelper(FileAnalyzer):
         return PeekableAsyncStream(source=iterator)
 
     @staticmethod
-    async def get_stream_header(stream: PeekableAsyncStream, chunk: int = 2048) -> bytes:
+    async def get_stream_header(
+        stream: PeekableAsyncStream, chunk: int = 2048
+    ) -> bytes:
         return await stream.peek(2048)
 
     @staticmethod

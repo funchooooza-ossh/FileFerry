@@ -14,7 +14,9 @@ class MinioRepository(FileStorage):
         self._bucket = bucket_name
 
     @wrap_s3_failure
-    async def store(self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str) -> None:
+    async def store(
+        self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str
+    ) -> None:
         stream = AsyncStreamReader(stream=stream)
         await self._client.put_object(
             bucket_name=self._bucket,

@@ -55,7 +55,9 @@ class InfrastructureErrorMapper:
 
     @classmethod
     def get_message(cls, exc: Exception) -> str:
-        return cls._code_to_message.get(cls.get_code(exc), "Неизвестная ошибка инфраструктуры.")
+        return cls._code_to_message.get(
+            cls.get_code(exc), "Неизвестная ошибка инфраструктуры."
+        )
 
 
 def map_code_to_http_status(code: InfrastructureErrorCode) -> int:  # noqa: C901

@@ -8,7 +8,9 @@ from domain.models.value_objects import ContentType, FileId, FileSize
 
 class FileAnalyzer(Protocol):
     @staticmethod
-    async def analyze(stream: AsyncIterator[bytes]) -> tuple[AsyncIterator[bytes], str, int]: ...
+    async def analyze(
+        stream: AsyncIterator[bytes],
+    ) -> tuple[AsyncIterator[bytes], str, int]: ...
 
 
 class UploadFileService(Protocol):
@@ -16,11 +18,15 @@ class UploadFileService(Protocol):
 
 
 class RetrieveFileService(Protocol):
-    async def execute(self, file_id: FileId) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
+    async def execute(
+        self, file_id: FileId
+    ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
 class FileStorage(Protocol):
-    async def store(self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str) -> None: ...
+    async def store(
+        self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str
+    ) -> None: ...
     async def retrieve(self, file_id: str) -> AsyncIterator[bytes]: ...
 
 

@@ -8,4 +8,6 @@ minio_default = MinioDefaultCredentials()  # type: ignore | Cause it pydantic se
 
 KnownMinioClients = Literal["default", "archive", "private"]
 
-minio_clients: dict[KnownMinioClients, MinioCreds] = {"default": minio_default.to_typed_dict()}
+minio_clients: dict[KnownMinioClients, MinioCreds] = {
+    "default": minio_default.to_typed_dict()
+}

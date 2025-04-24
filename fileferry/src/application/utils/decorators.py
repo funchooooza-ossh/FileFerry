@@ -25,6 +25,8 @@ def wrap_infrastructure_failures(func: F) -> F:
             message = InfrastructureErrorMapper.get_message(exc)
             status = map_code_to_http_status(code)
             logger.warning(f"Handled infrastructure error: {exc}")
-            raise FileOperationFailed(message, type=code.value, status_code=status) from exc
+            raise FileOperationFailed(
+                message, type=code.value, status_code=status
+            ) from exc
 
     return cast("F", wrapper)
