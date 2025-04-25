@@ -4,6 +4,11 @@ from typing import Protocol
 
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import ContentType, FileId, FileSize
+from shared.types.healthcheck import (
+    RepoHealthStatus,
+    ServiceHealthStatus,
+    StorageHealthStatus,
+)
 
 
 class FileAnalyzer(Protocol):
@@ -23,6 +28,10 @@ class RetrieveFileService(Protocol):
     ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
+class HealthCheckService(Protocol):
+    async def execute(self) -> ServiceHealthStatus: ...
+
+
 class DeleteFileService(Protocol):
     async def execute(self, file_id: FileId) -> None: ...
 
@@ -33,12 +42,14 @@ class FileStorage(Protocol):
     ) -> None: ...
     async def retrieve(self, file_id: str) -> AsyncIterator[bytes]: ...
     async def delete(self, file_id: str) -> None: ...
+    async def healthcheck(self) -> StorageHealthStatus: ...
 
 
 class FileRepository(Protocol):
     async def add(self, file_meta: FileMeta) -> None: ...
     async def get(self, file_id: str) -> FileMeta: ...
     async def delete(self, file_id: str) -> None: ...
+    async def healthcheck(self) -> RepoHealthStatus: ...
 
 
 class UnitOfWork(Protocol):

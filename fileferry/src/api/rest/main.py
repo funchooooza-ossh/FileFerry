@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import FastAPI
 
 from api.rest.routers.root import root_router
@@ -18,3 +20,4 @@ app = FastAPI(
 
 app.include_router(router=root_router)
 app.add_middleware(RequestIdMiddleware)
+app.state.uptime = datetime.now(tz=UTC)

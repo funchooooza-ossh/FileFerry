@@ -1,10 +1,12 @@
 from application.usecases.delete_file import DeleteFileServiceImpl
+from application.usecases.healthcheck import HealthCheckServiceImpl
 from application.usecases.retrieve_file import RetrieveFileServiceImpl
 from application.usecases.upload_file import UploadFileServiceImpl
 from contracts.application import (
     DeleteFileService,
     FilePolicy,
     FileStorage,
+    HealthCheckService,
     RetrieveFileService,
     UnitOfWork,
     UploadFileService,
@@ -32,3 +34,9 @@ class DeleteFileServiceFactory:
     @staticmethod
     def create(uow: UnitOfWork, storage: FileStorage) -> DeleteFileService:
         return DeleteFileServiceImpl(uow=uow, storage=storage)
+
+
+class HealthCheckServiceFactory:
+    @staticmethod
+    def create(uow: UnitOfWork, storage: FileStorage) -> HealthCheckService:
+        return HealthCheckServiceImpl(uow=uow, storage=storage)

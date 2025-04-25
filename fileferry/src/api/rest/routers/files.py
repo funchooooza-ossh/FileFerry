@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from api.rest.di_context import make_di_resolver
 from api.rest.docs.file_create import create_file_responses
 from api.rest.docs.file_retrieve import retrieve_file_responses
-from api.rest.schemas.models import DeleteFileResponse, UploadFileResponse
+from api.rest.schemas.models.files import DeleteFileResponse, UploadFileResponse
 from api.rest.schemas.requests import FileRetrieve
 from api.rest.schemas.responses import Response
 from api.rest.utils.handler import api_response

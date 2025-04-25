@@ -4,8 +4,10 @@ from aiohttp import ClientSession
 from miniopy_async import Minio
 
 from contracts.application import FileStorage
+from contracts.composition import ExistingBuckets
 from infrastructure.utils.handlers.s3_handler import wrap_s3_failure
 from infrastructure.utils.stream_reader import AsyncStreamReader
+from shared.types.healthcheck import BucketInfo, StorageHealthStatus
 
 
 class MinioRepository(FileStorage):
@@ -48,3 +50,27 @@ class MinioRepository(FileStorage):
     @wrap_s3_failure
     async def delete(self, file_id: str) -> None:
         await self._client.remove_object(bucket_name=self._bucket, object_name=file_id)
+
+    async def healthcheck(self) -> StorageHealthStatus:
+        try:
+            buckets = await self._client.list_buckets()
+
+            bucket_info: list[BucketInfo] = []
+            for bucket in buckets:
+                name = bucket.name
+                try:
+                    description = ExistingBuckets(name).description
+                except ValueError:
+                    description = "Unknown bucket"
+
+                bucket_info.append(
+                    {
+                        "name": name,
+                        "description": description,
+                    }
+                )
+
+            return StorageHealthStatus(ok=True, details={"buckets": bucket_info})
+
+        except Exception as exc:
+            return StorageHealthStatus(ok=False, details={"error": str(exc)})

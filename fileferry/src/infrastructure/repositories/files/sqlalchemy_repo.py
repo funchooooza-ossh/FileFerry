@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from contracts.application import FileRepository as FileRepositoryContract
@@ -6,6 +6,7 @@ from domain.models.dataclasses import FileMeta
 from infrastructure.models.sqlalchemy.file import File
 from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_failure
 from shared.exceptions.infrastructure import RepositoryNotFoundError
+from shared.types.healthcheck import RepoHealthStatus
 
 
 class FileRepository(FileRepositoryContract):
@@ -36,3 +37,11 @@ class FileRepository(FileRepositoryContract):
             await self._session.flush()
             return
         raise RepositoryNotFoundError(f"File meta {file_id} not found")
+
+    async def healthcheck(self) -> RepoHealthStatus:
+        try:
+            result = await self._session.execute(text("SELECT 1"))
+            result.scalar_one()
+            return RepoHealthStatus(ok=True, details={"db_status": "ok"})
+        except Exception as exc:
+            return RepoHealthStatus(ok=False, details={"error": str(exc)})
