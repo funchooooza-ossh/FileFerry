@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
 from api.rest.di_context import make_di_resolver
@@ -21,7 +21,7 @@ file_router = APIRouter()
 
 
 @file_router.post(
-    "/create",
+    "/upload",
     tags=["files"],
     response_model=Response[UploadFileResponse],
     responses=create_file_responses,
@@ -57,3 +57,22 @@ async def retrieve_file(
             "X-FileId": meta.id.value,
         },
     )
+
+
+@file_router.post(
+    "/streaming_upload",
+    tags=["files"],
+    response_model=Response[UploadFileResponse],
+    responses=create_file_responses,
+)
+@api_response(expected_type=UploadFileResponse)
+async def streaming_upload(
+    request: Request,
+    service: Annotated[
+        UploadAPIAdapterContract, Depends(make_di_resolver(FileAction.UPLOAD))
+    ],
+    name: Annotated[str, Query(alias="filename")],
+) -> UploadFileResponse:
+    stream = request.stream()
+    result = await service.create(name=name, stream=stream)
+    return UploadFileResponse.from_domain(result)
