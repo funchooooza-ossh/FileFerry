@@ -26,3 +26,13 @@ class FileRepository(FileRepositoryContract):
         if file_model:
             return file_model.to_domain()
         raise RepositoryNotFoundError(f"File meta {file_id} not found")
+
+    @wrap_sqlalchemy_failure
+    async def delete(self, file_id: str) -> None:
+        query = await self._session.execute(select(File).where(File.id == file_id))
+        file_model = query.scalar_one_or_none()
+        if file_model:
+            await self._session.delete(file_model)
+            await self._session.flush()
+            return
+        raise RepositoryNotFoundError(f"File meta {file_id} not found")

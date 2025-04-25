@@ -44,3 +44,7 @@ class MinioRepository(FileStorage):
                 await session.close()
 
         return stream()
+
+    @wrap_s3_failure
+    async def delete(self, file_id: str) -> None:
+        await self._client.remove_object(bucket_name=self._bucket, object_name=file_id)

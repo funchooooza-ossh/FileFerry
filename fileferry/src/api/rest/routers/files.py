@@ -6,11 +6,12 @@ from fastapi.responses import StreamingResponse
 from api.rest.di_context import make_di_resolver
 from api.rest.docs.file_create import create_file_responses
 from api.rest.docs.file_retrieve import retrieve_file_responses
-from api.rest.schemas.models import UploadFileResponse
+from api.rest.schemas.models import DeleteFileResponse, UploadFileResponse
 from api.rest.schemas.requests import FileRetrieve
 from api.rest.schemas.responses import Response
 from api.rest.utils.handler import api_response
 from contracts.composition import (
+    DeleteAPIAdapterContract,
     FileAction,
     RetrieveAPIAdapterContract,
     UploadAPIAdapterContract,
@@ -76,3 +77,15 @@ async def streaming_upload(
     stream = request.stream()
     result = await service.create(name=name, stream=stream)
     return UploadFileResponse.from_domain(result)
+
+
+@file_router.post("/delete", tags=["files"], responses=retrieve_file_responses)
+@api_response(expected_type=DeleteFileResponse)
+async def delete_file(
+    service: Annotated[
+        DeleteAPIAdapterContract, Depends(make_di_resolver(FileAction.DELETE))
+    ],
+    request: FileRetrieve,
+) -> DeleteFileResponse:
+    await service.delete(file_id=request.file_id)
+    return DeleteFileResponse.success()

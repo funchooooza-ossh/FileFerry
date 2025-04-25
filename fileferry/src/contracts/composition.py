@@ -15,6 +15,7 @@ class ScenarioName(StrEnum):
 class FileAction(StrEnum):
     UPLOAD = "upload"
     RETRIEVE = "retrieve"
+    DELETE = "delete"
 
 
 class DependencyContext(BaseModel):
@@ -35,4 +36,10 @@ class RetrieveAPIAdapterContract(Protocol):
     async def get(self, file_id: str) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
-FileAPIAdapterContract = Union[UploadAPIAdapterContract, RetrieveAPIAdapterContract]
+class DeleteAPIAdapterContract(Protocol):
+    async def delete(self, file_id: str) -> None: ...
+
+
+FileAPIAdapterContract = Union[
+    UploadAPIAdapterContract, RetrieveAPIAdapterContract, DeleteAPIAdapterContract
+]

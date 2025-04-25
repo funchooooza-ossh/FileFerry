@@ -1,9 +1,11 @@
+from application.orchestrators.delete_file_adapter import DeleteFileAPIAdapter
 from application.orchestrators.retrieve_file_adapter import RetrieveFileAPIAdapter
 from application.orchestrators.upload_file_adapter import UploadFileAPIAdapter
 from composition.meta_factory import create_filemeta
 from composition.minio.factory import create_minio_client
 from composition.uow.factory import UnitOfWorkFactory
 from composition.usecases.factory import (
+    DeleteFileServiceFactory,
     RetrieveFileServiceFactory,
     UploadFileServiceFactory,
 )
@@ -30,5 +32,8 @@ def bootstrap_minio_sqla(ctx: DependencyContext) -> FileAPIAdapterContract:
             return RetrieveFileAPIAdapter(
                 retrieve_service=service,
             )
+        case FileAction.DELETE:
+            service = DeleteFileServiceFactory.create(uow=uow, storage=storage)
+            return DeleteFileAPIAdapter(delete_service=service)
         case _:
             raise NotImplementedError("Such action not implemented")
