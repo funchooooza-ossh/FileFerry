@@ -1,27 +1,30 @@
-import pytest
+from collections.abc import Callable, Generator
 from unittest.mock import AsyncMock, MagicMock
-from sqlalchemy.exc import (
-    SQLAlchemyError,
-    NoResultFound,
-    IntegrityError,
-    OperationalError,
-    ProgrammingError,
-)
+
+import pytest
+from domain.models.dataclasses import FileMeta
+from infrastructure.models.sqlalchemy.file import File
+from infrastructure.repositories.files.sqlalchemy_repo import FileRepository
+from pytest_mock import MockerFixture
 from shared.exceptions.infrastructure import (
     RepositoryError,
-    RepositoryNotFoundError,
     RepositoryIntegrityError,
+    RepositoryNotFoundError,
     RepositoryOperationalError,
-    RepositoryProgrammingError,
     RepositoryORMError,
+    RepositoryProgrammingError,
 )
-from infrastructure.models.sqlalchemy.file import File
-from infrastructure.repositories.files.sqlalchemy import FileRepository
-from domain.models.dataclasses import FileMeta
+from sqlalchemy.exc import (
+    IntegrityError,
+    NoResultFound,
+    OperationalError,
+    ProgrammingError,
+    SQLAlchemyError,
+)
 
 
 @pytest.mark.asyncio
-async def test_add_success(valid_filemeta, mocker):
+async def test_add_success(valid_filemeta: FileMeta):
     session = AsyncMock()
     repo = FileRepository(session)
 
@@ -32,16 +35,18 @@ async def test_add_success(valid_filemeta, mocker):
 
 
 @pytest.mark.asyncio
-async def test_add_invalid_filemeta_raises_error(mocker):
+async def test_add_invalid_filemeta_raises_error(
+    mocker: Callable[..., Generator[MockerFixture, None, None]],
+):
     session = AsyncMock()
 
-    from_domain_mock = mocker.patch(
-        "src.infrastructure.repositories.files.sqlalchemy.File.from_domain",
+    from_domain_mock = mocker.patch(  # type: ignore
+        "src.infrastructure.repositories.files.sqlalchemy_repo.File.from_domain",
         side_effect=ValueError("invalid meta"),
     )
 
     repo = FileRepository(session)
-    invalid_meta = mocker.Mock(spec=FileMeta)
+    invalid_meta = mocker.Mock(spec=FileMeta)  # type: ignore
 
     with pytest.raises(RepositoryError):
         await repo.add(invalid_meta)
@@ -62,7 +67,11 @@ async def test_add_invalid_filemeta_raises_error(mocker):
     ],
 )
 @pytest.mark.asyncio
-async def test_add_wraps_sqlalchemy_error(valid_filemeta, exc_type, expected_exception):
+async def test_add_wraps_sqlalchemy_error(
+    valid_filemeta: FileMeta,
+    exc_type,  # type: ignore
+    expected_exception,  # type: ignore
+):
     # Мокаем session
     session_mock = MagicMock()
     # Для каждого исключения передаем необходимые параметры
@@ -80,7 +89,7 @@ async def test_add_wraps_sqlalchemy_error(valid_filemeta, exc_type, expected_exc
     repo = FileRepository(session=session_mock)
 
     # Проверяем, что правильное исключение оборачивается в RepositoryError или его подкласс
-    with pytest.raises(expected_exception):
+    with pytest.raises(expected_exception):  # type: ignore
         await repo.add(valid_filemeta)
 
 
@@ -96,7 +105,9 @@ async def test_add_wraps_sqlalchemy_error(valid_filemeta, exc_type, expected_exc
 )
 @pytest.mark.asyncio
 async def test_add_while_session_flush_wraps_sqlalchemy_error(
-    valid_filemeta, exc_type, expected_exception
+    valid_filemeta: FileMeta,
+    exc_type,  # type: ignore
+    expected_exception,  # type: ignore
 ):
     """Аналогично проверям для session.flush()"""
     session_mock = AsyncMock()
@@ -113,12 +124,12 @@ async def test_add_while_session_flush_wraps_sqlalchemy_error(
 
     repo = FileRepository(session=session_mock)
 
-    with pytest.raises(expected_exception):
+    with pytest.raises(expected_exception):  # type: ignore
         await repo.add(valid_filemeta)
 
 
 @pytest.mark.asyncio
-async def test_get_success(valid_filemeta):
+async def test_get_success(valid_filemeta: FileMeta):
     session_mock = AsyncMock()
     mock_query = MagicMock()
     valid_file = File.from_domain(file_meta=valid_filemeta)

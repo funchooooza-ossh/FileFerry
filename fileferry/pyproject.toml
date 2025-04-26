@@ -16,64 +16,41 @@ dependencies = [
     "python-multipart (>=0.0.20,<0.0.21)",
     "ruff (>=0.11.5,<0.12.0)",
     "uvicorn (>=0.34.1,<0.35.0)",
-    "libmagic (>=1.0,<2.0)"
+    "libmagic (>=1.0,<2.0)",
 ]
 [tool.poetry.group.dev.dependencies]
-pytest = "8.3.3" 
-pytest-cov = "4.0"
-pytest-asyncio = "0.18.3"
-httpx = "^0.28.1"
-pytest-mock = "^3.14.0"
-pytest-env = "^1.1.5"
-pytest-xdist = "^3.6.1"
-testcontainers = "^4.10.0"
-moto = "^5.1.3"
+    pytest = "8.3.3"
+    pytest-cov = "4.0"
+    pytest-asyncio = "0.18.3"
+    httpx = "^0.28.1"
+    pytest-mock = "^3.14.0"
+    pytest-env = "^1.1.5"
+    pytest-xdist = "^3.6.1"
+    testcontainers = "^4.10.0"
+    moto = "^5.1.3"
+    black = "^25.1.0"
+pre-commit = "^4.2.0"
+pyright = "^1.1.400"
 
 [tool.ruff]
 target-version = "py312"
 line-length = 120
 lint.select = [
-    "I",      
-    "Q",
-    "E",      
-    "W",      
-    "F",      
-    "UP",     
-    "C",      
-    "B",      
-    "S",      
-    "ISC",    
-    "ASYNC",  
-    "T20",    
-    "ANN",    
-    "TCH",    
-    "PT",     
-    "RUF",    
-    "PT",     
-    "C90",    
-    "FAST",   
-    "SIM",   
+    "I", "Q", "E", "W", "F", "UP", "C", "B", "S", "ISC", "ASYNC", "T20",
+    "ANN", "TCH", "PT", "RUF", "C90", "SIM"
 ]
 lint.ignore = [
-    "E501",   # line too long, handled by black
-    "B008",   # do not perform function calls in argument defaults
-    "F821",   # checks for uses of undefined names, breaks sqlalchemy models
-    "UP007",  # large models are unreadable
-    "UP032",  # allows str .format
-    "ANN401", # allows type Any
-    "RUF012", # typing.ClassVar
-    "RUF002", # docstring contains ambiguous
-    "RUF001",
-    "RUF003",
-    "RUF100", # Unused `noqa` directive
-    "W291",   # Trailing whitespace
-    "TC003",  # Type-checking block
+    "E501", "B008", "F821", "UP007", "UP032", "ANN401",
+    "RUF012", "RUF002", "RUF001", "RUF003", "RUF100", "W291", "TC003"
 ]
 
-[tool.ruff.lint.per-file-ignores]
+[lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "conftest.py" = ["F401"]
 "tests/*" = ["S"]
+
+
+
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]

@@ -1,6 +1,6 @@
 import functools
 from collections.abc import Awaitable, Callable
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from loguru import logger
 from sqlalchemy.exc import (
@@ -23,7 +23,7 @@ from shared.exceptions.infrastructure import (
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 
-def wrap_sqlalchemy_failure(func: F) -> Callable[..., Awaitable[Any]]:
+def wrap_sqlalchemy_failure(func: F) -> F:
     @functools.wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
@@ -53,4 +53,4 @@ def wrap_sqlalchemy_failure(func: F) -> Callable[..., Awaitable[Any]]:
             logger.exception(f"[Unexpected] Error in {func.__qualname__}")
             raise RepositoryError from exc
 
-    return wrapper
+    return cast("F", wrapper)

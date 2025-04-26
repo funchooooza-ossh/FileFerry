@@ -1,7 +1,11 @@
 from collections.abc import Callable
 
 from composition.scenarios.minio_sqla import bootstrap_minio_sqla
-from contracts.composition import DependencyContext, FileAPIAdapterContract, ScenarioName
+from contracts.composition import (
+    DependencyContext,
+    FileAPIAdapterContract,
+    ScenarioName,
+)
 
 BOOTSTRAP_FN = Callable[[DependencyContext], FileAPIAdapterContract]
 
@@ -13,6 +17,9 @@ _BOOTSTRAP_REGISTRY: dict[ScenarioName, BOOTSTRAP_FN] = {
 
 
 def di_resolver(ctx: DependencyContext) -> FileAPIAdapterContract:
+    """
+    DI-resolver. Резолвит известные конфигурации, выбирает Bootstrap'ы
+    """
     try:
         return _BOOTSTRAP_REGISTRY[ctx.scenario](ctx)
     except KeyError:

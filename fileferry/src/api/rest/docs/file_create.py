@@ -1,9 +1,11 @@
+from typing import Any
+
 from starlette import status
 
-from api.rest.schemas.models import UploadFileResponse
+from api.rest.schemas.models.files import UploadFileResponse
 from api.rest.schemas.responses import Error, Response
 
-create_file_responses = {
+create_file_responses: dict[int | str, dict[str, Any]] = {
     status.HTTP_200_OK: {
         "model": Response[UploadFileResponse],
         "description": "Файл успешно загружен",
@@ -21,7 +23,13 @@ create_file_responses = {
         "description": "Неверные параметры запроса или некорректное имя bucket",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Имя bucket недопустимо.", "type": "INVALID_BUCKET_NAME"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Имя bucket недопустимо.",
+                        "type": "INVALID_BUCKET_NAME",
+                    },
+                }
             }
         },
     },
@@ -32,7 +40,10 @@ create_file_responses = {
             "application/json": {
                 "example": {
                     "data": None,
-                    "error": {"msg": "Нарушение ограничений целостности БД.", "type": "REPO_INTEGRITY"},
+                    "error": {
+                        "msg": "Нарушение ограничений целостности БД.",
+                        "type": "REPO_INTEGRITY",
+                    },
                 }
             }
         },
@@ -44,7 +55,10 @@ create_file_responses = {
             "application/json": {
                 "example": {
                     "data": None,
-                    "error": {"msg": "File rejected by policy", "type": "FilePolicyViolationEror"},
+                    "error": {
+                        "msg": "File rejected by policy",
+                        "type": "FilePolicyViolationEror",
+                    },
                 }
             }
         },
@@ -54,7 +68,13 @@ create_file_responses = {
         "description": "Ошибка взаимодействия с хранилищем",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Ошибка взаимодействия с хранилищем.", "type": "STORAGE"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Ошибка взаимодействия с хранилищем.",
+                        "type": "STORAGE",
+                    },
+                }
             }
         },
     },
@@ -65,7 +85,10 @@ create_file_responses = {
             "application/json": {
                 "example": {
                     "data": None,
-                    "error": {"msg": "Ошибка соединения или таймаут при работе с БД.", "type": "REPO_OPERATIONAL"},
+                    "error": {
+                        "msg": "Ошибка соединения или таймаут при работе с БД.",
+                        "type": "REPO_OPERATIONAL",
+                    },
                 }
             }
         },
@@ -75,7 +98,13 @@ create_file_responses = {
         "description": "Внутренняя ошибка сервиса",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Низкоуровневая инфраструктурная ошибка.", "type": "INFRA"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Низкоуровневая инфраструктурная ошибка.",
+                        "type": "INFRA",
+                    },
+                }
             }
         },
     },

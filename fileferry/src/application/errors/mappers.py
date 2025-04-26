@@ -55,10 +55,12 @@ class InfrastructureErrorMapper:
 
     @classmethod
     def get_message(cls, exc: Exception) -> str:
-        return cls._code_to_message.get(cls.get_code(exc), "Неизвестная ошибка инфраструктуры.")
+        return cls._code_to_message.get(
+            cls.get_code(exc), "Неизвестная ошибка инфраструктуры."
+        )
 
 
-def _map_code_to_http_status(code: InfrastructureErrorCode) -> int:  # noqa: C901
+def map_code_to_http_status(code: InfrastructureErrorCode) -> int:  # noqa: C901
     match code:
         case InfrastructureErrorCode.NO_SUCH_BUCKET:
             return status.HTTP_404_NOT_FOUND

@@ -2,20 +2,23 @@ from collections.abc import AsyncIterator
 
 from magic import Magic
 
+from contracts.application import FileAnalyzer
 from shared.io.peekable_stream import PeekableAsyncStream
 
 
-class FileHelper:
+class FileHelper(FileAnalyzer):
     @staticmethod
-    async def analyze(data: AsyncIterator[bytes]) -> tuple[str, int]:
-        stream = FileHelper.iterator_to_peekable_stream(data)
+    async def analyze(
+        stream: AsyncIterator[bytes],
+    ) -> tuple[AsyncIterator[bytes], str, int]:
+        peek = FileHelper.iterator_to_peekable_stream(stream)
 
-        header = await FileHelper.get_stream_header(stream)
+        header = await FileHelper.get_stream_header(peek)
 
         mime = FileHelper.detect_mime(header)
-        size = await FileHelper.get_stream_size(stream)
+        size = await FileHelper.get_stream_size(peek)
 
-        return stream.iter(), mime, size
+        return peek.iter(), mime, size
 
     @staticmethod
     def iterator_to_peekable_stream(

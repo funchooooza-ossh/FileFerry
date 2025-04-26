@@ -4,7 +4,9 @@ from typing import Any
 
 from loguru import logger as _logger
 
-request_id_ctx_var: contextvars.ContextVar[str] = contextvars.ContextVar("request_id", default="-")
+request_id_ctx_var: contextvars.ContextVar[str] = contextvars.ContextVar(
+    "request_id", default="-"
+)
 
 LOG_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
@@ -28,4 +30,4 @@ def setup_logging() -> None:
     def add_request_id(record: dict[str, Any]) -> None:
         record["extra"]["request_id"] = request_id_ctx_var.get()
 
-    _logger.configure(patcher=add_request_id)
+    _logger.configure(patcher=add_request_id)  # type: ignore

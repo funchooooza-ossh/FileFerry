@@ -1,8 +1,10 @@
+from typing import Any
+
 from starlette import status
 
 from api.rest.schemas.responses import Error, Response
 
-retrieve_file_responses = {
+retrieve_file_responses: dict[int | str, dict[str, Any]] = {
     status.HTTP_200_OK: {
         "description": "Файл успешно возвращён как поток",
         "content": {"application/octet-stream": {"example": b"binary file content"}},
@@ -12,7 +14,13 @@ retrieve_file_responses = {
         "description": "Некорректный ID файла или имя bucket",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Имя bucket недопустимо.", "type": "INVALID_BUCKET_NAME"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Имя bucket недопустимо.",
+                        "type": "INVALID_BUCKET_NAME",
+                    },
+                }
             }
         },
     },
@@ -21,7 +29,13 @@ retrieve_file_responses = {
         "description": "Файл не найден в хранилище или базе данных",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Файл не найден в хранилище.", "type": "STORAGE_NOT_FOUND"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Файл не найден в хранилище.",
+                        "type": "STORAGE_NOT_FOUND",
+                    },
+                }
             }
         },
     },
@@ -30,7 +44,13 @@ retrieve_file_responses = {
         "description": "Ошибка получения файла из хранилища",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Ошибка взаимодействия с хранилищем.", "type": "STORAGE"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Ошибка взаимодействия с хранилищем.",
+                        "type": "STORAGE",
+                    },
+                }
             }
         },
     },
@@ -41,7 +61,10 @@ retrieve_file_responses = {
             "application/json": {
                 "example": {
                     "data": None,
-                    "error": {"msg": "Ошибка соединения или таймаут при работе с БД.", "type": "REPO_OPERATIONAL"},
+                    "error": {
+                        "msg": "Ошибка соединения или таймаут при работе с БД.",
+                        "type": "REPO_OPERATIONAL",
+                    },
                 }
             }
         },
@@ -51,7 +74,13 @@ retrieve_file_responses = {
         "description": "Внутренняя ошибка сервиса",
         "content": {
             "application/json": {
-                "example": {"data": None, "error": {"msg": "Низкоуровневая инфраструктурная ошибка.", "type": "INFRA"}}
+                "example": {
+                    "data": None,
+                    "error": {
+                        "msg": "Низкоуровневая инфраструктурная ошибка.",
+                        "type": "INFRA",
+                    },
+                }
             }
         },
     },

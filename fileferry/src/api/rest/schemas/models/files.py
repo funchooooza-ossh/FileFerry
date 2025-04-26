@@ -13,3 +13,11 @@ class UploadFileResponse(BaseModel):
     @classmethod
     def from_domain(cls, meta: FileMeta) -> "UploadFileResponse":
         return cls(id=meta.id.value, name=meta.name.value)
+
+
+class DeleteFileResponse(BaseModel):
+    msg: str
+
+    @classmethod
+    def success(cls) -> "DeleteFileResponse":
+        return cls(msg="Requested to delete file deleted successfully")

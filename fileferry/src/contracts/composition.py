@@ -1,33 +1,64 @@
 from collections.abc import AsyncIterator
 from enum import StrEnum
-from typing import Protocol
+from typing import Protocol, Union
 
 from pydantic import BaseModel
 
 from domain.models.dataclasses import FileMeta
+from shared.types.healthcheck import ServiceHealthStatus
 
 
 class ScenarioName(StrEnum):
     MINIO_SQLA = "minio-sqla"
-    SFTP_MONGO = "sftp-mongo"
+    # SFTP_MONGO = "sftp-mongo"
 
 
 class FileAction(StrEnum):
     UPLOAD = "upload"
     RETRIEVE = "retrieve"
+    DELETE = "delete"
+    HEALTH = "health"
+
+
+class ExistingBuckets(StrEnum):
+    DEFAULT = "default-bucket"
+
+    @property
+    def description(self) -> str:
+        match self:
+            case ExistingBuckets.DEFAULT:
+                return "Dev bucket.Shouldn't really exists in production."
 
 
 class DependencyContext(BaseModel):
     scenario: ScenarioName
-    bucket_name: str = "default-bucket"
+    bucket_name: ExistingBuckets
     action: FileAction
 
 
-class FileAPIAdapterContract(Protocol):
+class UploadAPIAdapterContract(Protocol):
     async def create(
         self,
         name: str,
         stream: AsyncIterator[bytes],
     ) -> FileMeta: ...
 
+
+class RetrieveAPIAdapterContract(Protocol):
     async def get(self, file_id: str) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
+
+
+class DeleteAPIAdapterContract(Protocol):
+    async def delete(self, file_id: str) -> None: ...
+
+
+class HealthCheckAPIAdapterContract(Protocol):
+    async def healthcheck(self) -> ServiceHealthStatus: ...
+
+
+FileAPIAdapterContract = Union[
+    UploadAPIAdapterContract,
+    RetrieveAPIAdapterContract,
+    DeleteAPIAdapterContract,
+    HealthCheckAPIAdapterContract,
+]
