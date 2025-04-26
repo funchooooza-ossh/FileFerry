@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
-from api.rest.di_context import make_di_resolver
+from api.rest.di_context import make_di_resolver, resolve_headers
 from api.rest.docs.file_create import create_file_responses
 from api.rest.docs.file_retrieve import retrieve_file_responses
 from api.rest.schemas.models.files import DeleteFileResponse, UploadFileResponse
@@ -12,6 +12,7 @@ from api.rest.schemas.responses import Response
 from api.rest.utils.handler import api_response
 from contracts.composition import (
     DeleteAPIAdapterContract,
+    DependencyContext,
     FileAction,
     RetrieveAPIAdapterContract,
     UploadAPIAdapterContract,
@@ -32,11 +33,12 @@ async def create_file(
     service: Annotated[
         UploadAPIAdapterContract, Depends(make_di_resolver(FileAction.UPLOAD))
     ],
+    ctx: Annotated[DependencyContext, Depends(resolve_headers(FileAction.UPLOAD))],
     file: Annotated[UploadFile, File()],
     name: Annotated[str, Form()],
 ) -> UploadFileResponse:
     stream = file_to_iterator(file)
-    result = await service.create(name=name, stream=stream)
+    result = await service.create(name=name, stream=stream, bucket=ctx.bucket_name)
     return UploadFileResponse.from_domain(result)
 
 
@@ -46,9 +48,10 @@ async def retrieve_file(
     service: Annotated[
         RetrieveAPIAdapterContract, Depends(make_di_resolver(FileAction.RETRIEVE))
     ],
+    ctx: Annotated[DependencyContext, Depends(resolve_headers(FileAction.RETRIEVE))],
     request: FileRetrieve,
 ) -> StreamingResponse:
-    meta, stream = await service.get(file_id=request.file_id)
+    meta, stream = await service.get(file_id=request.file_id, bucket=ctx.bucket_name)
     return StreamingResponse(
         content=stream,
         media_type=meta.content_type.value,
@@ -72,10 +75,11 @@ async def streaming_upload(
     service: Annotated[
         UploadAPIAdapterContract, Depends(make_di_resolver(FileAction.UPLOAD))
     ],
+    ctx: Annotated[DependencyContext, Depends(resolve_headers(FileAction.UPLOAD))],
     name: Annotated[str, Query(alias="filename")],
 ) -> UploadFileResponse:
     stream = request.stream()
-    result = await service.create(name=name, stream=stream)
+    result = await service.create(name=name, stream=stream, bucket=ctx.bucket_name)
     return UploadFileResponse.from_domain(result)
 
 
@@ -85,7 +89,8 @@ async def delete_file(
     service: Annotated[
         DeleteAPIAdapterContract, Depends(make_di_resolver(FileAction.DELETE))
     ],
+    ctx: Annotated[DependencyContext, Depends(resolve_headers(FileAction.UPLOAD))],
     request: FileRetrieve,
 ) -> DeleteFileResponse:
-    await service.delete(file_id=request.file_id)
+    await service.delete(file_id=request.file_id, bucket=ctx.bucket_name)
     return DeleteFileResponse.success()

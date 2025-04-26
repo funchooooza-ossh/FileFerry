@@ -4,24 +4,28 @@ from aiohttp import ClientSession
 from miniopy_async import Minio
 
 from contracts.application import FileStorage
-from contracts.composition import ExistingBuckets
+from infrastructure.config.minio import ExistingBuckets
 from infrastructure.utils.handlers.s3_handler import wrap_s3_failure
 from infrastructure.utils.stream_reader import AsyncStreamReader
 from shared.types.healthcheck import BucketInfo, StorageHealthStatus
 
 
 class MinioRepository(FileStorage):
-    def __init__(self, client: Minio, bucket_name: str) -> None:
+    def __init__(self, client: Minio) -> None:
         self._client = client
-        self._bucket = bucket_name
 
     @wrap_s3_failure
     async def store(
-        self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str
+        self,
+        file_id: str,
+        stream: AsyncIterator[bytes],
+        length: int,
+        content_type: str,
+        bucket: ExistingBuckets,
     ) -> None:
         stream = AsyncStreamReader(stream=stream)
         await self._client.put_object(
-            bucket_name=self._bucket,
+            bucket_name=bucket,
             object_name=file_id,
             data=stream,  # type: ignore AsyncStreamReader compatible with Minio SDK
             length=length,
@@ -29,10 +33,12 @@ class MinioRepository(FileStorage):
         )
 
     @wrap_s3_failure
-    async def retrieve(self, file_id: str) -> AsyncIterator[bytes]:
+    async def retrieve(
+        self, file_id: str, bucket: ExistingBuckets
+    ) -> AsyncIterator[bytes]:
         session = ClientSession()
         response = await self._client.get_object(
-            bucket_name=self._bucket,
+            bucket_name=bucket,
             object_name=file_id,
             session=session,
         )
@@ -48,8 +54,8 @@ class MinioRepository(FileStorage):
         return stream()
 
     @wrap_s3_failure
-    async def delete(self, file_id: str) -> None:
-        await self._client.remove_object(bucket_name=self._bucket, object_name=file_id)
+    async def delete(self, file_id: str, bucket: ExistingBuckets) -> None:
+        await self._client.remove_object(bucket_name=bucket, object_name=file_id)
 
     async def healthcheck(self) -> StorageHealthStatus:
         try:

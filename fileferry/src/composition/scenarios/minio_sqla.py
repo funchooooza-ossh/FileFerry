@@ -20,7 +20,7 @@ def bootstrap_minio_sqla(ctx: DependencyContext) -> FileAPIAdapterContract:
     uow = UnitOfWorkFactory.create(config="sqla")
     file_analyzer = FileHelper()
     client = create_minio_client(_type="default")
-    storage = MinioRepository(client=client, bucket_name=ctx.bucket_name)
+    storage = MinioRepository(client=client)
     match ctx.action:
         case FileAction.UPLOAD:
             service = UploadFileServiceFactory.create(uow=uow, storage=storage)

@@ -4,6 +4,7 @@ from typing import Protocol
 
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import ContentType, FileId, FileSize
+from infrastructure.config.minio import ExistingBuckets
 from shared.types.healthcheck import (
     RepoHealthStatus,
     ServiceHealthStatus,
@@ -19,12 +20,14 @@ class FileAnalyzer(Protocol):
 
 
 class UploadFileService(Protocol):
-    async def execute(self, meta: FileMeta, data: AsyncIterator[bytes]) -> FileMeta: ...
+    async def execute(
+        self, meta: FileMeta, data: AsyncIterator[bytes], bucket: ExistingBuckets
+    ) -> FileMeta: ...
 
 
 class RetrieveFileService(Protocol):
     async def execute(
-        self, file_id: FileId
+        self, file_id: FileId, bucket: ExistingBuckets
     ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
@@ -33,15 +36,22 @@ class HealthCheckService(Protocol):
 
 
 class DeleteFileService(Protocol):
-    async def execute(self, file_id: FileId) -> None: ...
+    async def execute(self, file_id: FileId, bucket: ExistingBuckets) -> None: ...
 
 
 class FileStorage(Protocol):
     async def store(
-        self, file_id: str, stream: AsyncIterator[bytes], length: int, content_type: str
+        self,
+        file_id: str,
+        stream: AsyncIterator[bytes],
+        length: int,
+        content_type: str,
+        bucket: ExistingBuckets,
     ) -> None: ...
-    async def retrieve(self, file_id: str) -> AsyncIterator[bytes]: ...
-    async def delete(self, file_id: str) -> None: ...
+    async def retrieve(
+        self, file_id: str, bucket: ExistingBuckets
+    ) -> AsyncIterator[bytes]: ...
+    async def delete(self, file_id: str, bucket: ExistingBuckets) -> None: ...
     async def healthcheck(self) -> StorageHealthStatus: ...
 
 

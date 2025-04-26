@@ -1,3 +1,5 @@
+from enum import StrEnum
+
 from pydantic_settings import BaseSettings
 
 from shared.types.minio_creds import MinioCreds
@@ -26,3 +28,13 @@ class MinioDefaultCredentials(MinioCredentials):
         env_file = "minio.env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+
+
+class ExistingBuckets(StrEnum):
+    DEFAULT = "default-bucket"
+
+    @property
+    def description(self) -> str:
+        match self:
+            case ExistingBuckets.DEFAULT:
+                return "Dev bucket.Shouldn't really exists in production."

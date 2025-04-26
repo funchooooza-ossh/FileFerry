@@ -5,6 +5,7 @@ from typing import Protocol, Union
 from pydantic import BaseModel
 
 from domain.models.dataclasses import FileMeta
+from infrastructure.config.minio import ExistingBuckets
 from shared.types.healthcheck import ServiceHealthStatus
 
 
@@ -20,16 +21,6 @@ class FileAction(StrEnum):
     HEALTH = "health"
 
 
-class ExistingBuckets(StrEnum):
-    DEFAULT = "default-bucket"
-
-    @property
-    def description(self) -> str:
-        match self:
-            case ExistingBuckets.DEFAULT:
-                return "Dev bucket.Shouldn't really exists in production."
-
-
 class DependencyContext(BaseModel):
     scenario: ScenarioName
     bucket_name: ExistingBuckets
@@ -38,18 +29,18 @@ class DependencyContext(BaseModel):
 
 class UploadAPIAdapterContract(Protocol):
     async def create(
-        self,
-        name: str,
-        stream: AsyncIterator[bytes],
+        self, name: str, stream: AsyncIterator[bytes], bucket: ExistingBuckets
     ) -> FileMeta: ...
 
 
 class RetrieveAPIAdapterContract(Protocol):
-    async def get(self, file_id: str) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
+    async def get(
+        self, file_id: str, bucket: ExistingBuckets
+    ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
 
 class DeleteAPIAdapterContract(Protocol):
-    async def delete(self, file_id: str) -> None: ...
+    async def delete(self, file_id: str, bucket: ExistingBuckets) -> None: ...
 
 
 class HealthCheckAPIAdapterContract(Protocol):
