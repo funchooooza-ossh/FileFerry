@@ -74,3 +74,11 @@ class RepositoryProgrammingError(RepositoryORMError):
     """
 
     pass
+
+
+class RepositoryRunTimeError(RepositoryError):
+    """
+    Возникает при нарушении логики работы репозитория
+    """
+
+    pass

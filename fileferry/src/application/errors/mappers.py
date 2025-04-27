@@ -11,6 +11,7 @@ from shared.exceptions.infrastructure import (
     RepositoryOperationalError,
     RepositoryORMError,
     RepositoryProgrammingError,
+    RepositoryRunTimeError,
     StorageError,
     StorageNotFoundError,
 )
@@ -29,6 +30,7 @@ class InfrastructureErrorMapper:
         RepositoryORMError: InfrastructureErrorCode.REPO_ORM,
         RepositoryError: InfrastructureErrorCode.REPOSITORY,
         InfrastructureError: InfrastructureErrorCode.INFRA,
+        RepositoryRunTimeError: InfrastructureErrorCode.RUNTIME,
     }
 
     _code_to_message: dict[InfrastructureErrorCode, str] = {
@@ -44,6 +46,7 @@ class InfrastructureErrorMapper:
         InfrastructureErrorCode.REPOSITORY: "Ошибка при работе с репозиторием.",
         InfrastructureErrorCode.INFRA: "Низкоуровневая инфраструктурная ошибка.",
         InfrastructureErrorCode.UNKNOWN: "Неизвестная инфраструктурная ошибка.",
+        InfrastructureErrorCode.RUNTIME: "Рантайм ошибка инфраструктуры.",
     }
 
     @classmethod
@@ -85,4 +88,8 @@ def map_code_to_http_status(code: InfrastructureErrorCode) -> int:  # noqa: C901
         case InfrastructureErrorCode.INFRA:
             return status.HTTP_500_INTERNAL_SERVER_ERROR
         case InfrastructureErrorCode.UNKNOWN:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+        case InfrastructureErrorCode.RUNTIME:
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+        case _:
             return status.HTTP_500_INTERNAL_SERVER_ERROR

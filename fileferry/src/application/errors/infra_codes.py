@@ -13,6 +13,7 @@ class InfrastructureErrorCode(StrEnum):
     REPO_PROGRAMMING = "RepositoryProgrammingError"
     REPO_ORM = "RepositoryORMError"
     REPOSITORY = "RepositoryError"
+    RUNTIME = "RepositoryRunTimeError"
 
     INFRA = "InfrastructureError"
     UNKNOWN = "UnknownInfrastructureError"

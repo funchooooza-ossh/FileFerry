@@ -49,3 +49,9 @@ class InvalidValueError(ApplicationError):
     Возникает, когда слой приложения не может преобразовать
     пользовательские данные в валидные VO.
     """
+
+
+class ApplicationRunTimeError(ApplicationError):
+    """
+    Возникает при нарушении логики работы слоя приложения
+    """
