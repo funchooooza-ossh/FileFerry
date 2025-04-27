@@ -1,7 +1,8 @@
+from enum import StrEnum
+
 from starlette import status
 
-from application.errors.infra_codes import InfrastructureErrorCode
-from shared.exceptions.infrastructure import (
+from shared.exceptions.exc_classes.infrastructure import (
     InfrastructureError,
     InvalidBucketNameError,
     NoSuchBucketError,
@@ -15,6 +16,24 @@ from shared.exceptions.infrastructure import (
     StorageError,
     StorageNotFoundError,
 )
+
+
+class InfrastructureErrorCode(StrEnum):
+    NO_SUCH_BUCKET = "NoSuchBucketError"
+    INVALID_BUCKET_NAME = "InvalidBucketNameError"
+    STORAGE_NOT_FOUND = "StorageNotFoundError"
+    STORAGE = "StorageError"
+
+    REPO_NOT_FOUND = "RepositoryNotFoundError"
+    REPO_INTEGRITY = "RepositoryIntegrityError"
+    REPO_OPERATIONAL = "RepositoryOperationalError"
+    REPO_PROGRAMMING = "RepositoryProgrammingError"
+    REPO_ORM = "RepositoryORMError"
+    REPOSITORY = "RepositoryError"
+    RUNTIME = "RepositoryRunTimeError"
+
+    INFRA = "InfrastructureError"
+    UNKNOWN = "UnknownInfrastructureError"
 
 
 class InfrastructureErrorMapper:

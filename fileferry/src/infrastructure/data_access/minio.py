@@ -7,9 +7,9 @@ from miniopy_async.commonconfig import CopySource
 
 from contracts.infrastructure import StorageAccessContract
 from domain.models import FileMeta
-from infrastructure.utils.handlers.s3_handler import wrap_s3_failure
 from infrastructure.utils.stream_reader import AsyncStreamReader
 from shared.enums import Buckets
+from shared.exceptions.handlers.s3_handler import wrap_s3_failure
 
 
 class MiniOStorage(StorageAccessContract):

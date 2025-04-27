@@ -5,8 +5,8 @@ from typing import Any, TypeVar, cast
 from loguru import logger
 from miniopy_async.error import S3Error
 
-from infrastructure.errors.s3_errors import map_s3_error
-from shared.exceptions.infrastructure import StorageError
+from shared.exceptions.exc_classes.infrastructure import StorageError
+from shared.exceptions.mappers.s3_errors import map_s3_error
 
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 

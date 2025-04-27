@@ -1,11 +1,11 @@
 from collections.abc import AsyncIterator, Callable
 
-from application.errors.error_wrapper import wrap_infrastructure_failures
 from contracts.application import UploadUseCaseContract
 from contracts.domain import PolicyContract
 from contracts.infrastructure import AtomicOperationContract, FileHelperContract
 from domain.models import FileMeta
 from shared.enums import Buckets
+from shared.exceptions.handlers.infra_hanlder import wrap_infrastructure_failures
 
 
 class UploadUseCase(UploadUseCaseContract):
@@ -26,8 +26,8 @@ class UploadUseCase(UploadUseCaseContract):
         self, name: str, stream: AsyncIterator[bytes], bucket: Buckets
     ) -> FileMeta:
         stream, mime, size = await self._helper.analyze(stream=stream)
-
         file_meta = self._meta_factory(name, size, mime)
+        self._policy.is_allowed(file_meta=file_meta)
 
         async with self._atomic as transaction:
             staged_file = await transaction.storage.stage_upload(

@@ -11,7 +11,7 @@ from sqlalchemy.exc import (
     SQLAlchemyError,
 )
 
-from shared.exceptions.infrastructure import (
+from shared.exceptions.exc_classes.infrastructure import (
     RepositoryError,
     RepositoryIntegrityError,
     RepositoryNotFoundError,

@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from miniopy_async.error import S3Error
 
-from shared.exceptions.infrastructure import (
+from shared.exceptions.exc_classes.infrastructure import (
     InfrastructureError,
     InvalidBucketNameError,
     NoSuchBucketError,

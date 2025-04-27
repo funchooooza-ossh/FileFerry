@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from contracts.infrastructure import SQLAlchemyDataAccessContract
 from domain.models import FileMeta
 from infrastructure.models.sqlalchemy.file import File
-from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_failure
-from shared.exceptions.infrastructure import RepositoryRunTimeError
+from shared.exceptions.exc_classes.infrastructure import RepositoryRunTimeError
+from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 
 
 class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):

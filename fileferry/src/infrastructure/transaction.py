@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
 from contracts.infrastructure import TransactionContext
-from infrastructure.utils.handlers.sqlalchemy_handler import wrap_sqlalchemy_failure
+from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 
 
 class SqlAlchemyTransactionContext(TransactionContext):

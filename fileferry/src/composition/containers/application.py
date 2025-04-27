@@ -12,7 +12,7 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     wiring_config = containers.WiringConfiguration(
         packages=[
-            "transport.rest.routers",
+            "composition.di",
         ],
     )
 

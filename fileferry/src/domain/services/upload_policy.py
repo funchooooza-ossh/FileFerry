@@ -1,6 +1,6 @@
 from contracts.domain import PolicyContract
 from domain.models import FileMeta
-from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
 
 
 class FilePolicyDefault(PolicyContract):

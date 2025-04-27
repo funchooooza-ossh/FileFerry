@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from composition.containers.application import ApplicationContainer
+from shared.exceptions.middleware import ApplicationErrorMiddleware
 from shared.logging.configuration import setup_logging
 from shared.logging.middleware import RequestIdMiddleware
 from transport.rest.routers.root import root_router
@@ -21,12 +22,13 @@ def create_app() -> FastAPI:
 
     container.wire(
         modules=[
-            "transport.rest.routers",
+            "composition.di",
         ],
     )
 
     # Подключение роутеров
     app.include_router(root_router)
     app.add_middleware(RequestIdMiddleware)
+    app.add_middleware(ApplicationErrorMiddleware)
 
     return app

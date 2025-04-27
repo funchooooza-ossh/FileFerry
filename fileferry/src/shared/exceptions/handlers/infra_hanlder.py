@@ -4,12 +4,12 @@ from typing import Any, TypeVar, cast
 
 from loguru import logger
 
-from application.errors.mappers import (
+from shared.exceptions.exc_classes.application import FileOperationFailed
+from shared.exceptions.exc_classes.infrastructure import InfrastructureError
+from shared.exceptions.mappers.infra_errors import (
     InfrastructureErrorMapper,
     map_code_to_http_status,
 )
-from shared.exceptions.application import FileOperationFailed
-from shared.exceptions.infrastructure import InfrastructureError
 
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 

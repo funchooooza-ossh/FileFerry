@@ -10,7 +10,7 @@ from contracts.application import (
 )
 from domain.models import FileMeta
 from shared.enums import Buckets
-from shared.exceptions.application import ApplicationRunTimeError
+from shared.exceptions.exc_classes.application import ApplicationRunTimeError
 
 
 class FileApplicationAdapter(ApplicationAdapterContract):
