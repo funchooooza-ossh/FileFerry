@@ -41,6 +41,10 @@ class AtomicOperationContract(Protocol):
         """Добалявем данные измененных файлов в инстанс-список"""
         ...
 
+    def transactional(
+        self, transactional: bool = True
+    ) -> "AtomicOperationContract": ...
+
 
 class SQLAlchemyMinioAtomicContract(AtomicOperationContract, Protocol):
     data_access: SQLAlchemyDataAccessContract  # type: ignore override насильно

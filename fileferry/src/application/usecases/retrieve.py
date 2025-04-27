@@ -17,16 +17,18 @@ class RetrieveUseCase(RetrieveUseCaseContract):
         self, file_id: str, bucket: Buckets
     ) -> tuple[FileMeta, AsyncIterator[bytes]]:
         """
-        Запрашиваем файл из БД и хранилища.
-        Если файл не найден в БД или хранилище - выкинется ошибка.
-        Обрабатываем ее декоратором.
+        UseCase получения файла из хранилища MiniO и базы данных.
+        Выполняет !!!строго последовательно!!! запрос в базу и хранилище.
+        Почему последовательно? Асинхронные сессии не любят параллельные операци,
+        потому что в случае падения ошибки внутри DataAccess сессия останется
+        в состоянии незавершенной транзакции и gracefull close нам уже не светит.
         """
         try:
             FileId(file_id)
         except ValueError as exc:
             raise InvalidValueError("Невалидный файл айди") from exc
 
-        async with self._atomic as transaction:
+        async with self._atomic.transactional(False) as transaction:
             meta = await transaction.data_access.get(file_id=file_id)
             stream = await transaction.storage.retrieve(file_id=file_id, bucket=bucket)
 

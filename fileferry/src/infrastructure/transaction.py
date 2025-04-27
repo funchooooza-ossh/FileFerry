@@ -7,7 +7,13 @@ from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 
 
 class SqlAlchemyTransactionContext(TransactionContext):
-    """Контекст управления транзакцией через SQLAlchemy AsyncSession."""
+    """
+    Контекст управления сессией SQLAlchemy, а также объектом session.begin(),
+    который являет собой транзакцию (AsyncSessionTransaction).
+    Вынесен в отдельный класс, как адаптер для отделения ответственности
+    остальных классов за состояние сессии.
+    Используется в контексте AtomicOperation для управления сессией внутри DataAccess классов.
+    """
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -26,3 +32,7 @@ class SqlAlchemyTransactionContext(TransactionContext):
     async def rollback(self) -> None:
         if self._transaction is not None:
             await self._transaction.rollback()
+
+    @wrap_sqlalchemy_failure
+    async def close(self) -> None:
+        await self.session.close()

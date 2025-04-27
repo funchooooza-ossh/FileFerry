@@ -33,7 +33,7 @@ def wrap_sqlalchemy_failure(func: F) -> F:
             raise
 
         except SQLAlchemyError as exc:
-            logger.warning(f"[SQLAlchemy] Error in {func.__qualname__}")
+            logger.warning(f"[SQLAlchemy] Error in {func.__qualname__}: {exc}")
 
             if isinstance(exc, NoResultFound):
                 raise RepositoryNotFoundError() from exc
@@ -50,7 +50,7 @@ def wrap_sqlalchemy_failure(func: F) -> F:
             raise RepositoryORMError() from exc
 
         except Exception as exc:
-            logger.exception(f"[Unexpected] Error in {func.__qualname__}")
+            logger.exception(f"[Unexpected] Error in {func.__qualname__}: {exc}")
             raise RepositoryError from exc
 
     return cast("F", wrapper)
