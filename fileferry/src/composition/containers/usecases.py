@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from application.usecases.upload import UploadUseCase
+from application.usecases import RetrieveUseCase, UploadUseCase
 from domain.models.create_filemeta import create_filemeta
 from domain.services.upload_policy import FilePolicyDefault
 from infrastructure.utils.file_helper import FileHelper
@@ -22,4 +22,8 @@ class UsecaseContainer(containers.DeclarativeContainer):
         helper=helper,
         policy=policy,
         meta_factory=meta_factory,
+    )
+
+    retrieve_usecase: providers.Factory[RetrieveUseCase] = providers.Factory(
+        RetrieveUseCase, atomic=atomic
     )

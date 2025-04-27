@@ -1,4 +1,5 @@
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, Query, UploadFile
+from fastapi.responses import StreamingResponse
 
 from composition.di import AdapterDI
 from shared.io.upload_stream import file_to_iterator
@@ -21,3 +22,19 @@ async def upload_file(
     data = UploadFileResponse.from_domain(meta)
 
     return Response[UploadFileResponse].success(data)
+
+
+@file_router.get("/retrieve")
+async def retrieve_file(
+    adapter: AdapterDI, bucket: BucketDI, file_id: str = Query(..., alias="file_id")
+) -> StreamingResponse:
+    meta, stream = await adapter.retrieve(file_id=file_id, bucket=bucket)
+    return StreamingResponse(
+        content=stream,
+        media_type=meta.content_type.value,
+        headers={
+            "X-Filename": meta.name.value,
+            "X-FileSize": str(meta.size.value),
+            "X-FileID": meta.id.value,
+        },
+    )

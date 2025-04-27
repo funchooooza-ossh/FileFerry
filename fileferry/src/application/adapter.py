@@ -49,7 +49,7 @@ class FileApplicationAdapter(ApplicationAdapterContract):
         *,
         file_id: str,
         bucket: Buckets,
-    ) -> AsyncIterator[bytes]:
+    ) -> tuple[FileMeta, AsyncIterator[bytes]]:
         if not self._retrieve_usecase:
             raise ApplicationRunTimeError("Retrieve usecase is not available")
 

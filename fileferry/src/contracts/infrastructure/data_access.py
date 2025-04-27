@@ -9,7 +9,7 @@ from domain.models import FileMeta
 class DataAccessContract(Protocol):
     """Контракт для доступа к данным."""
 
-    async def get(self, file_id: str) -> Optional[FileMeta]:
+    async def get(self, file_id: str) -> FileMeta:
         """Получить объект данных по ID."""
         ...
 

@@ -37,4 +37,5 @@ class ApplicationContainer(containers.DeclarativeContainer):
     adapters = providers.Container(
         AdapterContainer,
         upload_usecase=usecases.upload_usecase,  # type: ignore
+        retrieve_usecase=usecases.retrieve_usecase,  # type: ignore
     )

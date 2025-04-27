@@ -21,7 +21,7 @@ class ApplicationAdapterContract(Protocol):
         *,
         file_id: str,
         bucket: Buckets,
-    ) -> AsyncIterator[bytes]: ...
+    ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
     async def delete(
         self,

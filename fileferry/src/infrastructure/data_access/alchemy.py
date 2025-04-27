@@ -36,7 +36,7 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
         return file_meta
 
     @wrap_sqlalchemy_failure
-    async def get(self, file_id: str) -> Optional[FileMeta]:
+    async def get(self, file_id: str) -> FileMeta:
         query = await self.session.execute(select(File).where(File.id == file_id))
         model = query.scalar_one()
         return model.to_domain()
