@@ -5,7 +5,7 @@ from composition.di import AdapterDI
 from shared.io.upload_stream import file_to_iterator
 from transport.rest.dependencies import BucketDI
 from transport.rest.dto.base import Response
-from transport.rest.dto.models import UploadFileResponse
+from transport.rest.dto.models import DeleteFileResponse, UploadFileResponse
 
 file_router = APIRouter(prefix="/files")
 
@@ -38,3 +38,11 @@ async def retrieve_file(
             "X-FileID": meta.id.value,
         },
     )
+
+
+@file_router.post("/delete")
+async def delete_file(
+    adapter: AdapterDI, bucket: BucketDI, file_id: str = Query(..., alias="file_id")
+) -> Response[DeleteFileResponse]:
+    await adapter.delete(file_id=file_id, bucket=bucket)
+    return Response[DeleteFileResponse].success(data=DeleteFileResponse.success())

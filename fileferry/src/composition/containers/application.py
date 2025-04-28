@@ -38,4 +38,5 @@ class ApplicationContainer(containers.DeclarativeContainer):
         AdapterContainer,
         upload_usecase=usecases.upload_usecase,  # type: ignore
         retrieve_usecase=usecases.retrieve_usecase,  # type: ignore
+        delete_usecase=usecases.delete_usecase,  # type: ignore
     )
