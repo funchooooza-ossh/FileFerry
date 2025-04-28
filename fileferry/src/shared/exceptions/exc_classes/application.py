@@ -23,14 +23,6 @@ class ApplicationError(Exception):
             self.status_code = status_code
 
 
-class DomainRejectedError(ApplicationError):
-    """
-    Доменный слой "отказал" в исполнении логики.
-    """
-
-    pass
-
-
 class FileOperationFailed(ApplicationError):
     pass
 

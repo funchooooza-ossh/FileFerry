@@ -41,7 +41,16 @@ def generate_infrastructure_responses(
                             "data": None,
                             "error": {"msg": description, "type": error_code.value},
                         }
-                    }
+                    },
+                    "application/problem+json": {
+                        "example": {
+                            "type": f"https://example.com/problems/{error_code.value.lower()}",
+                            "title": description,
+                            "status": http_status,
+                            "detail": description,
+                            "instance": "/files/12345",
+                        }
+                    },
                 },
             }
     return responses
