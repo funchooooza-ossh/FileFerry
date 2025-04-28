@@ -28,7 +28,7 @@ def create_app() -> FastAPI:
 
     # Подключение роутеров
     app.include_router(root_router)
-    app.add_middleware(RequestIdMiddleware)
     app.add_middleware(ApplicationErrorMiddleware)
+    app.add_middleware(RequestIdMiddleware)
 
     return app

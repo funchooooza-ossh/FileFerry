@@ -24,6 +24,11 @@ class ApplicationError(Exception):
 
 
 class FileOperationFailed(ApplicationError):
+    """
+    Обертка для инфра ошибок во время обработки запроса.
+
+    """
+
     pass
 
 
@@ -42,10 +47,20 @@ class InvalidValueError(ApplicationError):
     пользовательские данные в валидные VO.
     """
 
+    pass
+
 
 class ApplicationRunTimeError(ApplicationError):
     """
     Возникает при нарушении логики работы слоя приложения
+    """
+
+    pass
+
+
+class DomainRejectedError(ApplicationError):
+    """
+    Обертка доменных ошибок.
     """
 
     pass

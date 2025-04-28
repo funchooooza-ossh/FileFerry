@@ -6,6 +6,8 @@ from contracts.domain import PolicyContract
 from contracts.infrastructure import AtomicOperationContract, FileHelperContract
 from domain.models import FileMeta
 from shared.enums import Buckets
+from shared.exceptions.exc_classes.application import DomainRejectedError
+from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
 from shared.exceptions.handlers.infra_hanlder import wrap_infrastructure_failures
 
 
@@ -28,8 +30,10 @@ class UploadUseCase(UploadUseCaseContract):
     ) -> FileMeta:
         stream, mime, size = await self._helper.analyze(stream=stream)
         file_meta = self._meta_factory(None, name, size, mime)
-        self._policy.is_allowed(file_meta=file_meta)
-
+        try:
+            self._policy.is_allowed(file_meta=file_meta)
+        except FilePolicyViolationEror as exc:
+            raise DomainRejectedError(message="Policy violation") from exc
         async with self._atomic as transaction:
             await transaction.data_access.save(file_meta=file_meta)
             await transaction.storage.upload(

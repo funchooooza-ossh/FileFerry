@@ -4,6 +4,7 @@ from fastapi.responses import StreamingResponse
 from composition.di import AdapterDI
 from shared.io.upload_stream import file_to_iterator
 from transport.rest.dependencies import BucketDI
+from transport.rest.docs.generate_docs import ALL_RESPONSES, NON_SPECIFIED_RESPONSES
 from transport.rest.dto.base import Response
 from transport.rest.dto.models import DeleteFileResponse, UploadFileResponse
 
@@ -17,6 +18,7 @@ file_router = APIRouter(prefix="/files")
     summary="Upload a new file",
     description="Uploads a file into the specified bucket and returns its metadata.",
     tags=["rest"],
+    responses=NON_SPECIFIED_RESPONSES,
 )
 async def upload_file(
     adapter: AdapterDI,
@@ -37,6 +39,7 @@ async def upload_file(
     summary="Retrieve a file",
     description="Streams a file from the storage by its ID.",
     tags=["rest"],
+    responses=ALL_RESPONSES,
 )
 async def retrieve_file(
     adapter: AdapterDI,
@@ -62,6 +65,7 @@ async def retrieve_file(
     summary="Delete a file",
     description="Deletes a file from the storage by its ID.",
     tags=["rest"],
+    responses=ALL_RESPONSES,
 )
 async def delete_file(
     adapter: AdapterDI,
@@ -79,6 +83,7 @@ async def delete_file(
     summary="Update a file",
     description="Updates file metadata or replaces file content.",
     tags=["rest"],
+    responses=ALL_RESPONSES,
 )
 async def update_file(
     adapter: AdapterDI,
@@ -104,6 +109,7 @@ async def update_file(
     summary="Upload a new file via streaming",
     description="Uploads a file to the storage via a streamed request and returns its metadata.",
     tags=["integration"],
+    responses=NON_SPECIFIED_RESPONSES,
 )
 async def stream_upload(
     request: Request,
@@ -126,6 +132,7 @@ async def stream_upload(
     summary="Update file content via streaming",
     description="Updates the content of an existing file using a streamed request.",
     tags=["integration"],
+    responses=ALL_RESPONSES,
 )
 async def stream_update(
     request: Request,

@@ -6,7 +6,11 @@ from contracts.domain import PolicyContract
 from contracts.infrastructure import FileHelperContract, SQLAlchemyMinioAtomicContract
 from domain.models import FileMeta
 from shared.enums import Buckets
-from shared.exceptions.exc_classes.application import ApplicationRunTimeError
+from shared.exceptions.exc_classes.application import (
+    ApplicationRunTimeError,
+    DomainRejectedError,
+)
+from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
 from shared.exceptions.handlers.infra_hanlder import wrap_infrastructure_failures
 
 
@@ -38,7 +42,10 @@ class UpdateUseCase(UpdateUseCaseContract):
             analyzed = await self._helper.analyze(stream)
             stream, content_type, size = analyzed
             meta = self._meta_factory(file_id, name, size, content_type)
-            self._policy.is_allowed(meta)
+            try:
+                self._policy.is_allowed(meta)
+            except FilePolicyViolationEror as exc:
+                raise DomainRejectedError(message="Policy violation") from exc
 
         async with self._atomic as transaction:
             if meta and stream:

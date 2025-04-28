@@ -54,6 +54,29 @@ class InfraErrorMapper:
         MultipleResultsFoundError: SQLAlchemyErrorCode.MULTIPLE_RESULTS,
         DisconnectedError: SQLAlchemyErrorCode.DISCONNECTED,
     }
+
+    _str_type_to_code: dict[str, S3ErrorCode | SQLAlchemyErrorCode] = {
+        "AccessDeniedError": S3ErrorCode.ACCESS_DENIED,
+        "NoSuchBucketError": S3ErrorCode.NO_SUCH_BUCKET,
+        "NoSuchKeyError": S3ErrorCode.NO_SUCH_KEY,
+        "InvalidAccessKeyIdError": S3ErrorCode.INVALID_ACCESS_KEY_ID,
+        "EntityTooLargeError": S3ErrorCode.ENTITY_TOO_LARGE,
+        "InternalError": S3ErrorCode.INTERNAL_ERROR,
+        "InvalidBucketNameError": S3ErrorCode.INVALID_BUCKET_NAME,
+        "InvalidObjectStateError": S3ErrorCode.INVALID_OBJECT_STATE,
+        "InvalidRangeError": S3ErrorCode.INVALID_RANGE,
+        "MalformedXMLStorageError": S3ErrorCode.MALFORMED_XML,
+        "MissingContentLengthError": S3ErrorCode.MISSING_CONTENT_LENGTH,
+        "PreconditionFailedError": S3ErrorCode.PRECONDITION_FAILED,
+        "BucketNotEmptyError": S3ErrorCode.BUCKET_NOT_EMPTY,
+        #       #       #       #       #       #       #       #
+        "IntegrityError": SQLAlchemyErrorCode.INTEGRITY_ERROR,
+        "OperationalError": SQLAlchemyErrorCode.OPERATIONAL_ERROR,
+        "ProgrammingError": SQLAlchemyErrorCode.PROGRAMMING_ERROR,
+        "NoResultFoundError": SQLAlchemyErrorCode.NO_RESULT,
+        "MultipleResultsFoundError": SQLAlchemyErrorCode.MULTIPLE_RESULTS,
+        "DisconnectedError": SQLAlchemyErrorCode.DISCONNECTED,
+    }
     _code_to_type: dict[
         S3ErrorCode | SQLAlchemyErrorCode, type[StorageError | DataAccessError]
     ] = {
@@ -166,6 +189,20 @@ class InfraErrorMapper:
         }
 
     @classmethod
+    def map_str_to_rfc7807(cls, exc: str) -> dict[str, str | int | None]:
+        code = cls._str_type_to_code.get(exc, S3ErrorCode.UNKNOWN)
+        message = cls._code_to_message.get(code)
+        status_code = cls._code_to_http_status.get(code)
+
+        return {
+            "type": f"https://example.com/problems/{code.value.lower()}",
+            "title": message,
+            "status": status_code,
+            "detail": message,
+            "instance": None,
+        }
+
+    @classmethod
     def map_code_to_error(
         cls, error_code: S3ErrorCode | SQLAlchemyErrorCode
     ) -> type[StorageError | DataAccessError]:
@@ -179,3 +216,13 @@ class InfraErrorMapper:
     @classmethod
     def get_code_to_http_status(cls) -> dict[S3ErrorCode | SQLAlchemyErrorCode, int]:
         return cls._code_to_http_status
+
+    @classmethod
+    def get_type_to_code(
+        cls,
+    ) -> dict[type[StorageError | DataAccessError], S3ErrorCode | SQLAlchemyErrorCode]:
+        return cls._type_to_code
+
+    @classmethod
+    def get_str_type_to_code(cls) -> dict[str, S3ErrorCode | SQLAlchemyErrorCode]:
+        return cls._str_type_to_code
