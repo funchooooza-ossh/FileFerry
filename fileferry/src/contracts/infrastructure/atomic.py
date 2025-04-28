@@ -5,7 +5,6 @@ from contracts.infrastructure.data_access import (
     SQLAlchemyDataAccessContract,
 )
 from contracts.infrastructure.storage import StorageAccessContract
-from shared.enums import Buckets
 
 
 class AtomicOperationContract(Protocol):
@@ -34,16 +33,6 @@ class AtomicOperationContract(Protocol):
     async def rollback(self) -> None:
         """Откатываем изменения в базе данных и хранилище."""
         ...
-
-    async def stage_file(
-        self, staged_file_id: str, final_file_id: str, bucket: Buckets
-    ) -> None:
-        """Добалявем данные измененных файлов в инстанс-список"""
-        ...
-
-    def transactional(
-        self, transactional: bool = True
-    ) -> "AtomicOperationContract": ...
 
 
 class SQLAlchemyMinioAtomicContract(AtomicOperationContract, Protocol):

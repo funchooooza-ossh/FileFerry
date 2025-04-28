@@ -28,7 +28,7 @@ class RetrieveUseCase(RetrieveUseCaseContract):
         except ValueError as exc:
             raise InvalidValueError("Невалидный файл айди") from exc
 
-        async with self._atomic.transactional(False) as transaction:
+        async with self._atomic as transaction:
             meta = await transaction.data_access.get(file_id=file_id)
             stream = await transaction.storage.retrieve(file_id=file_id, bucket=bucket)
 

@@ -1,8 +1,6 @@
-import contextlib
 from collections.abc import AsyncIterator
 
-from miniopy_async import Minio, S3Error
-from miniopy_async.commonconfig import CopySource
+from miniopy_async import Minio
 
 from contracts.infrastructure import StorageAccessContract
 from domain.models import FileMeta
@@ -17,51 +15,31 @@ class MiniOStorage(StorageAccessContract):
         self._client = client
 
     @wrap_s3_failure
-    async def stage_upload(
+    async def upload(
         self, *, file_meta: FileMeta, stream: AsyncIterator[bytes], bucket: Buckets
-    ) -> str:
-        tmp_file_id = f"{file_meta.id.value}.tmp"
+    ) -> None:
         stream_reader = AsyncStreamReader(stream)
-
         await self._client.put_object(
-            bucket_name=bucket,
-            object_name=tmp_file_id,
-            data=stream_reader,  # type: ignore
+            bucket_name=bucket.value,
+            object_name=file_meta.id.value,
             length=file_meta.size.value,
             content_type=file_meta.content_type.value,
+            data=stream_reader,  # type: ignore
         )
-
-        return tmp_file_id
+        return
 
     @wrap_s3_failure
     async def retrieve(self, *, file_id: str, bucket: Buckets) -> AsyncIterator[bytes]:
-        async with create_client_session() as session:
-            response = await self._client.get_object(
-                bucket_name=bucket, object_name=file_id, session=session
-            )
-
-            async def stream() -> AsyncIterator[bytes]:
+        async def stream() -> AsyncIterator[bytes]:
+            async with create_client_session() as session:
+                response = await self._client.get_object(
+                    bucket_name=bucket, object_name=file_id, session=session
+                )
                 async with response:
                     async for chunk in response.content.iter_chunked(4096):
                         yield chunk
 
-            return stream()
-
-    @wrap_s3_failure
-    async def commit(
-        self, *, staged_file_id: str, final_file_id: str, bucket: str
-    ) -> None:
-        await self._client.copy_object(
-            bucket_name=bucket,
-            object_name=final_file_id,
-            source=CopySource(object_name=staged_file_id, bucket_name=bucket),
-        )
-        await self._client.remove_object(bucket, staged_file_id)
-
-    async def rollback(self, *, staged_file_id: str, bucket: Buckets) -> None:
-        """Удаляет временный файл при ошибке."""
-        with contextlib.suppress(S3Error):
-            await self._client.remove_object(bucket, staged_file_id)
+        return stream()
 
     @wrap_s3_failure
     async def delete(self, *, file_id: str, bucket: Buckets) -> None:

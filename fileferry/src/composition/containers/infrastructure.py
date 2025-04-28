@@ -9,7 +9,8 @@ from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
 from infrastructure.data_access.minio import MiniOStorage
-from infrastructure.transaction import SqlAlchemyTransactionContext
+from infrastructure.transactions.context import SqlAlchemyTransactionContext
+from infrastructure.transactions.manager import TransactionManager
 
 
 def create_transaction_context(
@@ -67,11 +68,12 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         create_transaction_context,
         session_factory=db_session_factory,
     )
+    transaction_manager = providers.Factory(TransactionManager, context=transaction)
 
     atomic_operation: providers.Factory[SqlAlchemyMinioAtomicOperation] = (
         providers.Factory(
             SqlAlchemyMinioAtomicOperation,
-            transaction=transaction,
+            transaction=transaction_manager,
             storage=storage_access,
             data_access=data_access,
         )

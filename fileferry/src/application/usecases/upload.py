@@ -30,16 +30,9 @@ class UploadUseCase(UploadUseCaseContract):
         self._policy.is_allowed(file_meta=file_meta)
 
         async with self._atomic as transaction:
-            staged_file = await transaction.storage.stage_upload(
+            await transaction.data_access.save(file_meta=file_meta)
+            await transaction.storage.upload(
                 file_meta=file_meta, stream=stream, bucket=bucket
             )
-
-            await transaction.stage_file(
-                staged_file_id=staged_file,
-                final_file_id=file_meta.id.value,
-                bucket=bucket,
-            )
-
-            await transaction.data_access.save(file_meta=file_meta)
 
         return file_meta
