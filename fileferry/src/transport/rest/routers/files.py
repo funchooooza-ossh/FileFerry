@@ -1,21 +1,30 @@
-from fastapi import APIRouter, File, Form, Query, UploadFile
+from fastapi import APIRouter, File, Form, Path, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
 from composition.di import AdapterDI
 from shared.io.upload_stream import file_to_iterator
 from transport.rest.dependencies import BucketDI
+from transport.rest.docs.generate_docs import COMMON_RESPONSES
 from transport.rest.dto.base import Response
 from transport.rest.dto.models import DeleteFileResponse, UploadFileResponse
 
 file_router = APIRouter(prefix="/files")
 
 
-@file_router.post("/upload")
+@file_router.post(
+    "/",
+    response_model=Response[UploadFileResponse],
+    status_code=201,
+    summary="Upload a new file",
+    description="Uploads a file into the specified bucket and returns its metadata.",
+    tags=["rest"],
+    responses=COMMON_RESPONSES,
+)
 async def upload_file(
     adapter: AdapterDI,
     bucket: BucketDI,
-    file: UploadFile = File(...),
-    name: str = Form(...),
+    file: UploadFile = File(..., description="Binary file to be uploaded"),
+    name: str = Form(..., min_length=1, max_length=255, description="New file name"),
 ) -> Response[UploadFileResponse]:
     stream = file_to_iterator(file=file)
     meta = await adapter.upload(name=name, stream=stream, bucket=bucket)
@@ -24,9 +33,17 @@ async def upload_file(
     return Response[UploadFileResponse].success(data)
 
 
-@file_router.get("/retrieve")
+@file_router.get(
+    "/{file_id}",
+    response_class=StreamingResponse,
+    summary="Retrieve a file",
+    description="Streams a file from the storage by its ID.",
+    tags=["rest"],
+)
 async def retrieve_file(
-    adapter: AdapterDI, bucket: BucketDI, file_id: str = Query(..., alias="file_id")
+    adapter: AdapterDI,
+    bucket: BucketDI,
+    file_id: str = Path(..., alias="file_id", description="Unique file identifier"),
 ) -> StreamingResponse:
     meta, stream = await adapter.retrieve(file_id=file_id, bucket=bucket)
     return StreamingResponse(
@@ -40,23 +57,86 @@ async def retrieve_file(
     )
 
 
-@file_router.post("/delete")
+@file_router.delete(
+    "/{file_id}",
+    response_model=Response[DeleteFileResponse],
+    status_code=200,
+    summary="Delete a file",
+    description="Deletes a file from the storage by its ID.",
+    tags=["rest"],
+)
 async def delete_file(
-    adapter: AdapterDI, bucket: BucketDI, file_id: str = Query(..., alias="file_id")
+    adapter: AdapterDI,
+    bucket: BucketDI,
+    file_id: str = Path(..., alias="file_id", description="Unique file identifier"),
 ) -> Response[DeleteFileResponse]:
     await adapter.delete(file_id=file_id, bucket=bucket)
     return Response[DeleteFileResponse].success(data=DeleteFileResponse.success())
 
 
-@file_router.post("/update")
+@file_router.patch(
+    "/{file_id}",
+    response_model=Response[UploadFileResponse],
+    status_code=200,
+    summary="Update a file",
+    description="Updates file metadata or replaces file content.",
+    tags=["rest"],
+)
 async def update_file(
     adapter: AdapterDI,
     bucket: BucketDI,
-    file_id: str = Query(..., alias="file_id"),
-    file: UploadFile = File(None),
-    name: str = Form(...),
+    file_id: str = Path(..., description="Unique file identifier"),
+    file: UploadFile = File(
+        None, description="New file content to replace the existing one"
+    ),
+    name: str = Form(..., min_length=1, max_length=255, description="New file name"),
 ) -> Response[UploadFileResponse]:
     stream = file_to_iterator(file) if file else None
+    meta = await adapter.update(
+        file_id=file_id, name=name, stream=stream, bucket=bucket
+    )
+    data = UploadFileResponse.from_domain(meta)
+    return Response[UploadFileResponse].success(data)
+
+
+@file_router.post(
+    "/stream",
+    response_model=Response[UploadFileResponse],
+    status_code=201,
+    summary="Upload a new file via streaming",
+    description="Uploads a file to the storage via a streamed request and returns its metadata.",
+    tags=["integration"],
+)
+async def stream_upload(
+    request: Request,
+    adapter: AdapterDI,
+    bucket: BucketDI,
+    name: str = Query(
+        ..., min_length=1, max_length=255, description="Original file name"
+    ),
+) -> Response[UploadFileResponse]:
+    stream = request.stream()
+    meta = await adapter.upload(name=name, stream=stream, bucket=bucket)
+    data = UploadFileResponse.from_domain(meta)
+    return Response[UploadFileResponse].success(data)
+
+
+@file_router.patch(
+    "/{file_id}/stream",
+    response_model=Response[UploadFileResponse],
+    status_code=200,
+    summary="Update file content via streaming",
+    description="Updates the content of an existing file using a streamed request.",
+    tags=["integration"],
+)
+async def stream_update(
+    request: Request,
+    adapter: AdapterDI,
+    bucket: BucketDI,
+    file_id: str = Path(..., description="Unique file identifier"),
+    name: str = Query(..., min_length=1, max_length=255, description="New file name"),
+) -> Response[UploadFileResponse]:
+    stream = request.stream()
     meta = await adapter.update(
         file_id=file_id, name=name, stream=stream, bucket=bucket
     )
