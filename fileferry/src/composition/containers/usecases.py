@@ -2,6 +2,7 @@ from dependency_injector import containers, providers
 
 from application.usecases import (
     DeleteUseCase,
+    HealthCheckUseCase,
     RetrieveUseCase,
     UpdateUseCase,
     UploadUseCase,
@@ -43,4 +44,7 @@ class UsecaseContainer(containers.DeclarativeContainer):
         helper=helper,
         policy=policy,
         meta_factory=meta_factory,
+    )
+    health_usecase: providers.Factory[HealthCheckUseCase] = providers.Factory(
+        HealthCheckUseCase, atomic=atomic
     )

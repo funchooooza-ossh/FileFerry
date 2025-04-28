@@ -1,6 +1,6 @@
 # contracts/infrastructure/storage_access.py
 from collections.abc import AsyncIterator
-from typing import Protocol
+from typing import Any, Protocol
 
 from domain.models import FileMeta
 from shared.enums import Buckets
@@ -21,4 +21,8 @@ class StorageAccessContract(Protocol):
 
     async def delete(self, *, file_id: str, bucket: Buckets) -> None:
         """Удаляет файл из хранилища."""
+        ...
+
+    async def healtcheck(self) -> Any:
+        """Проверка состояния"""
         ...

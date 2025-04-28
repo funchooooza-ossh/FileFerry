@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
 from typing import Optional, Protocol
 
-from domain.models import FileMeta
+from domain.models import FileMeta, HealthReport
 from shared.enums import Buckets
 
 
@@ -39,5 +39,4 @@ class ApplicationAdapterContract(Protocol):
         stream: Optional[AsyncIterator[bytes]] = None,
     ) -> FileMeta: ...
 
-    # TODO return type healthcheck
-    async def healthcheck(self) -> dict[str, str]: ...
+    async def healthcheck(self) -> HealthReport: ...

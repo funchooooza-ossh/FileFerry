@@ -25,6 +25,10 @@ class DataAccessContract(Protocol):
         """Обновить данные по ID"""
         ...
 
+    async def healtcheck(self) -> bool:
+        """Проверка состояния"""
+        ...
+
 
 class SQLAlchemyDataAccessContract(DataAccessContract, Protocol):
     @property

@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator
 
+from loguru import logger
 from miniopy_async import Minio
 
 from contracts.infrastructure import StorageAccessContract
@@ -44,3 +45,11 @@ class MiniOStorage(StorageAccessContract):
     @wrap_s3_failure
     async def delete(self, *, file_id: str, bucket: Buckets) -> None:
         await self._client.remove_object(bucket.value, file_id)
+
+    async def healtcheck(self) -> bool:
+        try:
+            response = await self._client.list_buckets()
+            return bool(response)
+        except Exception as exc:
+            logger.critical(f"[MiniO] Storage healtcheck failed: {exc}")
+            return False

@@ -1,6 +1,7 @@
 from typing import Optional
 
-from sqlalchemy import select
+from loguru import logger
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from contracts.infrastructure import SQLAlchemyDataAccessContract
@@ -61,3 +62,12 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
         await self.session.flush()
 
         return model.to_domain()
+
+    async def healtcheck(self) -> bool:
+        try:
+            query = await self.session.execute(text("SELECT 1"))
+            query.scalar_one()
+            return True
+        except Exception as exc:
+            logger.critical(f"[DATABASE] Db healtcheck failed: {exc}")
+            return False

@@ -10,6 +10,7 @@ class AdapterContainer(containers.DeclarativeContainer):
     retrieve_usecase = providers.Dependency()
     delete_usecase = providers.Dependency()
     update_usecase = providers.Dependency()
+    health_usecase = providers.Dependency()
 
     file_application_adapter = providers.Factory(
         FileApplicationAdapter,
@@ -17,4 +18,5 @@ class AdapterContainer(containers.DeclarativeContainer):
         retrieve_usecase=retrieve_usecase,
         delete_usecase=delete_usecase,
         update_usecase=update_usecase,
+        health_usecase=health_usecase,
     )

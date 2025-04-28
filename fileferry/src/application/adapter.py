@@ -4,11 +4,12 @@ from typing import Optional
 from contracts.application import (
     ApplicationAdapterContract,
     DeleteUseCaseContract,
+    HealthCheckUseCaseContract,
     RetrieveUseCaseContract,
     UpdateUseCaseContract,
     UploadUseCaseContract,
 )
-from domain.models import FileMeta
+from domain.models import FileMeta, HealthReport
 from shared.enums import Buckets
 from shared.exceptions.exc_classes.application import ApplicationRunTimeError
 
@@ -22,11 +23,13 @@ class FileApplicationAdapter(ApplicationAdapterContract):
         retrieve_usecase: Optional[RetrieveUseCaseContract] = None,
         delete_usecase: Optional[DeleteUseCaseContract] = None,
         update_usecase: Optional[UpdateUseCaseContract] = None,
+        health_usecase: Optional[HealthCheckUseCaseContract] = None,
     ) -> None:
         self._upload_usecase = upload_usecase
         self._retrieve_usecase = retrieve_usecase
         self._delete_usecase = delete_usecase
         self._update_usecase = update_usecase
+        self._health_usecase = health_usecase
 
     async def upload(
         self,
@@ -85,3 +88,8 @@ class FileApplicationAdapter(ApplicationAdapterContract):
         return await self._update_usecase.execute(
             file_id=file_id, name=name, stream=stream, bucket=bucket
         )
+
+    async def healthcheck(self) -> HealthReport:
+        if not self._health_usecase:
+            raise ApplicationRunTimeError("Health usecase is not available")
+        return await self._health_usecase.execute()
