@@ -5,11 +5,8 @@ from typing import Any, TypeVar, cast
 from loguru import logger
 
 from shared.exceptions.exc_classes.application import FileOperationFailed
-from shared.exceptions.exc_classes.infrastructure import InfrastructureError
-from shared.exceptions.mappers.infra_errors import (
-    InfrastructureErrorMapper,
-    map_code_to_http_status,
-)
+from shared.exceptions.exc_classes.infrastructure import InfraError
+from shared.exceptions.mappers.infra_errors import InfraErrorMapper
 
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
@@ -20,13 +17,12 @@ def wrap_infrastructure_failures(func: F) -> F:
         try:
             return await func(*args, **kwargs)
 
-        except InfrastructureError as exc:
-            code = InfrastructureErrorMapper.get_code(exc)
-            message = InfrastructureErrorMapper.get_message(exc)
-            status = map_code_to_http_status(code)
-            logger.warning(f"Handled infrastructure error: {exc}")
+        except InfraError as exc:
+            message = InfraErrorMapper.get_message(exc)
+            status = InfraErrorMapper.get_http_status(exc)
+            logger.warning(f"[INFRA] Handled infrastructure error: {exc}")
             raise FileOperationFailed(
-                message, type=code.value, status_code=status
+                message, type=exc.type, status_code=status
             ) from exc
 
     return cast("F", wrapper)

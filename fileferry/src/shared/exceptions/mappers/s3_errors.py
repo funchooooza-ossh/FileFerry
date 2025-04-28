@@ -1,15 +1,5 @@
 from enum import StrEnum
 
-from miniopy_async.error import S3Error
-
-from shared.exceptions.exc_classes.infrastructure import (
-    InfrastructureError,
-    InvalidBucketNameError,
-    NoSuchBucketError,
-    StorageError,
-    StorageNotFoundError,
-)
-
 
 class S3ErrorCode(StrEnum):
     ACCESS_DENIED = "AccessDenied"
@@ -26,16 +16,18 @@ class S3ErrorCode(StrEnum):
     MISSING_CONTENT_LENGTH = "MissingContentLength"
     PRECONDITION_FAILED = "PreconditionFailed"
     BUCKET_NOT_EMPTY = "BucketNotEmpty"
+    UNKNOWN = "Unknown"
 
 
-CODE_TO_ERROR_MAPPING: dict[S3ErrorCode, type[InfrastructureError]] = {
-    S3ErrorCode.INTERNAL_ERROR: StorageError,
-    S3ErrorCode.NO_SUCH_KEY: StorageNotFoundError,
-    S3ErrorCode.NO_SUCH_BUCKET: NoSuchBucketError,
-    S3ErrorCode.INVALID_BUCKET_NAME: InvalidBucketNameError,
-}
+class S3ErrorCodeMapper:
+    """Маппер для строковых значений ошибок S3 в enum S3ErrorCode."""
 
-
-def map_s3_error(exc: S3Error) -> InfrastructureError:
-    cls = CODE_TO_ERROR_MAPPING.get(S3ErrorCode(exc.code), StorageError)
-    return cls(f"S3 error ({exc.code}): {exc.message}")
+    @classmethod
+    def from_string(cls, error_str: str) -> S3ErrorCode:
+        """Возвращает значение из S3ErrorCode по строковому значению."""
+        try:
+            # Преобразуем строку в соответствующий элемент из S3ErrorCode
+            return S3ErrorCode[error_str.upper()]
+        except KeyError:
+            # Если значение не найдено, возвращаем S3ErrorCode.UNKNOWN
+            return S3ErrorCode.UNKNOWN

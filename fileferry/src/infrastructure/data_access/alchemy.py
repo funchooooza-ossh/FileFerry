@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from contracts.infrastructure import SQLAlchemyDataAccessContract
 from domain.models import FileMeta
 from infrastructure.models.sqlalchemy.file import File
-from shared.exceptions.exc_classes.infrastructure import RepositoryRunTimeError
 from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 
 
@@ -18,7 +17,7 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
     @property
     def session(self) -> AsyncSession:
         if not self._session:
-            raise RepositoryRunTimeError(
+            raise RuntimeError(
                 "[CRITICAL] -- You can not use data access with no session context"
             )
         return self._session
@@ -26,7 +25,7 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
     def bind_session(self, session: AsyncSession) -> None:
         """Явно привязывает сессию к DataAccess перед началом работы."""
         if self._session is not None:
-            raise RepositoryRunTimeError("[CRITICAL] DataAccess session already bound")
+            raise RuntimeError("[CRITICAL] DataAccess session already bound")
         self._session = session
 
     @wrap_sqlalchemy_failure

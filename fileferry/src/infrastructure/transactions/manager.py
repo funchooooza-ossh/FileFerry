@@ -3,7 +3,6 @@ from contracts.infrastructure import (
     TransactionContext,
     TransactionManagerContract,
 )
-from shared.exceptions.exc_classes.infrastructure import RepositoryRunTimeError
 
 
 class TransactionManager(TransactionManagerContract):
@@ -14,7 +13,7 @@ class TransactionManager(TransactionManagerContract):
 
     async def start(self, *data_accesses: SQLAlchemyDataAccessContract) -> None:
         if self._started:
-            raise RepositoryRunTimeError("Transaction has already been started")
+            raise RuntimeError("Transaction has already been started")
         await self._context.begin()
         [
             data_access.bind_session(session=self._context.session)

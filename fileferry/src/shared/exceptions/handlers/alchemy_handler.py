@@ -4,21 +4,11 @@ from typing import Any, TypeVar, cast
 
 from loguru import logger
 from sqlalchemy.exc import (
-    IntegrityError,
-    NoResultFound,
-    OperationalError,
-    ProgrammingError,
     SQLAlchemyError,
 )
 
-from shared.exceptions.exc_classes.infrastructure import (
-    RepositoryError,
-    RepositoryIntegrityError,
-    RepositoryNotFoundError,
-    RepositoryOperationalError,
-    RepositoryORMError,
-    RepositoryProgrammingError,
-)
+from shared.exceptions.exc_classes.infrastructure import DataAccessError
+from shared.exceptions.mappers.alchemy_errors import SQLAlchemyErrorMapper
 
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
@@ -29,28 +19,18 @@ def wrap_sqlalchemy_failure(func: F) -> F:
         try:
             return await func(*args, **kwargs)
 
-        except RepositoryError:
+        except DataAccessError:
             raise
 
         except SQLAlchemyError as exc:
             logger.warning(f"[SQLAlchemy] Error in {func.__qualname__}: {exc}")
 
-            if isinstance(exc, NoResultFound):
-                raise RepositoryNotFoundError() from exc
-
-            if isinstance(exc, IntegrityError):
-                raise RepositoryIntegrityError() from exc
-
-            if isinstance(exc, OperationalError):
-                raise RepositoryOperationalError() from exc
-
-            if isinstance(exc, ProgrammingError):
-                raise RepositoryProgrammingError() from exc
-
-            raise RepositoryORMError() from exc
-
+            raise SQLAlchemyErrorMapper.map_error(exc) from exc
+        except RuntimeError as exc:
+            logger.critical(f"[CRITICAL] Runtime error in {func.__qualname__}: {exc}")
+            raise DataAccessError from exc
         except Exception as exc:
             logger.exception(f"[Unexpected] Error in {func.__qualname__}: {exc}")
-            raise RepositoryError from exc
+            raise DataAccessError from exc
 
     return cast("F", wrapper)

@@ -4,7 +4,6 @@ from fastapi.responses import StreamingResponse
 from composition.di import AdapterDI
 from shared.io.upload_stream import file_to_iterator
 from transport.rest.dependencies import BucketDI
-from transport.rest.docs.generate_docs import COMMON_RESPONSES
 from transport.rest.dto.base import Response
 from transport.rest.dto.models import DeleteFileResponse, UploadFileResponse
 
@@ -18,7 +17,6 @@ file_router = APIRouter(prefix="/files")
     summary="Upload a new file",
     description="Uploads a file into the specified bucket and returns its metadata.",
     tags=["rest"],
-    responses=COMMON_RESPONSES,
 )
 async def upload_file(
     adapter: AdapterDI,
