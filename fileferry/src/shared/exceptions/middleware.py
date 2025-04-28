@@ -25,7 +25,6 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
         call_next: Callable[[Request], Awaitable[StarletteResponse]],
     ) -> StarletteResponse:
         try:
-            # Обрабатываем основной запрос
             response = await call_next(request)
             return response
 
