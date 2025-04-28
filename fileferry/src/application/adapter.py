@@ -75,12 +75,13 @@ class FileApplicationAdapter(ApplicationAdapterContract):
     async def update(
         self,
         *,
+        bucket: Buckets,
         file_id: str,
-        name: Optional[str] = None,
+        name: str,
         stream: Optional[AsyncIterator[bytes]] = None,
-    ) -> Optional[FileMeta]:
+    ) -> FileMeta:
         if not self._update_usecase:
             raise ApplicationRunTimeError("Update usecase is not available")
         return await self._update_usecase.execute(
-            file_id=file_id, name=name, stream=stream
+            file_id=file_id, name=name, stream=stream, bucket=bucket
         )

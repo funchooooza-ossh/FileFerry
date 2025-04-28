@@ -46,3 +46,19 @@ async def delete_file(
 ) -> Response[DeleteFileResponse]:
     await adapter.delete(file_id=file_id, bucket=bucket)
     return Response[DeleteFileResponse].success(data=DeleteFileResponse.success())
+
+
+@file_router.post("/update")
+async def update_file(
+    adapter: AdapterDI,
+    bucket: BucketDI,
+    file_id: str = Query(..., alias="file_id"),
+    file: UploadFile = File(None),
+    name: str = Form(...),
+) -> Response[UploadFileResponse]:
+    stream = file_to_iterator(file) if file else None
+    meta = await adapter.update(
+        file_id=file_id, name=name, stream=stream, bucket=bucket
+    )
+    data = UploadFileResponse.from_domain(meta)
+    return Response[UploadFileResponse].success(data)

@@ -33,10 +33,11 @@ class ApplicationAdapterContract(Protocol):
     async def update(
         self,
         *,
+        bucket: Buckets,
         file_id: str,
-        name: Optional[str] = None,
+        name: str,
         stream: Optional[AsyncIterator[bytes]] = None,
-    ) -> Optional[FileMeta]: ...
+    ) -> FileMeta: ...
 
     # TODO return type healthcheck
     async def healthcheck(self) -> dict[str, str]: ...

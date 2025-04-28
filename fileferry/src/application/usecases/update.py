@@ -1,0 +1,58 @@
+from collections.abc import AsyncIterator, Callable
+from typing import Optional
+
+from contracts.application import UpdateUseCaseContract
+from contracts.domain import PolicyContract
+from contracts.infrastructure import FileHelperContract, SQLAlchemyMinioAtomicContract
+from domain.models import FileMeta
+from shared.enums import Buckets
+from shared.exceptions.exc_classes.application import ApplicationRunTimeError
+from shared.exceptions.handlers.infra_hanlder import wrap_infrastructure_failures
+
+
+class UpdateUseCase(UpdateUseCaseContract):
+    def __init__(
+        self,
+        atomic: SQLAlchemyMinioAtomicContract,
+        meta_factory: Callable[[Optional[str], str, int, str], FileMeta],
+        helper: FileHelperContract,
+        policy: PolicyContract,
+    ) -> None:
+        self._atomic = atomic
+        self._meta_factory = meta_factory
+        self._helper = helper
+        self._policy = policy
+
+    @wrap_infrastructure_failures
+    async def execute(
+        self,
+        file_id: str,
+        name: str,
+        stream: Optional[AsyncIterator[bytes]],
+        bucket: Buckets,
+    ) -> FileMeta:
+        analyzed = None
+        meta = None
+
+        if stream:
+            analyzed = await self._helper.analyze(stream)
+            stream, content_type, size = analyzed
+            meta = self._meta_factory(file_id, name, size, content_type)
+            self._policy.is_allowed(meta)
+
+        async with self._atomic as transaction:
+            if meta and stream:
+                await transaction.storage.upload(
+                    file_meta=meta, stream=stream, bucket=bucket
+                )
+            else:
+                meta = await transaction.data_access.get(file_id=file_id)
+                meta = self._meta_factory(
+                    file_id, name, meta.size.value, meta.content_type.value
+                )
+            meta = await transaction.data_access.update(meta=meta)
+            if not meta:
+                raise ApplicationRunTimeError(
+                    "[CRITICAL] Logical error in update usecase. Meta is None"
+                ) from None
+            return meta

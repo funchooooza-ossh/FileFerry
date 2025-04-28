@@ -53,8 +53,11 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
     async def update(self, meta: FileMeta) -> Optional[FileMeta]:
         query = await self.session.execute(select(File).where(File.id == meta.id.value))
         model = query.scalar_one()
-        model = File.from_domain(meta)
-        self.session.add(model)
-        await self.session.refresh(model)
+
+        model.name = meta.name.value
+        model.size = meta.size.value
+        model.content_type = meta.content_type.value
+
         await self.session.flush()
-        return meta
+
+        return model.to_domain()

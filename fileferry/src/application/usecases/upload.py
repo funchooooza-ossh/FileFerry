@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator, Callable
+from typing import Optional
 
 from contracts.application import UploadUseCaseContract
 from contracts.domain import PolicyContract
@@ -14,7 +15,7 @@ class UploadUseCase(UploadUseCaseContract):
         atomic: AtomicOperationContract,
         helper: FileHelperContract,
         policy: PolicyContract,
-        meta_factory: Callable[[str, int, str], FileMeta],
+        meta_factory: Callable[[Optional[str], str, int, str], FileMeta],
     ) -> None:
         self._atomic = atomic
         self._helper = helper
@@ -26,7 +27,7 @@ class UploadUseCase(UploadUseCaseContract):
         self, name: str, stream: AsyncIterator[bytes], bucket: Buckets
     ) -> FileMeta:
         stream, mime, size = await self._helper.analyze(stream=stream)
-        file_meta = self._meta_factory(name, size, mime)
+        file_meta = self._meta_factory(None, name, size, mime)
         self._policy.is_allowed(file_meta=file_meta)
 
         async with self._atomic as transaction:
