@@ -5,9 +5,12 @@ services:
   service:
     container_name: fileferry
     build: ./fileferry
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn transport.rest.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./fileferry:/app
+      - ./environments/minio.default.env:/app/minio.env
+      - ./environments/postgres.env:/app/postgres.env
+      - ./environments/redis.env:/app/redis.env
     depends_on:
       - db
       - redis
@@ -23,10 +26,10 @@ services:
       - ./environments/db.env
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
-    
+
     ports:
       - "15432:5432"
-  
+
   redis:
     container_name: redis
     image: redis:7
@@ -35,7 +38,20 @@ services:
     volumes:
       - ./redis_data:/data
     restart: always
-    command: ["redis-server", "--appendonly", "yes"]
+    command: [ "redis-server", "--appendonly", "yes" ]
+
+  minio:
+    image: minio/minio
+    hostname: minio
+    restart: unless-stopped
+    volumes:
+      - ./minio_data:/data
+    command: server /data --console-address ":9001"
+    env_file:
+      - ./environments/minio.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
 
 volumes:
   postgres_data:

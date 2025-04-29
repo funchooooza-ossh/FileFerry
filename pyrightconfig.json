@@ -1,0 +1,16 @@
+{
+    "include": [
+        "fileferry/src"
+    ],
+    "exclude": [
+        "tests",
+        "**/__pycache__",
+        ".venv"
+    ],
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "typeCheckingMode": "strict",
+    "pythonVersion": "3.12",
+    "venvPath": ".",
+    "venv": ".venv"
+}

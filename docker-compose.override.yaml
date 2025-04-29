@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  service:
+    command: >
+      sh -c "pytest -v --tb=short --disable-warnings --maxfail=3"
+    volumes:
+      - ./fileferry:/app
+      - ./tests:/app/tests
+      - ./pytest.ini:/app/pytest.ini
+    environment:
+      - PYTHONPATH=/app/src
+      - ENVIRONMENT=test
+    depends_on:
+      - db
+      - redis
+      - minio

@@ -15,9 +15,47 @@ dependencies = [
     "pydantic-settings (>=2.8.1,<3.0.0)",
     "python-multipart (>=0.0.20,<0.0.21)",
     "ruff (>=0.11.5,<0.12.0)",
-    "uvicorn (>=0.34.1,<0.35.0)"
+    "uvicorn (>=0.34.1,<0.35.0)",
+    "libmagic (>=1.0,<2.0)",
+    "dependency-injector (>=4.46.0,<5.0.0)",
+]
+[tool.poetry.group.dev.dependencies]
+    pytest = "8.3.3"
+    pytest-cov = "4.0"
+    pytest-asyncio = "0.18.3"
+    httpx = "^0.28.1"
+    pytest-mock = "^3.14.0"
+    pytest-env = "^1.1.5"
+    pytest-xdist = "^3.6.1"
+    testcontainers = "^4.10.0"
+    moto = "^5.1.3"
+    black = "^25.1.0"
+pre-commit = "^4.2.0"
+pyright = "^1.1.400"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+lint.select = [
+    "I", "Q", "E", "W", "F", "UP", "C", "B", "S", "ISC", "ASYNC", "T20",
+    "ANN", "TCH", "PT", "RUF", "C90", "SIM"
+]
+lint.ignore = [
+    "E501", "B008", "F821", "UP007", "UP032", "ANN401",
+    "RUF012", "RUF002", "RUF001", "RUF003", "RUF100", "W291", "TC003"
 ]
 
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"conftest.py" = ["F401"]
+"tests/*" = ["S"]
+
+
+
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]
+addopts = "-ra -q --asyncio-mode=auto"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
