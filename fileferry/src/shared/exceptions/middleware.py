@@ -25,12 +25,15 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
         call_next: Callable[[Request], Awaitable[StarletteResponse]],
     ) -> StarletteResponse:
         try:
+            logger.info(f"[REQUEST] Started: {request.method} {request.url.path}")
             response = await call_next(request)
+            if response.status_code < 400:
+                logger.info(f"[REQUEST] Finished {request.method} {request.url.path}")
             return response
 
         except DomainRejectedError as exc:
             # Обрабатываем ошибки доменных правил
-            logger.warning(f"[DOMAIN] Ошибка доменных правил: {exc}")
+            logger.warning(f"[REQUEST][ERROR] Ошибка доменных правил: {exc}")
             return self._create_json_response(
                 status_code=400,
                 msg="Not allowed data",
@@ -39,7 +42,7 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
 
         except (InvalidFileParameters, InvalidValueError) as exc:
             # Обрабатываем ошибки валидации
-            logger.warning(f"[VALIDATION] Ошибка валидации: {exc}")
+            logger.warning(f"[REQUEST][ERROR] Ошибка валидации: {exc}")
             return self._create_json_response(
                 status_code=400,
                 msg="Invalid data",
@@ -48,7 +51,7 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
 
         except ApplicationRunTimeError as exc:
             # Обрабатываем ошибки времени выполнения
-            logger.exception(f"[CRITICAL] Нарушение логики работы: {exc}")
+            logger.exception(f"[REQUEST][CRITICAL] Нарушение логики работы: {exc}")
             return self._create_json_response(
                 status_code=500,
                 msg="Internal server Error",
@@ -57,7 +60,7 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
 
         except FileOperationFailed as exc:
             # Обрабатываем инфраструктурные ошибки
-            logger.warning(f"[INFRA] Ошибка инфраструктуры: {exc}")
+            logger.warning(f"[REQUEST][ERROR] Ошибка инфраструктуры: {exc}")
             return self._handle_infrastructure_error(exc, request)
 
     def _create_json_response(
