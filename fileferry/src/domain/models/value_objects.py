@@ -1,15 +1,17 @@
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
-class DomainValueObject(ABC):
-    _value: Any
+class DomainValueObject(ABC, Generic[T]):
+    _value: T
 
     @property
-    def value(self) -> Any:
+    def value(self) -> T:
         return self._value
 
     @abstractmethod
@@ -18,7 +20,7 @@ class DomainValueObject(ABC):
 
 
 @dataclass(frozen=True)
-class FileId(DomainValueObject):
+class FileId(DomainValueObject[str]):
     def __post_init__(self) -> None:
         try:
             uuid.UUID(self._value)
@@ -31,7 +33,9 @@ class FileId(DomainValueObject):
 
 
 @dataclass(frozen=True)
-class FileName(DomainValueObject):
+class FileName(DomainValueObject[str]):
+    _value: str
+
     def __post_init__(self) -> None:
         if not self._value:
             raise ValueError("File name cannot be empty")
@@ -42,7 +46,7 @@ class FileName(DomainValueObject):
 
 
 @dataclass(frozen=True)
-class ContentType(DomainValueObject):
+class ContentType(DomainValueObject[str]):
     def __post_init__(self) -> None:
         if not self._value or "/" not in self._value:
             raise ValueError("Invalid MIME type format")
@@ -53,7 +57,7 @@ class ContentType(DomainValueObject):
 
 
 @dataclass(frozen=True)
-class FileSize(DomainValueObject):
+class FileSize(DomainValueObject[int]):
     def __post_init__(self) -> None:
         if self._value <= 0:
             raise ValueError("File size must be positive")
