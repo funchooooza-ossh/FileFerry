@@ -28,9 +28,12 @@ class Response(GenericModel, Generic[DataT]):
 
 
 class HealthCheck(BaseModel):
+    uptime: int
     status: HealthStatus
     components: ComponentStatuses
 
     @classmethod
-    def from_domain(cls, report: HealthReport) -> "HealthCheck":
-        return HealthCheck(status=report.status, components=report.components)
+    def from_domain(cls, uptime: int, report: HealthReport) -> "HealthCheck":
+        return HealthCheck(
+            uptime=uptime, status=report.status, components=report.components
+        )

@@ -1,3 +1,5 @@
+import time
+
 from fastapi import FastAPI
 
 from composition.containers.application import ApplicationContainer
@@ -14,8 +16,9 @@ def create_app() -> FastAPI:
     container = ApplicationContainer()
 
     app = FastAPI()
+    app.state.startup_time = time.time()
 
-    app.container = container  # type: ignore # если используешь интеграцию с FastAPI DI
+    app.container = container  # type: ignore #
     app.state.container = (
         container  # сохранить контейнер явно для доступа в любом месте приложения
     )
