@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING, Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 
-from application.adapter import FileApplicationAdapter
+from application.adapters.crud_adapter import FileApplicationAdapter
+from application.adapters.system_adapter import SystemAdapter
 from composition.containers.application import ApplicationContainer
 
 if TYPE_CHECKING:
@@ -20,3 +21,15 @@ def provide_adapter(
 
 
 AdapterDI = Annotated["FileApplicationAdapter", Depends(provide_adapter)]
+
+
+@inject
+def provide_system_adapter(
+    contaniner: Annotated[
+        "AdapterContainer", Depends(Provide[ApplicationContainer.adapters])
+    ],
+) -> SystemAdapter:
+    return contaniner.system_adapter()
+
+
+SystemAdapterDI = Annotated["SystemAdapter", Depends(provide_system_adapter)]
