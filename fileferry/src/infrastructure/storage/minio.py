@@ -22,9 +22,9 @@ class MiniOStorage(StorageAccessContract):
         stream_reader = AsyncStreamReader(stream)
         await self._client.put_object(
             bucket_name=bucket.value,
-            object_name=file_meta.id.value,
-            length=file_meta.size.value,
-            content_type=file_meta.content_type.value,
+            object_name=file_meta.get_id(),
+            length=file_meta.get_size(),
+            content_type=file_meta.get_content_type(),
             data=stream_reader,  # type: ignore
         )
         return

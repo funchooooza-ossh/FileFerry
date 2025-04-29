@@ -8,7 +8,7 @@ from infrastructure.atomic.minio_sqla import SqlAlchemyMinioAtomicOperation
 from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
-from infrastructure.data_access.minio import MiniOStorage
+from infrastructure.storage.minio import MiniOStorage
 from infrastructure.transactions.context import SqlAlchemyTransactionContext
 from infrastructure.transactions.manager import TransactionManager
 

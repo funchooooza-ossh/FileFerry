@@ -9,8 +9,8 @@ class FilePolicyDefault(PolicyContract):
     @classmethod
     def is_allowed(cls, file_meta: FileMeta) -> bool:
         if (
-            file_meta.content_type.value in cls.FORBIDDEN_TYPES
-            or file_meta.size.value <= 0
+            file_meta.get_content_type() in cls.FORBIDDEN_TYPES
+            or file_meta.get_size() <= 0
         ):
             raise FilePolicyViolationEror("Невалидный файл")
         return True

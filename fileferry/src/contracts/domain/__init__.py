@@ -1,3 +1,3 @@
-from contracts.domain.policy import PolicyContract
+from contracts.domain.policies import PolicyContract
 
 __all__ = ("PolicyContract",)

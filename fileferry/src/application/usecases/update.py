@@ -11,7 +11,7 @@ from shared.exceptions.exc_classes.application import (
     DomainRejectedError,
 )
 from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
-from shared.exceptions.handlers.infra_hanlder import wrap_infrastructure_failures
+from shared.exceptions.handlers.infra_handler import wrap_infrastructure_failures
 
 
 class UpdateUseCase(UpdateUseCaseContract):
@@ -55,7 +55,7 @@ class UpdateUseCase(UpdateUseCaseContract):
             else:
                 meta = await transaction.data_access.get(file_id=file_id.value)
                 meta = self._meta_factory(
-                    file_id.value, name.value, meta.size.value, meta.content_type.value
+                    file_id.value, name.value, meta.get_size(), meta.get_content_type()
                 )
             meta = await transaction.data_access.update(meta=meta)
             if not meta:

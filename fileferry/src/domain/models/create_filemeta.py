@@ -14,6 +14,6 @@ def create_filemeta(
         ctype_vo = ContentType(content_type)
         size_vo = FileSize(size)
 
-        return FileMeta(id=id_vo, name=name_vo, content_type=ctype_vo, size=size_vo)
+        return FileMeta(id_vo, name_vo, ctype_vo, size_vo)
     except ValueError as exc:
         raise InvalidFileParameters("Unprocessable entity") from exc
