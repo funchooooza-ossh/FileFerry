@@ -1,9 +1,14 @@
-from fastapi import APIRouter, File, Form, Path, Query, Request, UploadFile
+from fastapi import APIRouter, File, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
 from composition.di import AdapterDI
 from shared.io.upload_stream import file_to_iterator
-from transport.rest.dependencies import BucketDI
+from transport.rest.dependencies import (
+    BucketDI,
+    FormFilenameDI,
+    PathFileIdDI,
+    QueryFilenameDI,
+)
 from transport.rest.docs.generate_docs import ALL_RESPONSES, NON_SPECIFIED_RESPONSES
 from transport.rest.dto.base import Response
 from transport.rest.dto.models import DeleteFileResponse, UploadFileResponse
@@ -23,8 +28,8 @@ file_router = APIRouter(prefix="/files")
 async def upload_file(
     adapter: AdapterDI,
     bucket: BucketDI,
+    name: FormFilenameDI,
     file: UploadFile = File(..., description="Binary file to be uploaded"),
-    name: str = Form(..., min_length=1, max_length=255, description="New file name"),
 ) -> Response[UploadFileResponse]:
     stream = file_to_iterator(file=file)
     meta = await adapter.upload(name=name, stream=stream, bucket=bucket)
@@ -44,7 +49,7 @@ async def upload_file(
 async def retrieve_file(
     adapter: AdapterDI,
     bucket: BucketDI,
-    file_id: str = Path(..., alias="file_id", description="Unique file identifier"),
+    file_id: PathFileIdDI,
 ) -> StreamingResponse:
     meta, stream = await adapter.retrieve(file_id=file_id, bucket=bucket)
     return StreamingResponse(
@@ -70,7 +75,7 @@ async def retrieve_file(
 async def delete_file(
     adapter: AdapterDI,
     bucket: BucketDI,
-    file_id: str = Path(..., alias="file_id", description="Unique file identifier"),
+    file_id: PathFileIdDI,
 ) -> Response[DeleteFileResponse]:
     await adapter.delete(file_id=file_id, bucket=bucket)
     return Response[DeleteFileResponse].success(data=DeleteFileResponse.success())
@@ -87,12 +92,12 @@ async def delete_file(
 )
 async def update_file(
     adapter: AdapterDI,
+    name: FormFilenameDI,
     bucket: BucketDI,
-    file_id: str = Path(..., description="Unique file identifier"),
+    file_id: PathFileIdDI,
     file: UploadFile = File(
         None, description="New file content to replace the existing one"
     ),
-    name: str = Form(..., min_length=1, max_length=255, description="New file name"),
 ) -> Response[UploadFileResponse]:
     stream = file_to_iterator(file) if file else None
     meta = await adapter.update(
@@ -115,9 +120,7 @@ async def stream_upload(
     request: Request,
     adapter: AdapterDI,
     bucket: BucketDI,
-    name: str = Query(
-        ..., min_length=1, max_length=255, description="Original file name"
-    ),
+    name: QueryFilenameDI,
 ) -> Response[UploadFileResponse]:
     stream = request.stream()
     meta = await adapter.upload(name=name, stream=stream, bucket=bucket)
@@ -138,8 +141,8 @@ async def stream_update(
     request: Request,
     adapter: AdapterDI,
     bucket: BucketDI,
-    file_id: str = Path(..., description="Unique file identifier"),
-    name: str = Query(..., min_length=1, max_length=255, description="New file name"),
+    file_id: PathFileIdDI,
+    name: QueryFilenameDI,
 ) -> Response[UploadFileResponse]:
     stream = request.stream()
     meta = await adapter.update(

@@ -4,7 +4,7 @@ from typing import Optional
 from contracts.application import UploadUseCaseContract
 from contracts.domain import PolicyContract
 from contracts.infrastructure import AtomicOperationContract, FileHelperContract
-from domain.models import FileMeta
+from domain.models import FileMeta, FileName
 from shared.enums import Buckets
 from shared.exceptions.exc_classes.application import DomainRejectedError
 from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
@@ -26,10 +26,10 @@ class UploadUseCase(UploadUseCaseContract):
 
     @wrap_infrastructure_failures
     async def execute(
-        self, name: str, stream: AsyncIterator[bytes], bucket: Buckets
+        self, name: FileName, stream: AsyncIterator[bytes], bucket: Buckets
     ) -> FileMeta:
         stream, mime, size = await self._helper.analyze(stream=stream)
-        file_meta = self._meta_factory(None, name, size, mime)
+        file_meta = self._meta_factory(None, name.value, size, mime)
         try:
             self._policy.is_allowed(file_meta=file_meta)
         except FilePolicyViolationEror as exc:

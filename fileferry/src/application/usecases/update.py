@@ -4,7 +4,7 @@ from typing import Optional
 from contracts.application import UpdateUseCaseContract
 from contracts.domain import PolicyContract
 from contracts.infrastructure import FileHelperContract, SQLAlchemyMinioAtomicContract
-from domain.models import FileMeta
+from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
 from shared.exceptions.exc_classes.application import (
     ApplicationRunTimeError,
@@ -30,8 +30,8 @@ class UpdateUseCase(UpdateUseCaseContract):
     @wrap_infrastructure_failures
     async def execute(
         self,
-        file_id: str,
-        name: str,
+        file_id: FileId,
+        name: FileName,
         stream: Optional[AsyncIterator[bytes]],
         bucket: Buckets,
     ) -> FileMeta:
@@ -41,7 +41,7 @@ class UpdateUseCase(UpdateUseCaseContract):
         if stream:
             analyzed = await self._helper.analyze(stream)
             stream, content_type, size = analyzed
-            meta = self._meta_factory(file_id, name, size, content_type)
+            meta = self._meta_factory(file_id.value, name.value, size, content_type)
             try:
                 self._policy.is_allowed(meta)
             except FilePolicyViolationEror as exc:
@@ -53,9 +53,9 @@ class UpdateUseCase(UpdateUseCaseContract):
                     file_meta=meta, stream=stream, bucket=bucket
                 )
             else:
-                meta = await transaction.data_access.get(file_id=file_id)
+                meta = await transaction.data_access.get(file_id=file_id.value)
                 meta = self._meta_factory(
-                    file_id, name, meta.size.value, meta.content_type.value
+                    file_id.value, name.value, meta.size.value, meta.content_type.value
                 )
             meta = await transaction.data_access.update(meta=meta)
             if not meta:

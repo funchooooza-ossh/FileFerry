@@ -9,7 +9,7 @@ from contracts.application import (
     UpdateUseCaseContract,
     UploadUseCaseContract,
 )
-from domain.models import FileMeta, HealthReport
+from domain.models import FileId, FileMeta, FileName, HealthReport
 from shared.enums import Buckets
 from shared.exceptions.exc_classes.application import ApplicationRunTimeError
 
@@ -34,7 +34,7 @@ class FileApplicationAdapter(ApplicationAdapterContract):
     async def upload(
         self,
         *,
-        name: str,
+        name: FileName,
         stream: AsyncIterator[bytes],
         bucket: Buckets,
     ) -> FileMeta:
@@ -50,7 +50,7 @@ class FileApplicationAdapter(ApplicationAdapterContract):
     async def retrieve(
         self,
         *,
-        file_id: str,
+        file_id: FileId,
         bucket: Buckets,
     ) -> tuple[FileMeta, AsyncIterator[bytes]]:
         if not self._retrieve_usecase:
@@ -64,7 +64,7 @@ class FileApplicationAdapter(ApplicationAdapterContract):
     async def delete(
         self,
         *,
-        file_id: str,
+        file_id: FileId,
         bucket: Buckets,
     ) -> None:
         if not self._delete_usecase:
@@ -79,8 +79,8 @@ class FileApplicationAdapter(ApplicationAdapterContract):
         self,
         *,
         bucket: Buckets,
-        file_id: str,
-        name: str,
+        file_id: FileId,
+        name: FileName,
         stream: Optional[AsyncIterator[bytes]] = None,
     ) -> FileMeta:
         if not self._update_usecase:

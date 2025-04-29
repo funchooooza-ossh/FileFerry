@@ -74,8 +74,8 @@ class InfraErrorMapper:
         "OperationalError": SQLAlchemyErrorCode.OPERATIONAL_ERROR,
         "ProgrammingError": SQLAlchemyErrorCode.PROGRAMMING_ERROR,
         "NoResultFoundError": SQLAlchemyErrorCode.NO_RESULT,
-        "MultipleResultsFound": SQLAlchemyErrorCode.MULTIPLE_RESULTS,
-        "Disconnected": SQLAlchemyErrorCode.DISCONNECTED,
+        "MultipleResultsFoundError": SQLAlchemyErrorCode.MULTIPLE_RESULTS,
+        "DisconnectedError": SQLAlchemyErrorCode.DISCONNECTED,
     }
     _code_to_type: dict[
         S3ErrorCode | SQLAlchemyErrorCode, type[StorageError | DataAccessError]

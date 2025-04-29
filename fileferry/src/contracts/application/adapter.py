@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
 from typing import Optional, Protocol
 
-from domain.models import FileMeta, HealthReport
+from domain.models import FileId, FileMeta, FileName, HealthReport
 from shared.enums import Buckets
 
 
@@ -11,7 +11,7 @@ class ApplicationAdapterContract(Protocol):
     async def upload(
         self,
         *,
-        name: str,
+        name: FileName,
         stream: AsyncIterator[bytes],
         bucket: Buckets,
     ) -> FileMeta: ...
@@ -19,14 +19,14 @@ class ApplicationAdapterContract(Protocol):
     async def retrieve(
         self,
         *,
-        file_id: str,
+        file_id: FileId,
         bucket: Buckets,
     ) -> tuple[FileMeta, AsyncIterator[bytes]]: ...
 
     async def delete(
         self,
         *,
-        file_id: str,
+        file_id: FileId,
         bucket: Buckets,
     ) -> None: ...
 
@@ -34,8 +34,8 @@ class ApplicationAdapterContract(Protocol):
         self,
         *,
         bucket: Buckets,
-        file_id: str,
-        name: str,
+        file_id: FileId,
+        name: FileName,
         stream: Optional[AsyncIterator[bytes]] = None,
     ) -> FileMeta: ...
 
