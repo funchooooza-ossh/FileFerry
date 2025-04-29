@@ -54,11 +54,11 @@ async def retrieve_file(
     meta, stream = await adapter.retrieve(file_id=file_id, bucket=bucket)
     return StreamingResponse(
         content=stream,
-        media_type=meta.content_type.value,
+        media_type=meta.get_content_type(),
         headers={
-            "X-Filename": meta.name.value,
-            "X-FileSize": str(meta.size.value),
-            "X-FileID": meta.id.value,
+            "X-Filename": meta.get_name(),
+            "X-FileSize": str(meta.get_size()),
+            "X-FileID": meta.get_id(),
         },
     )
 

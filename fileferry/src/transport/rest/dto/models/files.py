@@ -6,13 +6,15 @@ from domain.models.dataclasses import FileMeta
 class UploadFileResponse(BaseModel):
     id: str
     name: str
+    size: int
+    content_type: str
 
     class Config:
         from_attributes = True
 
     @classmethod
     def from_domain(cls, meta: FileMeta) -> "UploadFileResponse":
-        return cls(id=meta.id.value, name=meta.name.value)
+        return cls.model_validate(meta.as_dict())
 
 
 class DeleteFileResponse(BaseModel):
