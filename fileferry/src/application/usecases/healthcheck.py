@@ -1,17 +1,16 @@
-from contracts.application import FileStorage, HealthCheckService, UnitOfWork
-from shared.types.healthcheck import ServiceHealthStatus
+from contracts.application import HealthCheckUseCaseContract
+from contracts.infrastructure import SQLAlchemyMinioAtomicContract
+from domain.models import ComponentStatuses, HealthReport
 
 
-class HealthCheckServiceImpl(HealthCheckService):
-    def __init__(self, uow: UnitOfWork, storage: FileStorage) -> None:
-        self._uow = uow
-        self._storage = storage
+class HealthCheckUseCase(HealthCheckUseCaseContract):
+    def __init__(self, atomic: SQLAlchemyMinioAtomicContract) -> None:
+        self._atomic = atomic
 
-    async def execute(self) -> ServiceHealthStatus:
-        async with self._uow as uow:
-            repo_status = await uow.file_repo.healthcheck()
-            storage_status = await self._storage.healthcheck()
+    async def execute(self) -> HealthReport:
+        async with self._atomic as transaction:
+            db_health = await transaction.data_access.healtcheck()
+            storage_health = await transaction.storage.healtcheck()
 
-            return ServiceHealthStatus.from_infrastructure(
-                repo_status=repo_status, storage_status=storage_status
-            )
+            components = ComponentStatuses(db=db_health, storage=storage_health)
+            return HealthReport.generate(components=components)

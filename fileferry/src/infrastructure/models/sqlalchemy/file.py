@@ -14,17 +14,17 @@ class File(Base):
 
     def to_domain(self) -> FileMeta:
         return FileMeta(
-            id=FileId(self.id),
-            name=FileName(self.name),
-            content_type=ContentType(self.mime_type),
-            size=FileSize(self.size),
+            FileId(self.id),
+            FileName(self.name),
+            ContentType(self.mime_type),
+            FileSize(self.size),
         )
 
     @classmethod
     def from_domain(cls, file_meta: FileMeta) -> "File":
         return cls(
-            id=file_meta.id.value,
-            name=file_meta.name.value,
-            mime_type=file_meta.content_type.value,
-            size=file_meta.size.value,
+            id=file_meta.get_id(),
+            name=file_meta.get_name(),
+            mime_type=file_meta.get_content_type(),
+            size=file_meta.get_size(),
         )

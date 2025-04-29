@@ -2,11 +2,11 @@ from collections.abc import AsyncIterator
 
 from magic import Magic
 
-from contracts.application import FileAnalyzer
+from contracts.infrastructure import FileHelperContract
 from shared.io.peekable_stream import PeekableAsyncStream
 
 
-class FileHelper(FileAnalyzer):
+class FileHelper(FileHelperContract):
     @staticmethod
     async def analyze(
         stream: AsyncIterator[bytes],
