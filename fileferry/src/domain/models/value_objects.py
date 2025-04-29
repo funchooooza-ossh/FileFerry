@@ -1,14 +1,27 @@
 import uuid
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
-class FileId:
-    value: str
+class DomainValueObject(ABC):
+    _value: Any
 
+    @property
+    def value(self) -> Any:
+        return self._value
+
+    @abstractmethod
+    def __post_init__(self) -> None:
+        pass
+
+
+@dataclass(frozen=True)
+class FileId(DomainValueObject):
     def __post_init__(self) -> None:
         try:
-            uuid.UUID(self.value)
+            uuid.UUID(self._value)
         except ValueError:
             raise ValueError("Invalid UUID") from None
 
@@ -18,37 +31,31 @@ class FileId:
 
 
 @dataclass(frozen=True)
-class FileName:
-    value: str
-
+class FileName(DomainValueObject):
     def __post_init__(self) -> None:
-        if not self.value:
+        if not self._value:
             raise ValueError("File name cannot be empty")
-        if len(self.value) > 255:
+        if len(self._value) > 255:
             raise ValueError("File name too long")
-        if "/" in self.value or "\\" in self.value:
+        if "/" in self._value or "\\" in self._value:
             raise ValueError("File name contains illegal characters")
 
 
 @dataclass(frozen=True)
-class ContentType:
-    value: str
-
+class ContentType(DomainValueObject):
     def __post_init__(self) -> None:
-        if not self.value or "/" not in self.value:
+        if not self._value or "/" not in self._value:
             raise ValueError("Invalid MIME type format")
 
-        main_type, _, sub_type = self.value.partition("/")
+        main_type, _, sub_type = self._value.partition("/")
         if not main_type or not sub_type:
             raise ValueError("Incomplete MIME type")
 
 
 @dataclass(frozen=True)
-class FileSize:
-    value: int
-
+class FileSize(DomainValueObject):
     def __post_init__(self) -> None:
-        if self.value <= 0:
+        if self._value <= 0:
             raise ValueError("File size must be positive")
         # if self.value > 10 * 1024 * 1024 * 1024:  # 10 GB, например
         # raise ValueError("File size exceeds maximum allowed limit")

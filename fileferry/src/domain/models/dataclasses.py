@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import TypedDict
 
 from domain.models.value_objects import ContentType, FileId, FileName, FileSize
 from shared.enums import HealthStatus
@@ -33,7 +32,8 @@ class FileMeta:
         return self.size.value
 
 
-class ComponentStatuses(TypedDict):
+@dataclass(frozen=True)
+class ComponentStatuses:
     db: bool
     storage: bool
 
@@ -45,7 +45,7 @@ class HealthReport:
 
     @classmethod
     def generate(cls, components: ComponentStatuses) -> "HealthReport":
-        statuses = [bool(value) for value in components.values()]
+        statuses = [components.db and components.storage]
 
         overall_status = HealthStatus.from_boolean(*statuses)
 
