@@ -1,19 +1,24 @@
-                    +------------------------+
-                    |     HTTP (FastAPI)     |
-                    |     Rabbit (AIOPika)   |
-                    +------------+-----------+
-                                 |
-                     +-----------v------------+
-                     |  Application Layer     |
-                     |   (UseCases + UoW)     |
-                     +-----------+------------+
-                                 |
-                +-------------------------------+
-                |          Domain Layer         |
-                |  (Entities, Protocols, Svc)   |
-                +-------------------------------+
-              ↙               ↓               ↘
-      +-----------+   +---------------+   +--------------+
-      | SQL Repo  |   | Redis Repo    |   | MinIO Client |
-      | Adapter   |   | Adapter       |   | Adapter      |
-      +-----------+   +---------------+   +--------------+
+                    +---------------------------+
+                    |       Transport Layer      |
+                    |     (FastAPI, DTOs, DI)     |
+                    +-------------+--------------+
+                                  |
+                    +-------------v--------------+
+                    |     Application Layer       |
+                    | (UseCases + Adapters + UoW)  |
+                    +-------------+--------------+
+                                  |
+                    +-------------v--------------+
+                    |         Domain Layer        |
+                    | (Entities, ValueObjects,    |
+                    |  Policies, Domain Services) |
+                    +-------------+--------------+
+                                  |
+          +----------+------------+-------------+-----------+
+          |          |                          |           |
++---------v-+  +------v-------+        +---------v-+   +-----v-------+
+| Postgres  |  | MinIO Storage|        | (Future)  |   | (Future)    |
+| SQL Repo  |  | File Storage |        | MongoDB   |   | SFTP Client |
+| Adapter   |  | Adapter      |        | Adapter   |   | Adapter     |
++-----------+  +--------------+        +-----------+   +------------+
+
