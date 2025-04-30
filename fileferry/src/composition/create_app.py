@@ -1,37 +1,34 @@
 import time
+from collections.abc import Sequence
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
-from composition.containers.application import ApplicationContainer
-from shared.exceptions.middleware import ApplicationErrorMiddleware
+from composition.containers.registry import get_container
+from shared.config import settings
 from shared.logging.configuration import setup_logging
-from shared.logging.middleware import RequestIdMiddleware
-from transport.rest.routers.root import root_router
 
 
-def create_app() -> FastAPI:
-    """Создание и конфигурация FastAPI приложения."""
+def create_app(
+    *,
+    routers: Sequence[APIRouter],
+    middlewares: Sequence[type],
+) -> FastAPI:
     setup_logging()
-
-    container = ApplicationContainer()
-
-    app = FastAPI()
+    container = get_container(settings.configuration)()
+    app = FastAPI(
+        debug=settings.app_debug,
+        title="FileFerry Service",
+        docs_url="/docs" if settings.app_debug else None,
+        redoc_url="/redoc" if settings.app_debug else None,
+        openapi_url="/openapi.json" if settings.app_debug else None,
+    )
+    app.state.container = container
     app.state.startup_time = time.time()
+    for mw in middlewares:
+        app.add_middleware(mw)
 
-    app.container = container  # type: ignore #
-    app.state.container = (
-        container  # сохранить контейнер явно для доступа в любом месте приложения
-    )
+    for router in routers:
+        app.include_router(router)
 
-    container.wire(
-        modules=[
-            "composition.di",
-        ],
-    )
-
-    # Подключение роутеров
-    app.include_router(root_router)
-    app.add_middleware(ApplicationErrorMiddleware)
-    app.add_middleware(RequestIdMiddleware)
-
+    container.wire(modules=["composition.di"])
     return app

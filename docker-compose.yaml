@@ -8,14 +8,15 @@ services:
     command: uvicorn transport.rest.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./fileferry:/app
-      - ./environments/minio.default.env:/app/minio.env
-      - ./environments/postgres.env:/app/postgres.env
-      - ./environments/redis.env:/app/redis.env
     depends_on:
       - db
       - redis
     env_file:
-      - ./environments/.env
+      - ./environments/app/.env
+      - ./environments/app/minio.default.env
+      - ./environments/app/postgres.env
+      - ./environments/app/redis.env
+      - ./environments/app/.env
     ports:
       - "8000:8000"
 
@@ -23,7 +24,7 @@ services:
     container_name: db
     image: postgres
     env_file:
-      - ./environments/db.env
+      - ./environments/infastructure/db.env
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
 
@@ -48,7 +49,7 @@ services:
       - ./minio_data:/data
     command: server /data --console-address ":9001"
     env_file:
-      - ./environments/minio.env
+      - ./environments/infastructure/minio.env
     ports:
       - "9000:9000"
       - "9001:9001"

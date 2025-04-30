@@ -8,6 +8,7 @@ logger = logger.bind(logger_name="core")
 
 class Settings(BaseSettings):
     app_debug: bool
+    configuration: str
 
     class Config:
         env_file = ".env"
