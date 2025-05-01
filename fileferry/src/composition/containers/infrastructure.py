@@ -25,13 +25,13 @@ from infrastructure.transactions.manager import TransactionManager
 def create_transaction_context(
     session_factory: Callable[[], AsyncSession],
 ) -> SqlAlchemyTransactionContext:
-    session = session_factory()
-    return SqlAlchemyTransactionContext(session=session)
+    return SqlAlchemyTransactionContext(session=session_factory())
 
 
 class InfrastructureContainer(containers.DeclarativeContainer):
-    """Контейнер инфраструктуры: БД, MinIO, доступ к данным."""
+    """Инфраструктурный DI-контейнер."""
 
+    # --- Configs ---
     postgres_config = providers.Singleton(PostgresSettings)
     minio_config = providers.Singleton(MinioConfig)
     redis_config = providers.Singleton(RedisConfig)
@@ -53,7 +53,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     db_session_factory: providers.Factory[AsyncSession] = providers.Factory(
-        db_sessionmaker.provided.__call__,
+        db_sessionmaker.provided.__call__
     )
 
     minio_client = providers.Singleton(
@@ -72,19 +72,20 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         socket_timeout=redis_config.provided.socket_timeout,
         retry=Retry(NoBackoff(), retries=0),
     )
+
+    # --- Task Execution ---
     scheduler = providers.Singleton(AsyncioTaskScheduler)
     manager = providers.Singleton(ImportantTaskManager)
 
-    # --- Gateways ---
-    storage_access = providers.Factory(
-        MiniOStorage,
-        client=minio_client,
-    )
+    # --- Storage ---
+    storage_access = providers.Factory(MiniOStorage, client=minio_client)
     redis_storage = providers.Factory(RedisStorage, client=redis, prefix="file:meta")
+
+    # --- Cache Logic ---
     cache_invalidator = providers.Singleton(
         CacheInvalidator, storage=redis_storage, manager=manager
     )
-    # DataAccess пока без сессии, будет передаваться в UoW
+
     sql_data_access = providers.Factory(SQLAlchemyDataAccess, session=None)
     cache_data_access = providers.Factory(
         CachedFileMetaAccess,
@@ -92,22 +93,26 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         scheduler=scheduler,
         storage=redis_storage,
         ttl=300,
-        delegate=sql_data_access,
+        delegate=None,
     )
 
-    # --- Unit of Work / Transaction ---
-    transaction = providers.Factory(
+    # --- Transaction Layer ---
+    transaction: providers.Factory[SqlAlchemyTransactionContext] = providers.Factory(
         create_transaction_context,
         session_factory=db_session_factory,
     )
-    transaction_manager = providers.Factory(TransactionManager, context=transaction)
+    transaction_manager: providers.Factory[TransactionManager] = providers.Factory(
+        TransactionManager,
+        context=transaction,
+    )
 
+    # --- Composition Root ---
     atomic_operation: providers.Factory[SqlAlchemyMinioAtomicOperation] = (
         providers.Factory(
             SqlAlchemyMinioAtomicOperation,
             transaction=transaction_manager,
             storage=storage_access,
-            data_access=cache_data_access,
+            cache_aside=cache_data_access,
             sql_data_access=sql_data_access,
         )
     )

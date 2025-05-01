@@ -4,6 +4,7 @@ from contracts.infrastructure.atomic import (
 )
 from contracts.infrastructure.consistence import CacheInvalidatorContract
 from contracts.infrastructure.data_access import (
+    CacheAsideContract,
     DataAccessContract,
     SQLAlchemyDataAccessContract,
 )
@@ -16,6 +17,7 @@ from contracts.infrastructure.transaction_manager import TransactionManagerContr
 
 __all__ = (
     "AtomicOperationContract",
+    "CacheAsideContract",
     "CacheInvalidatorContract",
     "CacheStorageContract",
     "DataAccessContract",
