@@ -4,6 +4,12 @@ from pydantic_settings import BaseSettings
 class RedisConfig(BaseSettings):
     host: str
     port: int
+    socket_timeout: int = (
+        1  # сколько времени даем на операцию(1 секунды с головой для микросервиса)
+    )
+    socket_connect_timeout: int = (
+        1  # сколько времени даем на попытку подключение(опять же 1 секунда более чем)
+    )
 
     class Config:
         env_prefix = "REDIS_"

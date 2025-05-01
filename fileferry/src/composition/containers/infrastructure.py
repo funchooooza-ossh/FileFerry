@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from dependency_injector import containers, providers
 from miniopy_async import Minio
-from redis.asyncio import Redis
+from redis.asyncio import ConnectionPool, Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from infrastructure.atomic.minio_sqla import SqlAlchemyMinioAtomicOperation
@@ -57,9 +57,17 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         secret_key=minio_config.provided.secret,
         secure=minio_config.provided.secure,
     )
-
+    pool = providers.Singleton(
+        ConnectionPool,
+        host=redis_config.provided.host,
+        port=redis_config.provided.port,
+    )
     redis = providers.Singleton(
-        Redis, host=redis_config.provided.host, port=redis_config.provided.port
+        Redis,
+        host=redis_config.provided.host,
+        port=redis_config.provided.port,
+        socket_connect_timeout=redis_config.provided.socket_connect_timeout,
+        socket_timeout=redis_config.provided.socket_timeout,
     )
 
     # --- Gateways ---
