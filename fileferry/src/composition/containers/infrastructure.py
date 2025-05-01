@@ -12,8 +12,10 @@ from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.config.redis import RedisConfig
 from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
-from infrastructure.data_access.redis import RedisDataAccess
+from infrastructure.data_access.redis import CachedFileMetaAccess
 from infrastructure.storage.minio import MiniOStorage
+from infrastructure.storage.redis import RedisStorage
+from infrastructure.tasks.consistence import CacheInvalidator
 from infrastructure.tasks.manager import ImportantTaskManager
 from infrastructure.tasks.scheduler import AsyncioTaskScheduler
 from infrastructure.transactions.context import SqlAlchemyTransactionContext
@@ -78,11 +80,19 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         MiniOStorage,
         client=minio_client,
     )
-
+    redis_storage = providers.Factory(RedisStorage, client=redis, prefix="file:meta")
+    cache_invalidator = providers.Singleton(
+        CacheInvalidator, storage=redis_storage, manager=manager
+    )
     # DataAccess пока без сессии, будет передаваться в UoW
     sql_data_access = providers.Factory(SQLAlchemyDataAccess, session=None)
-    data_access = providers.Factory(
-        RedisDataAccess, redis=redis, scheduler=scheduler, manager=manager
+    cache_data_access = providers.Factory(
+        CachedFileMetaAccess,
+        invalidator=cache_invalidator,
+        scheduler=scheduler,
+        storage=redis_storage,
+        ttl=300,
+        delegate=sql_data_access,
     )
 
     # --- Unit of Work / Transaction ---
@@ -97,7 +107,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
             SqlAlchemyMinioAtomicOperation,
             transaction=transaction_manager,
             storage=storage_access,
-            data_access=data_access,
+            data_access=cache_data_access,
             sql_data_access=sql_data_access,
         )
     )

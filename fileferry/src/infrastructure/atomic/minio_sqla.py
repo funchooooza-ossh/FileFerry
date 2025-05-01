@@ -1,7 +1,7 @@
 from typing import Optional
 
 from contracts.infrastructure import (
-    RedisDataAccessContract,
+    DataAccessContract,
     SQLAlchemyDataAccessContract,
     SQLAlchemyMinioAtomicContract,
     StorageAccessContract,
@@ -15,7 +15,7 @@ class SqlAlchemyMinioAtomicOperation(SQLAlchemyMinioAtomicContract):
         sql_data_access: SQLAlchemyDataAccessContract,
         transaction: TransactionManagerContract,
         storage: StorageAccessContract,
-        data_access: RedisDataAccessContract,
+        data_access: DataAccessContract,
     ) -> None:
         self._transaction = transaction
         self.data_access = data_access
@@ -24,7 +24,6 @@ class SqlAlchemyMinioAtomicOperation(SQLAlchemyMinioAtomicContract):
 
     async def __aenter__(self) -> "SqlAlchemyMinioAtomicOperation":
         await self._transaction.start(self.sql_data_accces)
-        self.data_access.bind_delegate(self.sql_data_accces)
         return self
 
     async def __aexit__(
