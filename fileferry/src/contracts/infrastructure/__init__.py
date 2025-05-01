@@ -4,6 +4,7 @@ from contracts.infrastructure.atomic import (
 )
 from contracts.infrastructure.data_access import (
     DataAccessContract,
+    RedisDataAccessContract,
     SQLAlchemyDataAccessContract,
 )
 from contracts.infrastructure.helper import FileHelperContract
@@ -15,6 +16,7 @@ __all__ = (
     "AtomicOperationContract",
     "DataAccessContract",
     "FileHelperContract",
+    "RedisDataAccessContract",
     "SQLAlchemyDataAccessContract",
     "SQLAlchemyMinioAtomicContract",
     "StorageAccessContract",

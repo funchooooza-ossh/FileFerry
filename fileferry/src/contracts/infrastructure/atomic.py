@@ -2,6 +2,7 @@ from typing import Optional, Protocol
 
 from contracts.infrastructure.data_access import (
     DataAccessContract,
+    RedisDataAccessContract,
     SQLAlchemyDataAccessContract,
 )
 from contracts.infrastructure.storage import StorageAccessContract
@@ -36,5 +37,6 @@ class AtomicOperationContract(Protocol):
 
 
 class SQLAlchemyMinioAtomicContract(AtomicOperationContract, Protocol):
-    data_access: SQLAlchemyDataAccessContract  # type: ignore override насильно
+    data_access: RedisDataAccessContract  # type: ignore override насильно
     storage: StorageAccessContract
+    sql_data_access: SQLAlchemyDataAccessContract

@@ -1,5 +1,5 @@
 # contracts/infrastructure/data_access.py
-from typing import Optional, Protocol
+from typing import Protocol
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +21,7 @@ class DataAccessContract(Protocol):
         """Удалить объект данных по ID."""
         ...
 
-    async def update(self, meta: FileMeta) -> Optional[FileMeta]:
+    async def update(self, meta: FileMeta) -> FileMeta:
         """Обновить данные по ID"""
         ...
 
@@ -35,3 +35,10 @@ class SQLAlchemyDataAccessContract(DataAccessContract, Protocol):
     def session(self) -> AsyncSession: ...
 
     def bind_session(self, session: AsyncSession) -> None: ...
+
+
+class RedisDataAccessContract(DataAccessContract, Protocol):
+    @property
+    def delegate(self) -> DataAccessContract: ...
+
+    def bind_delegate(self, delegate: DataAccessContract) -> None: ...

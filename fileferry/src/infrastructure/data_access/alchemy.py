@@ -50,7 +50,7 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
         return
 
     @wrap_sqlalchemy_failure
-    async def update(self, meta: FileMeta) -> Optional[FileMeta]:
+    async def update(self, meta: FileMeta) -> FileMeta:
         query = await self.session.execute(select(File).where(File.id == meta.get_id()))
         model = query.scalar_one()
 
