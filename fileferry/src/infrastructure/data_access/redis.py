@@ -1,19 +1,37 @@
+import asyncio
 import json
-from typing import Optional
+from collections.abc import Coroutine
+from typing import Any, Optional
 
+from loguru import logger
 from redis.asyncio import Redis
+from redis.exceptions import RedisError
 
-from contracts.infrastructure import DataAccessContract, RedisDataAccessContract
+from contracts.infrastructure import (
+    DataAccessContract,
+    ImportantTaskManagerContract,
+    RedisDataAccessContract,
+    TaskSchedulerContract,
+)
 from domain.models import ContentType, FileId, FileMeta, FileName, FileSize
+from infrastructure.tasks.wrapper import wrap_with_event_timeout
 from shared.exceptions.handlers.redis_handler import wrap_redis_failure
 
 
 class RedisDataAccess(RedisDataAccessContract):
     def __init__(
-        self, redis: Redis, delegate: Optional[DataAccessContract] = None
+        self,
+        redis: Redis,
+        scheduler: TaskSchedulerContract,
+        manager: ImportantTaskManagerContract,
+        ttl: int = 300,
+        delegate: Optional[DataAccessContract] = None,
     ) -> None:
         self._delegate = delegate
         self._redis = redis
+        self._scheduler = scheduler
+        self._cache_ttl = ttl
+        self._manager = manager
 
     async def get(self, file_id: str) -> FileMeta:
         key = self.key(file_id)
@@ -23,7 +41,9 @@ class RedisDataAccess(RedisDataAccessContract):
 
         result = await self.delegate.get(file_id=file_id)
 
-        await self._try_set(key, self.serialize_meta(result), 3600)
+        self._scheduler.schedule(
+            self._try_set(key, value=self.serialize_meta(result), ex=self._cache_ttl)
+        )
 
         return result
 
@@ -32,7 +52,9 @@ class RedisDataAccess(RedisDataAccessContract):
 
         key = self.key(result.get_id())
         cache_value = self.serialize_meta(result)
-        await self._try_set(key, cache_value, 3600)
+        self._scheduler.schedule(
+            self._try_set(key, value=cache_value, ex=self._cache_ttl)
+        )
 
         return result
 
@@ -40,8 +62,7 @@ class RedisDataAccess(RedisDataAccessContract):
         result = await self.delegate.update(meta)
 
         key = self.key(result.get_id())
-        cache_value = self.serialize_meta(result)
-        await self._try_set(key, cache_value, 3600)
+        await self.invalidate_cache(key, ttl_seconds=self._cache_ttl)
 
         return result
 
@@ -49,7 +70,7 @@ class RedisDataAccess(RedisDataAccessContract):
         await self.delegate.delete(file_id)
 
         key = self.key(file_id)
-        await self._try_delete(key)
+        await self.invalidate_cache(key, ttl_seconds=self._cache_ttl)
 
     @staticmethod
     def deserialize_meta(raw: bytes) -> FileMeta:
@@ -92,9 +113,29 @@ class RedisDataAccess(RedisDataAccessContract):
         return await self._redis.get(key)
 
     @wrap_redis_failure("set")
-    async def _try_set(self, key: str, value: str, ex: int = 3600) -> None:
+    async def _try_set(self, key: str, value: str, ex: int) -> None:
         await self._redis.set(name=key, value=value, ex=ex)
 
-    @wrap_redis_failure("delete")
-    async def _try_delete(self, key: str) -> None:
-        await self._redis.delete(key)
+    async def invalidate_cache(self, key: str, ttl_seconds: int) -> None:
+        event = asyncio.Event()
+        logger.info(f"[REDIS][INVALIDATE] Scheduling task for key={key}")
+
+        def task_factory() -> Coroutine[Any, Any, Any]:
+            async def _task() -> None:
+                deadline = asyncio.get_event_loop().time() + ttl_seconds
+                while not event.is_set():
+                    try:
+                        logger.info(f"[REDIS][INVALIDATE] Trying for {key}")
+                        await self._redis.delete(key)
+                        logger.info(f"[REDIS][INVALIDATE] Finished for {key}")
+                        return
+                    except RedisError:
+                        if asyncio.get_event_loop().time() >= deadline:
+                            event.set()
+                        else:
+                            logger.info(f"[REDIS][INVALIDATE] Sleeping for {key}")
+                            await asyncio.sleep(5)
+
+            return wrap_with_event_timeout(_task(), event, ttl_seconds)
+
+        await self._manager.schedule(key, task_factory, event)

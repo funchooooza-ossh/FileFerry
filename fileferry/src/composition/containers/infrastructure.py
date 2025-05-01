@@ -2,7 +2,9 @@ from collections.abc import Callable
 
 from dependency_injector import containers, providers
 from miniopy_async import Minio
-from redis.asyncio import ConnectionPool, Redis
+from redis.asyncio import Redis
+from redis.backoff import NoBackoff
+from redis.retry import Retry
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from infrastructure.atomic.minio_sqla import SqlAlchemyMinioAtomicOperation
@@ -12,6 +14,8 @@ from infrastructure.config.redis import RedisConfig
 from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
 from infrastructure.data_access.redis import RedisDataAccess
 from infrastructure.storage.minio import MiniOStorage
+from infrastructure.tasks.manager import ImportantTaskManager
+from infrastructure.tasks.scheduler import AsyncioTaskScheduler
 from infrastructure.transactions.context import SqlAlchemyTransactionContext
 from infrastructure.transactions.manager import TransactionManager
 
@@ -57,18 +61,17 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         secret_key=minio_config.provided.secret,
         secure=minio_config.provided.secure,
     )
-    pool = providers.Singleton(
-        ConnectionPool,
-        host=redis_config.provided.host,
-        port=redis_config.provided.port,
-    )
+
     redis = providers.Singleton(
         Redis,
         host=redis_config.provided.host,
         port=redis_config.provided.port,
         socket_connect_timeout=redis_config.provided.socket_connect_timeout,
         socket_timeout=redis_config.provided.socket_timeout,
+        retry=Retry(NoBackoff(), retries=0),
     )
+    scheduler = providers.Singleton(AsyncioTaskScheduler)
+    manager = providers.Singleton(ImportantTaskManager)
 
     # --- Gateways ---
     storage_access = providers.Factory(
@@ -78,7 +81,9 @@ class InfrastructureContainer(containers.DeclarativeContainer):
 
     # DataAccess пока без сессии, будет передаваться в UoW
     sql_data_access = providers.Factory(SQLAlchemyDataAccess, session=None)
-    data_access = providers.Factory(RedisDataAccess, redis=redis)
+    data_access = providers.Factory(
+        RedisDataAccess, redis=redis, scheduler=scheduler, manager=manager
+    )
 
     # --- Unit of Work / Transaction ---
     transaction = providers.Factory(
