@@ -40,7 +40,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     db_engine = providers.Singleton(
         create_async_engine,
         url=postgres_config.provided.url,
-        echo=False,
+        echo=True,
         future=True,
     )
 
@@ -81,29 +81,29 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     storage_access = providers.Factory(MiniOStorage, client=minio_client)
     redis_storage = providers.Factory(RedisStorage, client=redis, prefix="file:meta")
 
-    # --- Cache Logic ---
-    cache_invalidator = providers.Singleton(
-        CacheInvalidator, storage=redis_storage, manager=manager
-    )
-
-    sql_data_access = providers.Factory(SQLAlchemyDataAccess, session=None)
-    cache_data_access = providers.Factory(
-        CachedFileMetaAccess,
-        invalidator=cache_invalidator,
-        scheduler=scheduler,
-        storage=redis_storage,
-        ttl=300,
-        delegate=None,
-    )
-
     # --- Transaction Layer ---
-    transaction: providers.Factory[SqlAlchemyTransactionContext] = providers.Factory(
+    transaction: providers.Resource[SqlAlchemyTransactionContext] = providers.Resource(
         create_transaction_context,
         session_factory=db_session_factory,
     )
     transaction_manager: providers.Factory[TransactionManager] = providers.Factory(
         TransactionManager,
         context=transaction,
+    )
+    sql_data_access = providers.Factory(SQLAlchemyDataAccess, context=transaction)
+
+    # --- Cache Logic ---
+    cache_invalidator = providers.Singleton(
+        CacheInvalidator, storage=redis_storage, manager=manager
+    )
+
+    cache_data_access = providers.Factory(
+        CachedFileMetaAccess,
+        invalidator=cache_invalidator,
+        scheduler=scheduler,
+        storage=redis_storage,
+        ttl=300,
+        delegate=sql_data_access,
     )
 
     # --- Composition Root ---
@@ -113,6 +113,5 @@ class InfrastructureContainer(containers.DeclarativeContainer):
             transaction=transaction_manager,
             storage=storage_access,
             cache_aside=cache_data_access,
-            sql_data_access=sql_data_access,
         )
     )

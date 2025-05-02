@@ -11,14 +11,10 @@ class TransactionManager(TransactionManagerContract):
         self._bound_data_accesses: list[SQLAlchemyDataAccessContract] = []
         self._started = False
 
-    async def start(self, *data_accesses: SQLAlchemyDataAccessContract) -> None:
+    async def start(self) -> None:
         if self._started:
             raise RuntimeError("Transaction has already been started")
         await self._context.begin()
-        [
-            data_access.bind_session(session=self._context.session)
-            for data_access in data_accesses
-        ]
         self._started = True
 
     async def end(self) -> None:

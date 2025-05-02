@@ -1,8 +1,7 @@
 from typing import Optional
 
 from contracts.infrastructure import (
-    CacheAsideContract,
-    SQLAlchemyDataAccessContract,
+    DataAccessContract,
     SQLAlchemyMinioAtomicContract,
     StorageAccessContract,
     TransactionManagerContract,
@@ -13,19 +12,16 @@ class SqlAlchemyMinioAtomicOperation(SQLAlchemyMinioAtomicContract):
     def __init__(
         self,
         *,
-        sql_data_access: SQLAlchemyDataAccessContract,
         transaction: TransactionManagerContract,
         storage: StorageAccessContract,
-        cache_aside: CacheAsideContract,
+        cache_aside: DataAccessContract,
     ) -> None:
-        self._sql_data_access = sql_data_access
         self._transaction = transaction
         self.storage = storage
         self.data_access = cache_aside
 
     async def __aenter__(self) -> "SqlAlchemyMinioAtomicOperation":
-        await self._transaction.start(self._sql_data_access)
-        self.data_access.bind_delegate(self._sql_data_access)
+        await self._transaction.start()
         return self
 
     async def __aexit__(

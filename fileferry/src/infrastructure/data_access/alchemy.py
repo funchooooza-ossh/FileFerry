@@ -1,32 +1,20 @@
-from typing import Optional
-
 from loguru import logger
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from contracts.infrastructure import SQLAlchemyDataAccessContract
+from contracts.infrastructure import SQLAlchemyDataAccessContract, TransactionContext
 from domain.models import FileMeta
 from infrastructure.models.sqlalchemy.file import File
 from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 
 
 class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
-    def __init__(self, session: Optional[AsyncSession] = None) -> None:
-        self._session = session
+    def __init__(self, context: TransactionContext) -> None:
+        self._context = context
 
     @property
     def session(self) -> AsyncSession:
-        if not self._session:
-            raise RuntimeError(
-                "[CRITICAL] -- You can not use data access with no session context"
-            )
-        return self._session
-
-    def bind_session(self, session: AsyncSession) -> None:
-        """Явно привязывает сессию к DataAccess перед началом работы."""
-        if self._session is not None:
-            raise RuntimeError("[CRITICAL] DataAccess session already bound")
-        self._session = session
+        return self._context.session
 
     @wrap_sqlalchemy_failure
     async def save(self, file_meta: FileMeta) -> FileMeta:
