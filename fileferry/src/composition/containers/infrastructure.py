@@ -109,11 +109,9 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     # --- Composition Root ---
-    atomic_operation: providers.Factory[SqlAlchemyMinioCoordination] = (
-        providers.Factory(
-            SqlAlchemyMinioCoordination,
-            transaction=transaction_manager,
-            storage=storage_access,
-            cache_aside=cache_data_access,
-        )
+    coordination: providers.Factory[SqlAlchemyMinioCoordination] = providers.Factory(
+        SqlAlchemyMinioCoordination,
+        transaction=transaction_manager,
+        storage=storage_access,
+        data_access=cache_data_access,
     )

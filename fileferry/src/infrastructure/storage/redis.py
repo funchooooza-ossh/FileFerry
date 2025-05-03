@@ -4,8 +4,9 @@ from typing import Optional
 from redis.asyncio import Redis
 
 from contracts.infrastructure import CacheStorageContract
-from domain.models import ContentType, FileId, FileMeta, FileName, FileSize
+from domain.models import FileMeta
 from shared.exceptions.handlers.redis_handler import wrap_redis_failure
+from shared.object_mapping.filemeta import DTOFileMeta, FileMetaMapper
 
 
 class RedisCacheStorage(CacheStorageContract):
@@ -36,21 +37,9 @@ class RedisCacheStorage(CacheStorageContract):
 
     @staticmethod
     def deserialize_meta(raw: bytes) -> FileMeta:
-        data = json.loads(raw.decode("utf-8"))
-        return FileMeta(
-            FileId(data["id"]),
-            FileName(data["name"]),
-            ContentType(data["content_type"]),
-            FileSize(data["size"]),
-        )
+        serialized_meta = DTOFileMeta(**json.loads(raw.decode("utf-8")))
+        return FileMetaMapper.deserialize_filemeta(serialized_meta)
 
     @staticmethod
     def serialize_meta(meta: FileMeta) -> str:
-        return json.dumps(
-            {
-                "id": meta.get_id(),
-                "name": meta.get_name(),
-                "content_type": meta.get_content_type(),
-                "size": meta.get_size(),
-            }
-        )
+        return json.dumps(FileMetaMapper.serialize_filemeta(meta))

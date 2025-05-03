@@ -30,7 +30,7 @@ class ApplicationContainer(containers.DeclarativeContainer):
     # --- Usecases ---
     usecases = providers.Container(
         UsecaseContainer,
-        coordinator=infrastructure.atomic_operation,  # type: ignore
+        coordinator=infrastructure.coordination,  # type: ignore
     )
 
     # --- Adapters ---
