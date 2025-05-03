@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.config.redis import RedisConfig
-from infrastructure.coordination.minio_sqla import MinioSQLAlchemy
-from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
+from infrastructure.coordination.minio_sqla import SqlAlchemyMinioCoordinator
+from infrastructure.data_access.alchemy import FileMetaDataAccess
 from infrastructure.data_access.redis import CachedFileMetaAccess
 from infrastructure.storage.minio import MiniOStorage
 from infrastructure.storage.redis import RedisCacheStorage
@@ -92,7 +92,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         TransactionManager,
         context=transaction,
     )
-    sql_data_access = providers.Factory(SQLAlchemyDataAccess, context=transaction)
+    sql_data_access = providers.Factory(FileMetaDataAccess, context=transaction)
 
     # --- Cache Logic ---
     cache_invalidator = providers.Singleton(
@@ -109,8 +109,8 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     # --- Composition Root ---
-    coordination: providers.Factory[MinioSQLAlchemy] = providers.Factory(
-        MinioSQLAlchemy,
+    coordination: providers.Factory[SqlAlchemyMinioCoordinator] = providers.Factory(
+        SqlAlchemyMinioCoordinator,
         transaction=transaction_manager,
         storage=storage_access,
         data_access=cache_data_access,

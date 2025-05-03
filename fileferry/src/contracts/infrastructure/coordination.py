@@ -7,10 +7,15 @@ from contracts.infrastructure.storage import StorageAccessContract
 
 
 class OperationCoordinationContract(Protocol):
-    """Контракт для атомарных операций между базой данных и хранилищем."""
+    """
+    Координатор действий для контроля Application слоя
+    над работой с базой и хранилищем.
+    Проксирует data_access и file_storage наружу.
+    Реализует интерфейсы подтверждения изменений и их отката.
+    """
 
-    db: DataAccessContract
-    storage: StorageAccessContract
+    data_access: DataAccessContract
+    file_storage: StorageAccessContract
 
     async def __aenter__(self) -> "OperationCoordinationContract":
         """Начинает атомарную операцию."""

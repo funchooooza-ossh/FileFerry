@@ -2,6 +2,10 @@ from pydantic_settings import BaseSettings
 
 
 class RedisConfig(BaseSettings):
+    """
+    Redis конфиг
+    """
+
     host: str
     port: int
     socket_timeout: int = (

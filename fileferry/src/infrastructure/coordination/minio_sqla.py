@@ -8,7 +8,15 @@ from contracts.infrastructure import (
 )
 
 
-class MinioSQLAlchemy(OperationCoordinationContract):
+class SqlAlchemyMinioCoordinator(OperationCoordinationContract):
+    """
+    Имплементация координатора действий DataAccess и FileStorage.
+    Являет собой адаптер инфраструктурных реализаций MiniOStorage и
+    любым SQLAlchemy DataAccess.
+    В силу особенностей SQLAlchemy также инкапсулирует работу с сессией,
+    начиная и завершая её в контексте.
+    """
+
     def __init__(
         self,
         *,
@@ -17,10 +25,10 @@ class MinioSQLAlchemy(OperationCoordinationContract):
         data_access: DataAccessContract,
     ) -> None:
         self._transaction = transaction
-        self.storage = storage
-        self.db = data_access
+        self.file_storage = storage
+        self.data_access = data_access
 
-    async def __aenter__(self) -> "MinioSQLAlchemy":
+    async def __aenter__(self) -> "SqlAlchemyMinioCoordinator":
         await self._transaction.start()
         return self
 
