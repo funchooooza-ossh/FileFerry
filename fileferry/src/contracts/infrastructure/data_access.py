@@ -1,9 +1,10 @@
 # contracts/infrastructure/data_access.py
-from typing import Optional, Protocol
+from typing import Protocol
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.models import FileMeta
+from shared.types.component_health import ComponentStatus
 
 
 class DataAccessContract(Protocol):
@@ -21,13 +22,11 @@ class DataAccessContract(Protocol):
         """Удалить объект данных по ID."""
         ...
 
-    async def update(self, meta: FileMeta) -> Optional[FileMeta]:
+    async def update(self, meta: FileMeta) -> FileMeta:
         """Обновить данные по ID"""
         ...
 
-    async def healtcheck(self) -> bool:
-        """Проверка состояния"""
-        ...
+    async def healthcheck(self) -> ComponentStatus: ...
 
 
 class SQLAlchemyDataAccessContract(DataAccessContract, Protocol):

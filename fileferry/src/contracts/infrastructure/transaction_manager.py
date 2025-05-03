@@ -1,12 +1,14 @@
 from typing import Protocol
 
-from contracts.infrastructure import SQLAlchemyDataAccessContract, TransactionContext
+from contracts.infrastructure import TransactionContext
 
 
 class TransactionManagerContract(Protocol):
     _context: TransactionContext
 
-    async def start(self, *data_accesses: SQLAlchemyDataAccessContract) -> None: ...
+    async def start(
+        self,
+    ) -> None: ...
 
     async def end(self) -> None: ...
 

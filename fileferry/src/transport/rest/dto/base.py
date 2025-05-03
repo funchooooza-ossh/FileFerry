@@ -3,8 +3,7 @@ from typing import Generic, Optional, TypeVar
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
-from domain.models import ComponentStatuses, HealthReport
-from shared.enums import HealthStatus
+from shared.types.system_health import SystemHealthReport
 
 DataT = TypeVar("DataT", bound=BaseModel)
 
@@ -29,11 +28,8 @@ class Response(GenericModel, Generic[DataT]):
 
 class HealthCheck(BaseModel):
     uptime: int
-    status: HealthStatus
-    components: ComponentStatuses
+    components: SystemHealthReport
 
     @classmethod
-    def from_domain(cls, uptime: int, report: HealthReport) -> "HealthCheck":
-        return HealthCheck(
-            uptime=uptime, status=report.status, components=report.components
-        )
+    def from_domain(cls, uptime: int, report: SystemHealthReport) -> "HealthCheck":
+        return HealthCheck(uptime=uptime, components=report)

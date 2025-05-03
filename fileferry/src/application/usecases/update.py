@@ -3,7 +3,10 @@ from typing import Optional
 
 from contracts.application import UpdateUseCaseContract
 from contracts.domain import PolicyContract
-from contracts.infrastructure import FileHelperContract, SQLAlchemyMinioAtomicContract
+from contracts.infrastructure import (
+    FileHelperContract,
+    OperationCoordinationContract,
+)
 from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
 from shared.exceptions.exc_classes.application import (
@@ -17,12 +20,12 @@ from shared.exceptions.handlers.infra_handler import wrap_infrastructure_failure
 class UpdateUseCase(UpdateUseCaseContract):
     def __init__(
         self,
-        atomic: SQLAlchemyMinioAtomicContract,
+        coordinator: OperationCoordinationContract,
         meta_factory: Callable[[Optional[str], str, int, str], FileMeta],
         helper: FileHelperContract,
         policy: PolicyContract,
     ) -> None:
-        self._atomic = atomic
+        self._coordinator = coordinator
         self._meta_factory = meta_factory
         self._helper = helper
         self._policy = policy
@@ -47,17 +50,17 @@ class UpdateUseCase(UpdateUseCaseContract):
             except FilePolicyViolationEror as exc:
                 raise DomainRejectedError(message="Policy violation") from exc
 
-        async with self._atomic as transaction:
+        async with self._coordinator as transaction:
             if meta and stream:
                 await transaction.storage.upload(
                     file_meta=meta, stream=stream, bucket=bucket
                 )
             else:
-                meta = await transaction.data_access.get(file_id=file_id.value)
+                meta = await transaction.db.get(file_id=file_id.value)
                 meta = self._meta_factory(
                     file_id.value, name.value, meta.get_size(), meta.get_content_type()
                 )
-            meta = await transaction.data_access.update(meta=meta)
+            meta = await transaction.db.update(meta=meta)
             if not meta:
                 raise ApplicationRunTimeError(
                     "[CRITICAL] Logical error in update usecase. Meta is None"

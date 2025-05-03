@@ -1,9 +1,10 @@
 # contracts/infrastructure/storage_access.py
 from collections.abc import AsyncIterator
-from typing import Any, Protocol
+from typing import Protocol
 
 from domain.models import FileMeta
 from shared.enums import Buckets
+from shared.types.component_health import ComponentStatus
 
 
 class StorageAccessContract(Protocol):
@@ -23,6 +24,11 @@ class StorageAccessContract(Protocol):
         """Удаляет файл из хранилища."""
         ...
 
-    async def healtcheck(self) -> Any:
-        """Проверка состояния"""
-        ...
+    async def healthcheck(self) -> ComponentStatus: ...
+
+
+class CacheStorageContract(Protocol):
+    async def get(self, file_id: str) -> FileMeta | None: ...
+    async def set(self, meta: FileMeta, ttl: int) -> None: ...
+    async def delete(self, file_id: str) -> None: ...
+    async def healthcheck(self) -> ComponentStatus: ...

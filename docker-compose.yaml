@@ -12,11 +12,11 @@ services:
       - db
       - redis
     env_file:
-      - ./environments/app/.env
-      - ./environments/app/minio.default.env
-      - ./environments/app/postgres.env
-      - ./environments/app/redis.env
-      - ./environments/app/.env
+      - ./environments/.env
+      - ./environments/minio.default.env
+      - ./environments/postgres.env
+      - ./environments/redis.env
+      - ./environments/.env
     ports:
       - "8000:8000"
 
@@ -24,7 +24,7 @@ services:
     container_name: db
     image: postgres
     env_file:
-      - ./environments/infastructure/db.env
+      - ./environments/postgres.env
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
 
@@ -49,7 +49,7 @@ services:
       - ./minio_data:/data
     command: server /data --console-address ":9001"
     env_file:
-      - ./environments/infastructure/minio.env
+      - ./environments/minio.env
     ports:
       - "9000:9000"
       - "9001:9001"

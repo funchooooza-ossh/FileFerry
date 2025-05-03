@@ -2,18 +2,17 @@ from typing import Optional, Protocol
 
 from contracts.infrastructure.data_access import (
     DataAccessContract,
-    SQLAlchemyDataAccessContract,
 )
 from contracts.infrastructure.storage import StorageAccessContract
 
 
-class AtomicOperationContract(Protocol):
+class OperationCoordinationContract(Protocol):
     """Контракт для атомарных операций между базой данных и хранилищем."""
 
-    data_access: DataAccessContract
+    db: DataAccessContract
     storage: StorageAccessContract
 
-    async def __aenter__(self) -> "AtomicOperationContract":
+    async def __aenter__(self) -> "OperationCoordinationContract":
         """Начинает атомарную операцию."""
         ...
 
@@ -33,8 +32,3 @@ class AtomicOperationContract(Protocol):
     async def rollback(self) -> None:
         """Откатываем изменения в базе данных и хранилище."""
         ...
-
-
-class SQLAlchemyMinioAtomicContract(AtomicOperationContract, Protocol):
-    data_access: SQLAlchemyDataAccessContract  # type: ignore override насильно
-    storage: StorageAccessContract

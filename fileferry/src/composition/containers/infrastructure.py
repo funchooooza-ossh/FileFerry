@@ -2,13 +2,22 @@ from collections.abc import Callable
 
 from dependency_injector import containers, providers
 from miniopy_async import Minio
+from redis.asyncio import Redis
+from redis.backoff import NoBackoff
+from redis.retry import Retry
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from infrastructure.atomic.minio_sqla import SqlAlchemyMinioAtomicOperation
 from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
+from infrastructure.config.redis import RedisConfig
+from infrastructure.coordination.minio_sqla import MinioSQLAlchemy
 from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
+from infrastructure.data_access.redis import CachedFileMetaAccess
 from infrastructure.storage.minio import MiniOStorage
+from infrastructure.storage.redis import RedisCacheStorage
+from infrastructure.tasks.consistence import CacheInvalidator
+from infrastructure.tasks.manager import ImportantTaskManager
+from infrastructure.tasks.scheduler import AsyncioFireAndForget
 from infrastructure.transactions.context import SqlAlchemyTransactionContext
 from infrastructure.transactions.manager import TransactionManager
 
@@ -16,21 +25,22 @@ from infrastructure.transactions.manager import TransactionManager
 def create_transaction_context(
     session_factory: Callable[[], AsyncSession],
 ) -> SqlAlchemyTransactionContext:
-    session = session_factory()
-    return SqlAlchemyTransactionContext(session=session)
+    return SqlAlchemyTransactionContext(session=session_factory())
 
 
 class InfrastructureContainer(containers.DeclarativeContainer):
-    """Контейнер инфраструктуры: БД, MinIO, доступ к данным."""
+    """Инфраструктурный DI-контейнер."""
 
+    # --- Configs ---
     postgres_config = providers.Singleton(PostgresSettings)
     minio_config = providers.Singleton(MinioConfig)
+    redis_config = providers.Singleton(RedisConfig)
 
     # --- Clients ---
     db_engine = providers.Singleton(
         create_async_engine,
         url=postgres_config.provided.url,
-        echo=False,
+        echo=True,
         future=True,
     )
 
@@ -43,7 +53,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     db_session_factory: providers.Factory[AsyncSession] = providers.Factory(
-        db_sessionmaker.provided.__call__,
+        db_sessionmaker.provided.__call__
     )
 
     minio_client = providers.Singleton(
@@ -54,27 +64,54 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         secure=minio_config.provided.secure,
     )
 
-    # --- Gateways ---
-    storage_access = providers.Factory(
-        MiniOStorage,
-        client=minio_client,
+    redis = providers.Singleton(
+        Redis,
+        host=redis_config.provided.host,
+        port=redis_config.provided.port,
+        socket_connect_timeout=redis_config.provided.socket_connect_timeout,
+        socket_timeout=redis_config.provided.socket_timeout,
+        retry=Retry(NoBackoff(), retries=0),
     )
 
-    # DataAccess пока без сессии, будет передаваться в UoW
-    data_access = providers.Factory(SQLAlchemyDataAccess, session=None)
+    # --- Task Execution ---
+    task_fire_and_forget_scheduler = providers.Singleton(AsyncioFireAndForget)
+    task_manager = providers.Singleton(ImportantTaskManager)
 
-    # --- Unit of Work / Transaction ---
-    transaction = providers.Factory(
+    # --- Storage ---
+    storage_access = providers.Factory(MiniOStorage, client=minio_client)
+    redis_storage = providers.Factory(
+        RedisCacheStorage, client=redis, prefix="file:meta"
+    )
+
+    # --- Transaction Layer ---
+    transaction: providers.Resource[SqlAlchemyTransactionContext] = providers.Resource(
         create_transaction_context,
         session_factory=db_session_factory,
     )
-    transaction_manager = providers.Factory(TransactionManager, context=transaction)
+    transaction_manager: providers.Factory[TransactionManager] = providers.Factory(
+        TransactionManager,
+        context=transaction,
+    )
+    sql_data_access = providers.Factory(SQLAlchemyDataAccess, context=transaction)
 
-    atomic_operation: providers.Factory[SqlAlchemyMinioAtomicOperation] = (
-        providers.Factory(
-            SqlAlchemyMinioAtomicOperation,
-            transaction=transaction_manager,
-            storage=storage_access,
-            data_access=data_access,
-        )
+    # --- Cache Logic ---
+    cache_invalidator = providers.Singleton(
+        CacheInvalidator, cache_storage=redis_storage, task_manager=task_manager
+    )
+
+    cache_data_access = providers.Factory(
+        CachedFileMetaAccess,
+        invalidator=cache_invalidator,
+        scheduler=task_fire_and_forget_scheduler,
+        storage=redis_storage,
+        ttl=300,
+        delegate=sql_data_access,
+    )
+
+    # --- Composition Root ---
+    coordination: providers.Factory[MinioSQLAlchemy] = providers.Factory(
+        MinioSQLAlchemy,
+        transaction=transaction_manager,
+        storage=storage_access,
+        data_access=cache_data_access,
     )

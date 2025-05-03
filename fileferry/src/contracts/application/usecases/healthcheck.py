@@ -1,9 +1,9 @@
 from typing import Protocol
 
-from domain.models import HealthReport
+from shared.types.system_health import SystemHealthReport
 
 
 class HealthCheckUseCaseContract(Protocol):
-    async def execute(self) -> HealthReport:
+    async def execute(self) -> SystemHealthReport:
         """Возвращает статус сервиса"""
         ...
