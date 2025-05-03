@@ -7,7 +7,7 @@ from redis.backoff import NoBackoff
 from redis.retry import Retry
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from infrastructure.atomic.minio_sqla import SqlAlchemyMinioAtomicOperation
+from infrastructure.atomic.minio_sqla import SqlAlchemyMinioCoordination
 from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.config.redis import RedisConfig
@@ -107,9 +107,9 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     # --- Composition Root ---
-    atomic_operation: providers.Factory[SqlAlchemyMinioAtomicOperation] = (
+    atomic_operation: providers.Factory[SqlAlchemyMinioCoordination] = (
         providers.Factory(
-            SqlAlchemyMinioAtomicOperation,
+            SqlAlchemyMinioCoordination,
             transaction=transaction_manager,
             storage=storage_access,
             cache_aside=cache_data_access,

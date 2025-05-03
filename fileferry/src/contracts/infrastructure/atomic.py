@@ -7,13 +7,13 @@ from contracts.infrastructure.data_access import (
 from contracts.infrastructure.storage import StorageAccessContract
 
 
-class AtomicOperationContract(Protocol):
+class OperationCoordinationContract(Protocol):
     """Контракт для атомарных операций между базой данных и хранилищем."""
 
     data_access: DataAccessContract
     storage: StorageAccessContract
 
-    async def __aenter__(self) -> "AtomicOperationContract":
+    async def __aenter__(self) -> "OperationCoordinationContract":
         """Начинает атомарную операцию."""
         ...
 
@@ -35,7 +35,7 @@ class AtomicOperationContract(Protocol):
         ...
 
 
-class SQLAlchemyMinioAtomicContract(AtomicOperationContract, Protocol):
+class SQLAlchemyMinioCoordinationContract(OperationCoordinationContract, Protocol):
     data_access: DataAccessContract
     storage: StorageAccessContract
     sql_data_access: SQLAlchemyDataAccessContract

@@ -1,6 +1,6 @@
 from contracts.infrastructure.atomic import (
-    AtomicOperationContract,
-    SQLAlchemyMinioAtomicContract,
+    OperationCoordinationContract,
+    SQLAlchemyMinioCoordinationContract,
 )
 from contracts.infrastructure.consistence import CacheInvalidatorContract
 from contracts.infrastructure.data_access import (
@@ -15,14 +15,14 @@ from contracts.infrastructure.transaction import TransactionContext
 from contracts.infrastructure.transaction_manager import TransactionManagerContract
 
 __all__ = (
-    "AtomicOperationContract",
     "CacheInvalidatorContract",
     "CacheStorageContract",
     "DataAccessContract",
     "FileHelperContract",
     "ImportantTaskManagerContract",
+    "OperationCoordinationContract",
     "SQLAlchemyDataAccessContract",
-    "SQLAlchemyMinioAtomicContract",
+    "SQLAlchemyMinioCoordinationContract",
     "StorageAccessContract",
     "TaskSchedulerContract",
     "TransactionContext",

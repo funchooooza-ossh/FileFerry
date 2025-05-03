@@ -2,13 +2,13 @@ from typing import Optional
 
 from contracts.infrastructure import (
     DataAccessContract,
-    SQLAlchemyMinioAtomicContract,
+    SQLAlchemyMinioCoordinationContract,
     StorageAccessContract,
     TransactionManagerContract,
 )
 
 
-class SqlAlchemyMinioAtomicOperation(SQLAlchemyMinioAtomicContract):
+class SqlAlchemyMinioCoordination(SQLAlchemyMinioCoordinationContract):
     def __init__(
         self,
         *,
@@ -20,7 +20,7 @@ class SqlAlchemyMinioAtomicOperation(SQLAlchemyMinioAtomicContract):
         self.storage = storage
         self.data_access = cache_aside
 
-    async def __aenter__(self) -> "SqlAlchemyMinioAtomicOperation":
+    async def __aenter__(self) -> "SqlAlchemyMinioCoordination":
         await self._transaction.start()
         return self
 
