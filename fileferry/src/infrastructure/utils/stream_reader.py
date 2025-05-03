@@ -2,6 +2,11 @@ from collections.abc import AsyncIterator
 
 
 class AsyncStreamReader:
+    """
+    Класс работы со stream'ами, позволяет не бояться утечки потока.
+    Полностью совместим с асинхронной MiniO SDK.
+    """
+
     def __init__(self, stream: AsyncIterator[bytes]) -> None:
         self._stream = stream.__aiter__()
         self._buffer = b""

@@ -1,7 +1,7 @@
 from typing import Optional, Protocol
 
 from contracts.infrastructure.data_access import (
-    DataAccessContract,
+    FileMetaDataAccessContract,
 )
 from contracts.infrastructure.storage import StorageAccessContract
 
@@ -14,7 +14,7 @@ class OperationCoordinationContract(Protocol):
     Реализует интерфейсы подтверждения изменений и их отката.
     """
 
-    data_access: DataAccessContract
+    data_access: FileMetaDataAccessContract
     file_storage: StorageAccessContract
 
     async def __aenter__(self) -> "OperationCoordinationContract":

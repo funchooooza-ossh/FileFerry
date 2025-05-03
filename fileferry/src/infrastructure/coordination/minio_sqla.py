@@ -1,7 +1,7 @@
 from typing import Optional
 
 from contracts.infrastructure import (
-    DataAccessContract,
+    FileMetaDataAccessContract,
     OperationCoordinationContract,
     StorageAccessContract,
     TransactionManagerContract,
@@ -22,7 +22,7 @@ class SqlAlchemyMinioCoordinator(OperationCoordinationContract):
         *,
         transaction: TransactionManagerContract,
         storage: StorageAccessContract,
-        data_access: DataAccessContract,
+        data_access: FileMetaDataAccessContract,
     ) -> None:
         self._transaction = transaction
         self.file_storage = storage

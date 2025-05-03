@@ -1,20 +1,29 @@
 from contracts.infrastructure import (
     CacheInvalidatorContract,
-    CacheStorageContract,
-    DataAccessContract,
+    FileMetaCacheStorageContract,
+    FileMetaDataAccessContract,
     FireAndForgetTasksContract,
 )
 from domain.models import FileMeta
 from shared.types.component_health import ComponentStatus
 
 
-class CachedFileMetaAccess(DataAccessContract):
+class CachedFileMetaDataAccess(FileMetaDataAccessContract):
+    """
+    Класс-обертка для работы с кэшем, реализует паттерн CacheAside.
+    _invalidator - класс, необходимый для поддержания консистентности данных.
+    _cache_storage - класс, инкапсулирующий работу с хранилищем кэша.
+    _delegate - класс - источник истины, который оборачивает данный класс.
+    _cache_ttl - время кэширования
+    _scheduler - класс, уводящий задачи в background, чтобы не задерживать бизнес-операцию.
+    """
+
     def __init__(
         self,
         invalidator: CacheInvalidatorContract,
-        storage: CacheStorageContract,
+        storage: FileMetaCacheStorageContract,
         scheduler: FireAndForgetTasksContract,
-        delegate: DataAccessContract,
+        delegate: FileMetaDataAccessContract,
         ttl: int = 300,
     ) -> None:
         self._delegate = delegate

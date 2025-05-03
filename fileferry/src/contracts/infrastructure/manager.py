@@ -3,6 +3,11 @@ from typing import Any, Protocol
 
 
 class ImportantTaskManagerContract(Protocol):
+    """
+    Background manager важных задач, нужен для поддержания существования
+    и отслеживания состояния важных bg задач
+    """
+
     async def schedule(
         self,
         key: str,

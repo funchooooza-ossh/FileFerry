@@ -11,10 +11,10 @@ from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.config.redis import RedisConfig
 from infrastructure.coordination.minio_sqla import SqlAlchemyMinioCoordinator
-from infrastructure.data_access.alchemy import FileMetaDataAccess
-from infrastructure.data_access.redis import CachedFileMetaAccess
+from infrastructure.data_access.alchemy import SQLAlchemyFileMetaDataAccess
+from infrastructure.data_access.redis import CachedFileMetaDataAccess
 from infrastructure.storage.minio import MiniOStorage
-from infrastructure.storage.redis import RedisCacheStorage
+from infrastructure.storage.redis import RedisFileMetaCacheStorage
 from infrastructure.tasks.consistence import CacheInvalidator
 from infrastructure.tasks.manager import ImportantTaskManager
 from infrastructure.tasks.scheduler import AsyncioFireAndForget
@@ -80,7 +80,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     # --- Storage ---
     storage_access = providers.Factory(MiniOStorage, client=minio_client)
     redis_storage = providers.Factory(
-        RedisCacheStorage, client=redis, prefix="file:meta"
+        RedisFileMetaCacheStorage, client=redis, prefix="file:meta"
     )
 
     # --- Transaction Layer ---
@@ -92,7 +92,9 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         TransactionManager,
         context=transaction,
     )
-    sql_data_access = providers.Factory(FileMetaDataAccess, context=transaction)
+    sql_data_access = providers.Factory(
+        SQLAlchemyFileMetaDataAccess, context=transaction
+    )
 
     # --- Cache Logic ---
     cache_invalidator = providers.Singleton(
@@ -100,7 +102,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     cache_data_access = providers.Factory(
-        CachedFileMetaAccess,
+        CachedFileMetaDataAccess,
         invalidator=cache_invalidator,
         scheduler=task_fire_and_forget_scheduler,
         storage=redis_storage,

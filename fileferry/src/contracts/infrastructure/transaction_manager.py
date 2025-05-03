@@ -4,6 +4,11 @@ from contracts.infrastructure import TransactionContext
 
 
 class TransactionManagerContract(Protocol):
+    """
+    Контракт менеджера транзакции БД.
+    Инкапсулирует работу с контекстом транзакции.
+    """
+
     _context: TransactionContext
 
     async def start(

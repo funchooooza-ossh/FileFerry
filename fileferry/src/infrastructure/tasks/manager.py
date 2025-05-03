@@ -7,6 +7,12 @@ from contracts.infrastructure import ImportantTaskManagerContract
 
 
 class ImportantTaskManager(ImportantTaskManagerContract):
+    """
+    Имплементация контракта ImportantTaskManagerContract.
+    Являет собой продолжение спорного решения, касательно инвалидации
+    кэша любой ценой.
+    """
+
     def __init__(self, max_tasks: int = 100) -> None:
         self._tasks: dict[str, asyncio.Task[Any]] = {}
         self._meta: dict[str, float] = {}
