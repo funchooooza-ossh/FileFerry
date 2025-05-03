@@ -8,7 +8,7 @@ from domain.models import ContentType, FileId, FileMeta, FileName, FileSize
 from shared.exceptions.handlers.redis_handler import wrap_redis_failure
 
 
-class RedisStorage(CacheStorageContract):
+class RedisCacheStorage(CacheStorageContract):
     def __init__(self, client: Redis, prefix: str) -> None:
         self._client = client
         self._prefix = prefix

@@ -1,8 +1,8 @@
-from contracts.infrastructure.atomic import (
+from contracts.infrastructure.consistence import CacheInvalidatorContract
+from contracts.infrastructure.coordination import (
     OperationCoordinationContract,
     SQLAlchemyMinioCoordinationContract,
 )
-from contracts.infrastructure.consistence import CacheInvalidatorContract
 from contracts.infrastructure.data_access import (
     DataAccessContract,
     SQLAlchemyDataAccessContract,

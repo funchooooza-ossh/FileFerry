@@ -7,14 +7,14 @@ from redis.backoff import NoBackoff
 from redis.retry import Retry
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from infrastructure.atomic.minio_sqla import SqlAlchemyMinioCoordination
 from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.config.redis import RedisConfig
+from infrastructure.coordination.minio_sqla import SqlAlchemyMinioCoordination
 from infrastructure.data_access.alchemy import SQLAlchemyDataAccess
 from infrastructure.data_access.redis import CachedFileMetaAccess
 from infrastructure.storage.minio import MiniOStorage
-from infrastructure.storage.redis import RedisStorage
+from infrastructure.storage.redis import RedisCacheStorage
 from infrastructure.tasks.consistence import CacheInvalidator
 from infrastructure.tasks.manager import ImportantTaskManager
 from infrastructure.tasks.scheduler import AsyncioFireAndForget
@@ -79,7 +79,9 @@ class InfrastructureContainer(containers.DeclarativeContainer):
 
     # --- Storage ---
     storage_access = providers.Factory(MiniOStorage, client=minio_client)
-    redis_storage = providers.Factory(RedisStorage, client=redis, prefix="file:meta")
+    redis_storage = providers.Factory(
+        RedisCacheStorage, client=redis, prefix="file:meta"
+    )
 
     # --- Transaction Layer ---
     transaction: providers.Resource[SqlAlchemyTransactionContext] = providers.Resource(
