@@ -9,7 +9,7 @@ class HealthCheckUseCase(HealthCheckUseCaseContract):
 
     async def execute(self) -> HealthReport:
         async with self._coordinator as transaction:
-            db_health = await transaction.data_access.healtcheck()
+            db_health = await transaction.db.healtcheck()
             storage_health = await transaction.storage.healtcheck()
 
             components = ComponentStatuses(db=db_health, storage=storage_health)

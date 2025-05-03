@@ -13,4 +13,4 @@ class DeleteUseCase(DeleteUseCaseContract):
     async def execute(self, file_id: FileId, bucket: Buckets) -> None:
         async with self._coordinator as transaction:
             await transaction.storage.delete(file_id=file_id.value, bucket=bucket)
-            await transaction.data_access.delete(file_id=file_id.value)
+            await transaction.db.delete(file_id=file_id.value)

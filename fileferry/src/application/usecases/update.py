@@ -56,11 +56,11 @@ class UpdateUseCase(UpdateUseCaseContract):
                     file_meta=meta, stream=stream, bucket=bucket
                 )
             else:
-                meta = await transaction.data_access.get(file_id=file_id.value)
+                meta = await transaction.db.get(file_id=file_id.value)
                 meta = self._meta_factory(
                     file_id.value, name.value, meta.get_size(), meta.get_content_type()
                 )
-            meta = await transaction.data_access.update(meta=meta)
+            meta = await transaction.db.update(meta=meta)
             if not meta:
                 raise ApplicationRunTimeError(
                     "[CRITICAL] Logical error in update usecase. Meta is None"

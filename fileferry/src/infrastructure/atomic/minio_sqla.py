@@ -18,7 +18,7 @@ class SqlAlchemyMinioCoordination(SQLAlchemyMinioCoordinationContract):
     ) -> None:
         self._transaction = transaction
         self.storage = storage
-        self.data_access = cache_aside
+        self.db = cache_aside
 
     async def __aenter__(self) -> "SqlAlchemyMinioCoordination":
         await self._transaction.start()

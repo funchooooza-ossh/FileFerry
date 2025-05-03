@@ -35,7 +35,7 @@ class UploadUseCase(UploadUseCaseContract):
         except FilePolicyViolationEror as exc:
             raise DomainRejectedError(message="Policy violation") from exc
         async with self._coordinator as transaction:
-            await transaction.data_access.save(file_meta=file_meta)
+            await transaction.db.save(file_meta=file_meta)
             await transaction.storage.upload(
                 file_meta=file_meta, stream=stream, bucket=bucket
             )
