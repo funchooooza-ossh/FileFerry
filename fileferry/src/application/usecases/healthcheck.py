@@ -1,10 +1,10 @@
 from contracts.application import HealthCheckUseCaseContract
-from contracts.infrastructure import SQLAlchemyMinioCoordinationContract
+from contracts.infrastructure import OperationCoordinationContract
 from shared.types.system_health import SystemHealthReport, from_components
 
 
 class HealthCheckUseCase(HealthCheckUseCaseContract):
-    def __init__(self, coordinator: SQLAlchemyMinioCoordinationContract) -> None:
+    def __init__(self, coordinator: OperationCoordinationContract) -> None:
         self._coordinator = coordinator
 
     async def execute(self) -> SystemHealthReport:

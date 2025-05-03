@@ -32,8 +32,3 @@ class OperationCoordinationContract(Protocol):
     async def rollback(self) -> None:
         """Откатываем изменения в базе данных и хранилище."""
         ...
-
-
-class SQLAlchemyMinioCoordinationContract(OperationCoordinationContract, Protocol):
-    db: DataAccessContract
-    storage: StorageAccessContract

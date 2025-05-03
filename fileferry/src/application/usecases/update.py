@@ -5,7 +5,7 @@ from contracts.application import UpdateUseCaseContract
 from contracts.domain import PolicyContract
 from contracts.infrastructure import (
     FileHelperContract,
-    SQLAlchemyMinioCoordinationContract,
+    OperationCoordinationContract,
 )
 from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
@@ -20,7 +20,7 @@ from shared.exceptions.handlers.infra_handler import wrap_infrastructure_failure
 class UpdateUseCase(UpdateUseCaseContract):
     def __init__(
         self,
-        coordinator: SQLAlchemyMinioCoordinationContract,
+        coordinator: OperationCoordinationContract,
         meta_factory: Callable[[Optional[str], str, int, str], FileMeta],
         helper: FileHelperContract,
         policy: PolicyContract,

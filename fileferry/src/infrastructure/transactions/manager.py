@@ -1,5 +1,4 @@
 from contracts.infrastructure import (
-    SQLAlchemyDataAccessContract,
     TransactionContext,
     TransactionManagerContract,
 )
@@ -8,7 +7,6 @@ from contracts.infrastructure import (
 class TransactionManager(TransactionManagerContract):
     def __init__(self, context: TransactionContext) -> None:
         self._context = context
-        self._bound_data_accesses: list[SQLAlchemyDataAccessContract] = []
         self._started = False
 
     async def start(self) -> None:

@@ -20,25 +20,25 @@ class CachedFileMetaAccess(DataAccessContract):
         self._delegate = delegate
         self._cache_ttl = ttl
         self._cache_invalidator = invalidator
-        self._сache_storage = storage
+        self._cache_storage = storage
         self._scheduler = scheduler
 
     async def save(self, file_meta: FileMeta) -> FileMeta:
         result = await self._delegate.save(file_meta)
         if result:
             self._scheduler.schedule(
-                self._сache_storage.set(file_meta, ttl=self._cache_ttl)
+                self._cache_storage.set(file_meta, ttl=self._cache_ttl)
             )
         return result
 
     async def get(self, file_id: str) -> FileMeta:
-        cached = await self._сache_storage.get(file_id)
+        cached = await self._cache_storage.get(file_id)
         if cached:
             return cached
         result = await self._delegate.get(file_id)
         if result:
             self._scheduler.schedule(
-                self._сache_storage.set(result, ttl=self._cache_ttl)
+                self._cache_storage.set(result, ttl=self._cache_ttl)
             )
 
         return result
@@ -61,7 +61,7 @@ class CachedFileMetaAccess(DataAccessContract):
 
     async def healthcheck(self) -> ComponentStatus:
         db = await self._delegate.healthcheck()
-        cache = await self._сache_storage.healthcheck()
+        cache = await self._cache_storage.healthcheck()
 
         statuses = [db.get("status", "down"), cache.get("status", "down")]
 
