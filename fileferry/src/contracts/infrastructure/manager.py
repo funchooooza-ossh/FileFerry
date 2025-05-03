@@ -1,4 +1,3 @@
-import asyncio
 from collections.abc import Callable, Coroutine
 from typing import Any, Protocol
 
@@ -8,7 +7,6 @@ class ImportantTaskManagerContract(Protocol):
         self,
         key: str,
         task_factory: Callable[[], Coroutine[Any, Any, Any]],
-        event: asyncio.Event,
         on_done: Callable[[str, Exception | None], None] | None = None,
     ) -> None: ...
 

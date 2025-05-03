@@ -17,7 +17,7 @@ from infrastructure.storage.minio import MiniOStorage
 from infrastructure.storage.redis import RedisStorage
 from infrastructure.tasks.consistence import CacheInvalidator
 from infrastructure.tasks.manager import ImportantTaskManager
-from infrastructure.tasks.scheduler import AsyncioTaskScheduler
+from infrastructure.tasks.scheduler import AsyncioFireAndForget
 from infrastructure.transactions.context import SqlAlchemyTransactionContext
 from infrastructure.transactions.manager import TransactionManager
 
@@ -74,8 +74,8 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     )
 
     # --- Task Execution ---
-    scheduler = providers.Singleton(AsyncioTaskScheduler)
-    manager = providers.Singleton(ImportantTaskManager)
+    task_fire_and_forget_scheduler = providers.Singleton(AsyncioFireAndForget)
+    task_manager = providers.Singleton(ImportantTaskManager)
 
     # --- Storage ---
     storage_access = providers.Factory(MiniOStorage, client=minio_client)
@@ -94,13 +94,13 @@ class InfrastructureContainer(containers.DeclarativeContainer):
 
     # --- Cache Logic ---
     cache_invalidator = providers.Singleton(
-        CacheInvalidator, storage=redis_storage, manager=manager
+        CacheInvalidator, cache_storage=redis_storage, task_manager=task_manager
     )
 
     cache_data_access = providers.Factory(
         CachedFileMetaAccess,
         invalidator=cache_invalidator,
-        scheduler=scheduler,
+        scheduler=task_fire_and_forget_scheduler,
         storage=redis_storage,
         ttl=300,
         delegate=sql_data_access,

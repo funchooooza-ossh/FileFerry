@@ -1,8 +1,7 @@
 import asyncio
+import contextlib
 from collections.abc import Callable, Coroutine
-from typing import Any
-
-from loguru import logger
+from typing import Any, Optional
 
 from contracts.infrastructure import ImportantTaskManagerContract
 
@@ -18,18 +17,13 @@ class ImportantTaskManager(ImportantTaskManagerContract):
         self,
         key: str,
         task_factory: Callable[[], Coroutine[Any, Any, Any]],
-        event: asyncio.Event,
-        on_done: Callable[[str, Exception | None], None] | None = None,
+        on_done: Optional[Callable[[str, Exception | None], None]] = None,
     ) -> None:
         async with self._lock:
             if key in self._tasks:
-                logger.info(f"[TASK_MANAGER] Task already exists {key}")
                 return
 
             if len(self._tasks) >= self._max_tasks:
-                logger.warning(
-                    f"[TASK_MANAGER] Limit exceeded ({self._max_tasks}), skipping key={key}"
-                )
                 return
 
             async def _runner() -> None:
@@ -37,22 +31,17 @@ class ImportantTaskManager(ImportantTaskManagerContract):
                 try:
                     await task_factory()
                 except Exception as e:
-                    logger.exception(f"[TASK_MANAGER] Task {key} failed: {e}")
                     exc = e
                 finally:
                     self._tasks.pop(key, None)
                     self._meta.pop(key, None)
                     if on_done:
-                        try:
+                        with contextlib.suppress(Exception):
                             on_done(key, exc)
-                        except Exception as callback_err:
-                            logger.exception(
-                                f"[TASK_MANAGER] on_done failed for {key}: {callback_err}"
-                            )
 
             task = asyncio.create_task(_runner())
             self._tasks[key] = task
-            self._meta[key] = asyncio.get_event_loop().time()
+            self._meta[key] = asyncio.get_running_loop().time()
 
     def has(self, key: str) -> bool:
         return key in self._tasks
@@ -63,6 +52,11 @@ class ImportantTaskManager(ImportantTaskManagerContract):
     def count(self) -> int:
         return len(self._tasks)
 
-    def age(self, key: str) -> float | None:
+    def age(self, key: str) -> Optional[float]:
         ts = self._meta.get(key)
-        return (asyncio.get_event_loop().time() - ts) if ts else None
+        return (asyncio.get_running_loop().time() - ts) if ts else None
+
+    async def shutdown(self) -> None:
+        for task in self._tasks.values():
+            task.cancel()
+        await asyncio.gather(*self._tasks.values(), return_exceptions=True)
