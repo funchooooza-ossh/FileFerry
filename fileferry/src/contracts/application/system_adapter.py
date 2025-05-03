@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from domain.models import HealthReport
+from shared.types.system_health import SystemHealthReport
 
 
 class SystemAdapterContract(Protocol):
-    async def healthcheck(self) -> HealthReport: ...
+    async def healthcheck(self) -> SystemHealthReport: ...

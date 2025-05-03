@@ -5,6 +5,7 @@ from contracts.infrastructure import (
     FireAndForgetTasksContract,
 )
 from domain.models import FileMeta
+from shared.types.component_health import ComponentStatus
 
 
 class CachedFileMetaAccess(DataAccessContract):
@@ -56,4 +57,26 @@ class CachedFileMetaAccess(DataAccessContract):
 
         await self._cache_invalidator.invalidate(
             file_id, max_retry_seconds=self._cache_ttl
+        )
+
+    async def healthcheck(self) -> ComponentStatus:
+        db = await self._delegate.healthcheck()
+        cache = await self._сache_storage.healthcheck()
+
+        statuses = [db.get("status", "down"), cache.get("status", "down")]
+
+        if all(s == "ok" for s in statuses):
+            status = "ok"
+        elif all(s == "down" for s in statuses):
+            status = "down"
+        else:
+            status = "degraded"
+
+        return ComponentStatus(
+            status=status,
+            aggregated=True,
+            details={
+                "delegate": db,
+                "cache": cache,
+            },
         )

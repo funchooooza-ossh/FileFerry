@@ -1,7 +1,8 @@
+import time
 from collections.abc import AsyncIterator
 
-from loguru import logger
 from miniopy_async import Minio
+from miniopy_async.error import S3Error
 
 from contracts.infrastructure import StorageAccessContract
 from domain.models import FileMeta
@@ -9,6 +10,7 @@ from infrastructure.http.create_clientsession import create_client_session
 from infrastructure.utils.stream_reader import AsyncStreamReader
 from shared.enums import Buckets
 from shared.exceptions.handlers.s3_handler import wrap_s3_failure
+from shared.types.component_health import ComponentStatus
 
 
 class MiniOStorage(StorageAccessContract):
@@ -46,10 +48,21 @@ class MiniOStorage(StorageAccessContract):
     async def delete(self, *, file_id: str, bucket: Buckets) -> None:
         await self._client.remove_object(bucket.value, file_id)
 
-    async def healtcheck(self) -> bool:
+    async def healthcheck(self) -> ComponentStatus:
+        start = time.perf_counter()
         try:
-            response = await self._client.list_buckets()
-            return bool(response)
+            buckets = [str(bucket) for bucket in await self._client.list_buckets()]
+            latency = (time.perf_counter() - start) * 1000  # в миллисекундах
+
+            status = "ok" if latency <= 150.0 else "degraded"
+
+            return ComponentStatus(
+                status=status,
+                latency_ms=latency,
+                details={"buckets_count": str(len(buckets)), "buckets": buckets},
+            )
+
+        except S3Error as exc:
+            return ComponentStatus(status="down", error=f"{exc.code}:{exc.message}")
         except Exception as exc:
-            logger.critical(f"[MiniO] Storage healtcheck failed: {exc}")
-            return False
+            return ComponentStatus(status="down", error=str(exc))

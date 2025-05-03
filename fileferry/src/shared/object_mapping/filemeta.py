@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 from domain.models import FileMeta
-from infrastructure.types import ORMFileMeta
+from infrastructure.types.filemeta import ORMFileMeta
 
 
 class DTOFileMeta(TypedDict):

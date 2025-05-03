@@ -1,4 +1,5 @@
-from loguru import logger
+import time
+
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +7,7 @@ from contracts.infrastructure import SQLAlchemyDataAccessContract, TransactionCo
 from domain.models import FileMeta
 from infrastructure.models.sqlalchemy.file import File
 from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
+from shared.types.component_health import ComponentState, ComponentStatus
 
 
 class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
@@ -50,11 +52,21 @@ class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
 
         return model.to_domain()
 
-    async def healtcheck(self) -> bool:
+    async def healthcheck(self) -> ComponentStatus:
+        start = time.perf_counter()
         try:
-            query = await self.session.execute(text("SELECT 1"))
-            query.scalar_one()
-            return True
+            await self.session.execute(text("SELECT 1"))
+            latency = (time.perf_counter() - start) * 1000  # мс
+
+            version_result = await self.session.execute(text("SELECT version()"))
+            version_row = version_result.fetchone()
+            version = version_row[0] if version_row else "unknown"
+
+            status: ComponentState = "ok" if latency <= 100.0 else "degraded"
+
+            return ComponentStatus(
+                status=status, latency_ms=latency, details={"version": version}
+            )
+
         except Exception as exc:
-            logger.critical(f"[DATABASE] Db healtcheck failed: {exc}")
-            return False
+            return ComponentStatus(status="down", error=str(exc))

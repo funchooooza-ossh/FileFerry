@@ -1,6 +1,6 @@
 from domain.models.dataclasses import FileMeta
 from infrastructure.models.sqlalchemy.base import Base
-from infrastructure.types import ORMFileMeta
+from infrastructure.types.filemeta import ORMFileMeta
 from shared.object_mapping.filemeta import FileMetaMapper
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column

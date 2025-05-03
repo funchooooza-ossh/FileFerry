@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from domain.models.value_objects import ContentType, FileId, FileName, FileSize
-from shared.enums import HealthStatus
 
 
 @dataclass(slots=True, frozen=True)
@@ -31,23 +30,3 @@ class FileMeta:
             _content_type=ContentType(content_type),
             _size=FileSize(size),
         )
-
-
-@dataclass(frozen=True)
-class ComponentStatuses:
-    db: bool
-    storage: bool
-
-
-@dataclass(slots=True, frozen=True)
-class HealthReport:
-    status: HealthStatus
-    components: ComponentStatuses
-
-    @classmethod
-    def generate(cls, components: ComponentStatuses) -> "HealthReport":
-        statuses = [components.db and components.storage]
-
-        overall_status = HealthStatus.from_boolean(*statuses)
-
-        return cls(status=overall_status, components=components)

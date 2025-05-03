@@ -1,5 +1,6 @@
 import json
-from typing import Optional
+import time
+from typing import Any, Optional
 
 from redis.asyncio import Redis
 
@@ -7,6 +8,7 @@ from contracts.infrastructure import CacheStorageContract
 from domain.models import FileMeta
 from shared.exceptions.handlers.redis_handler import wrap_redis_failure
 from shared.object_mapping.filemeta import DTOFileMeta, FileMetaMapper
+from shared.types.component_health import ComponentStatus
 
 
 class RedisCacheStorage(CacheStorageContract):
@@ -43,3 +45,25 @@ class RedisCacheStorage(CacheStorageContract):
     @staticmethod
     def serialize_meta(meta: FileMeta) -> str:
         return json.dumps(FileMetaMapper.serialize_filemeta(meta))
+
+    async def healthcheck(self) -> ComponentStatus:
+        start = time.perf_counter()
+        try:
+            pong: bool = await self._client.ping()  # type: ignore redis-py has not fully annotated
+            latency = (time.perf_counter() - start) * 1000
+
+            if not pong:
+                return ComponentStatus(status="degraded", error="no pong from redis")
+            info: dict[str, Any] = await self._client.info()  # type: ignore
+            version_raw = info.get("redis_version", "unknown")
+
+            status = "ok" if latency <= 20.0 else "degraded"
+
+            return ComponentStatus(
+                status=status,
+                latency_ms=latency,
+                details={"version_raw": f"Redis {version_raw}"},
+            )
+
+        except Exception as exc:
+            return ComponentStatus(status="down", error=str(exc))
