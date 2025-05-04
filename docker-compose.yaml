@@ -16,7 +16,6 @@ services:
       - ./environments/minio.default.env
       - ./environments/postgres.env
       - ./environments/redis.env
-      - ./environments/.env
     ports:
       - "8000:8000"
 
