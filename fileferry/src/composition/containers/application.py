@@ -19,18 +19,21 @@ class ApplicationContainer(containers.DeclarativeContainer):
     # --- Config ---
     postgres_settings = providers.Singleton(PostgresSettings)
     minio_settings = providers.Singleton(MinioConfig)
+    config = providers.Configuration()
 
     # --- Infrastructure ---
     infrastructure: providers.Container[InfrastructureContainer] = providers.Container(
         InfrastructureContainer,
         postgres_config=postgres_settings,
         minio_config=minio_settings,
+        with_cache=config.with_cache,
     )
 
     # --- Usecases ---
     usecases = providers.Container(
         UsecaseContainer,
         coordinator=infrastructure.coordination,  # type: ignore
+        task_manager=infrastructure.task_manager,  # type: ignore
     )
 
     # --- Adapters ---
@@ -41,4 +44,5 @@ class ApplicationContainer(containers.DeclarativeContainer):
         delete_usecase=usecases.delete_usecase,  # type: ignore
         update_usecase=usecases.update_usecase,  # type: ignore
         health_usecase=usecases.health_usecase,  # type: ignore
+        snapshot_usecase=usecases.snapshot_usecase,  # type: ignore
     )

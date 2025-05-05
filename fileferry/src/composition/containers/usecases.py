@@ -4,6 +4,7 @@ from application.usecases import (
     DeleteUseCase,
     HealthCheckUseCase,
     RetrieveUseCase,
+    SnapShotUseCase,
     UpdateUseCase,
     UploadUseCase,
 )
@@ -17,6 +18,7 @@ class UsecaseContainer(containers.DeclarativeContainer):
 
     # Зависимости
     coordinator = providers.Dependency()
+    task_manager = providers.Dependency()
     helper = providers.Singleton(FileHelper)
     policy = providers.Singleton(FilePolicyDefault)
     meta_factory = providers.Object(create_filemeta)
@@ -47,4 +49,7 @@ class UsecaseContainer(containers.DeclarativeContainer):
     )
     health_usecase: providers.Factory[HealthCheckUseCase] = providers.Factory(
         HealthCheckUseCase, coordinator=coordinator
+    )
+    snapshot_usecase: providers.Factory[SnapShotUseCase] = providers.Factory(
+        SnapShotUseCase, manager=task_manager
     )

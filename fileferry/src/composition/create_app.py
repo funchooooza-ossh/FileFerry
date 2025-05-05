@@ -14,7 +14,9 @@ def create_app(
     middlewares: Sequence[type],
 ) -> FastAPI:
     setup_logging()
-    container = get_container(settings.configuration)()
+    container = get_container(settings.configuration)(
+        config={"with_cache": settings.cache_enabled}
+    )
     app = FastAPI(
         debug=settings.app_debug,
         title="FileFerry Service",

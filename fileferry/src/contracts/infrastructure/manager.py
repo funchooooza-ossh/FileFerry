@@ -1,6 +1,8 @@
 from collections.abc import Callable, Coroutine
 from typing import Any, Protocol
 
+from shared.types.task_manager import ManagerSnapshot
+
 
 class ImportantTaskManagerContract(Protocol):
     """
@@ -15,7 +17,6 @@ class ImportantTaskManagerContract(Protocol):
         on_done: Callable[[str, Exception | None], None] | None = None,
     ) -> None: ...
 
-    def has(self, key: str) -> bool: ...
-    def keys(self) -> list[str]: ...
-    def count(self) -> int: ...
-    def age(self, key: str) -> float | None: ...
+    def snapshot(self) -> ManagerSnapshot:
+        """Текущее состояние менеджера задач"""
+        ...

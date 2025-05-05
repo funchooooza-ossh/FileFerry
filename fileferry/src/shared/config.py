@@ -9,6 +9,7 @@ logger = logger.bind(logger_name="core")
 class Settings(BaseSettings):
     app_debug: bool
     configuration: str
+    cache_enabled: bool
 
     class Config:
         env_file = ".env"

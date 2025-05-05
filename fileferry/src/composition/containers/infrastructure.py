@@ -16,7 +16,7 @@ from infrastructure.data_access.redis import CachedFileMetaDataAccess
 from infrastructure.storage.minio import MiniOStorage
 from infrastructure.storage.redis import RedisFileMetaCacheStorage
 from infrastructure.tasks.consistence import CacheInvalidator
-from infrastructure.tasks.manager import ImportantTaskManager
+from infrastructure.tasks.manager import ImportantTaskManager, NoOpImportantTaskManager
 from infrastructure.tasks.scheduler import AsyncioFireAndForget
 from infrastructure.transactions.context import SqlAlchemyTransactionContext
 from infrastructure.transactions.manager import TransactionManager
@@ -28,6 +28,62 @@ def create_transaction_context(
     return SqlAlchemyTransactionContext(session=session_factory())
 
 
+@providers.Factory
+def data_access_factory(
+    with_cache: bool,
+    redis_client: Redis | None,
+    sql_data_access: SQLAlchemyFileMetaDataAccess,
+    task_manager: ImportantTaskManager,
+    scheduler: AsyncioFireAndForget | None,
+) -> SQLAlchemyFileMetaDataAccess | CachedFileMetaDataAccess:
+    if not scheduler or not redis_client or not with_cache:
+        return sql_data_access
+    redis_storage = RedisFileMetaCacheStorage(
+        client=redis_client,
+        prefix="file:meta",
+    )
+    invalidator = CacheInvalidator(
+        cache_storage=redis_storage,
+        task_manager=task_manager,
+    )
+    return CachedFileMetaDataAccess(
+        invalidator=invalidator,
+        scheduler=scheduler,
+        storage=redis_storage,
+        ttl=300,
+        delegate=sql_data_access,
+    )
+
+
+@providers.Singleton
+def task_manager_factory(
+    with_cache: bool,
+) -> ImportantTaskManager | NoOpImportantTaskManager:
+    if not with_cache:
+        return NoOpImportantTaskManager()
+    return ImportantTaskManager()
+
+
+@providers.Singleton
+def task_fire_n_forget_factory(with_cache: bool) -> AsyncioFireAndForget | None:
+    if not with_cache:
+        return None
+    return AsyncioFireAndForget()
+
+
+@providers.Singleton
+def redis_client_factory(config: RedisConfig, with_cache: bool) -> Redis | None:
+    if not with_cache:
+        return None
+    return Redis(
+        host=config.host,
+        port=config.port,
+        socket_connect_timeout=config.socket_connect_timeout,
+        socket_timeout=config.socket_timeout,
+        retry=Retry(NoBackoff(), retries=0),  # type: ignore
+    )
+
+
 class InfrastructureContainer(containers.DeclarativeContainer):
     """Инфраструктурный DI-контейнер."""
 
@@ -35,6 +91,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     postgres_config = providers.Singleton(PostgresSettings)
     minio_config = providers.Singleton(MinioConfig)
     redis_config = providers.Singleton(RedisConfig)
+    with_cache = providers.Configuration()
 
     # --- Clients ---
     db_engine = providers.Singleton(
@@ -64,23 +121,8 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         secure=minio_config.provided.secure,
     )
 
-    redis = providers.Singleton(
-        Redis,
-        host=redis_config.provided.host,
-        port=redis_config.provided.port,
-        socket_connect_timeout=redis_config.provided.socket_connect_timeout,
-        socket_timeout=redis_config.provided.socket_timeout,
-        retry=Retry(NoBackoff(), retries=0),
-    )
-
-    # --- Task Execution ---
-    task_fire_and_forget_scheduler = providers.Singleton(AsyncioFireAndForget)
-    task_manager = providers.Singleton(ImportantTaskManager)
-
-    # --- Storage ---
-    storage_access = providers.Factory(MiniOStorage, client=minio_client)
-    redis_storage = providers.Factory(
-        RedisFileMetaCacheStorage, client=redis, prefix="file:meta"
+    redis_client = providers.Singleton(
+        redis_client_factory, config=redis_config, with_cache=with_cache
     )
 
     # --- Transaction Layer ---
@@ -96,18 +138,18 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         SQLAlchemyFileMetaDataAccess, context=transaction
     )
 
-    # --- Cache Logic ---
-    cache_invalidator = providers.Singleton(
-        CacheInvalidator, cache_storage=redis_storage, task_manager=task_manager
-    )
-
-    cache_data_access = providers.Factory(
-        CachedFileMetaDataAccess,
-        invalidator=cache_invalidator,
-        scheduler=task_fire_and_forget_scheduler,
-        storage=redis_storage,
-        ttl=300,
-        delegate=sql_data_access,
+    # --- Tasks ---
+    task_manager = providers.Singleton(task_manager_factory, with_cache=with_cache)
+    scheduler = providers.Singleton(task_fire_n_forget_factory, with_cache=with_cache)
+    # --- Common Storage ---
+    storage_access = providers.Factory(MiniOStorage, client=minio_client)
+    data_access = providers.Factory(
+        data_access_factory,
+        with_cache=with_cache,
+        redis_client=redis_client,
+        sql_data_access=sql_data_access,
+        task_manager=task_manager,
+        scheduler=scheduler,
     )
 
     # --- Composition Root ---
@@ -115,5 +157,5 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         SqlAlchemyMinioCoordinator,
         transaction=transaction_manager,
         storage=storage_access,
-        data_access=cache_data_access,
+        data_access=data_access,
     )
