@@ -8,6 +8,10 @@ from contracts.infrastructure import FireAndForgetTasksContract
 
 
 class AsyncioFireAndForget(FireAndForgetTasksContract):
+    """
+    Имплементация FireAndForget через asyncio.Task
+    """
+
     def __init__(self, max_tasks: int = 1000) -> None:
         self._tasks: set[asyncio.Task[Any]] = set()
         self._lock = asyncio.Lock()

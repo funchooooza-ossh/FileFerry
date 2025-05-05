@@ -16,10 +16,10 @@ class RetrieveUseCase(RetrieveUseCaseContract):
         self, file_id: FileId, bucket: Buckets
     ) -> tuple[FileMeta, AsyncIterator[bytes]]:
         async with self._coordinator as transaction:
-            meta = await transaction.db.get(
+            meta = await transaction.data_access.get(
                 file_id=file_id.value,
             )
-            stream = await transaction.storage.retrieve(
+            stream = await transaction.file_storage.retrieve(
                 file_id=file_id.value, bucket=bucket
             )
 

@@ -4,8 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TransactionContext(Protocol):
-    _session: AsyncSession
     """Контекст управления транзакцией."""
+
+    _session: AsyncSession
 
     async def begin(self) -> None: ...
     async def commit(self) -> None: ...

@@ -5,6 +5,11 @@ from contracts.infrastructure import (
 
 
 class TransactionManager(TransactionManagerContract):
+    """
+    Менеджер транзакции БД.
+    Инкапсулирует работу с контекстом транзакции.
+    """
+
     def __init__(self, context: TransactionContext) -> None:
         self._context = context
         self._started = False

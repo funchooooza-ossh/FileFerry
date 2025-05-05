@@ -4,14 +4,19 @@ from typing import Any, Optional
 
 from redis.asyncio import Redis
 
-from contracts.infrastructure import CacheStorageContract
+from contracts.infrastructure import FileMetaCacheStorageContract
 from domain.models import FileMeta
 from shared.exceptions.handlers.redis_handler import wrap_redis_failure
 from shared.object_mapping.filemeta import DTOFileMeta, FileMetaMapper
 from shared.types.component_health import ComponentStatus
 
 
-class RedisCacheStorage(CacheStorageContract):
+class RedisFileMetaCacheStorage(FileMetaCacheStorageContract):
+    """
+    Кэш-хранилище FileMeta в реализации через Redis.
+    Инкапсулирует работу с Redis клиентом, реализует FileMetaCacheStorageContract.
+    """
+
     def __init__(self, client: Redis, prefix: str) -> None:
         self._client = client
         self._prefix = prefix

@@ -2,6 +2,10 @@ from pydantic_settings import BaseSettings
 
 
 class DBSettings(BaseSettings):
+    """
+    Конфигурация подключения к базе данных.
+    """
+
     user: str
     password: str
     db: str
@@ -13,6 +17,10 @@ class DBSettings(BaseSettings):
 
 
 class PostgresSettings(DBSettings):
+    """
+    Подкласс конфига DB для PostgreSQL
+    """
+
     class Config:
         env_prefix = "POSTGRES_"
         env_file = "postgres.env"

@@ -3,14 +3,14 @@ import time
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from contracts.infrastructure import SQLAlchemyDataAccessContract, TransactionContext
+from contracts.infrastructure import FileMetaDataAccessContract, TransactionContext
 from domain.models import FileMeta
 from infrastructure.models.sqlalchemy.file import File
 from shared.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 from shared.types.component_health import ComponentState, ComponentStatus
 
 
-class SQLAlchemyDataAccess(SQLAlchemyDataAccessContract):
+class SQLAlchemyFileMetaDataAccess(FileMetaDataAccessContract):
     def __init__(self, context: TransactionContext) -> None:
         self._context = context
 

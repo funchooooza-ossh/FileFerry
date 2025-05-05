@@ -5,15 +5,22 @@ from redis.asyncio import RedisError
 
 from contracts.infrastructure import (
     CacheInvalidatorContract,
-    CacheStorageContract,
+    FileMetaCacheStorageContract,
     ImportantTaskManagerContract,
 )
 
 
 class CacheInvalidator(CacheInvalidatorContract):
+    """
+    Самый сомнительный, но и наверное самый интересный в реализации класс.
+    Инвалидирует кэш любой ценой для избежания нарушения согласованности
+    данных в базе и кэше.
+    Я признаю, что это решение спорное, но мне оно понравилось и я решил его реализовать.
+    """
+
     def __init__(
         self,
-        cache_storage: CacheStorageContract,
+        cache_storage: FileMetaCacheStorageContract,
         task_manager: ImportantTaskManagerContract,
         retry_interval: float = 5.0,
     ) -> None:
