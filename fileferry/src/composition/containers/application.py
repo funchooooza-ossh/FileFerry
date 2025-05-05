@@ -24,16 +24,16 @@ class ApplicationContainer(containers.DeclarativeContainer):
     # --- Infrastructure ---
     infrastructure: providers.Container[InfrastructureContainer] = providers.Container(
         InfrastructureContainer,
-        postgres_config=postgres_settings,
-        minio_config=minio_settings,
-        with_cache=config.with_cache,
+        config_postgres=postgres_settings,
+        config_minio=minio_settings,
+        enable_cache=config.with_cache,
     )
 
     # --- Usecases ---
     usecases = providers.Container(
         UsecaseContainer,
-        coordinator=infrastructure.coordination,  # type: ignore
-        task_manager=infrastructure.task_manager,  # type: ignore
+        coordinator=infrastructure.coordination_root,  # type: ignore
+        task_manager=infrastructure.task_exec,  # type: ignore
     )
 
     # --- Adapters ---

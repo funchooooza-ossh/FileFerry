@@ -1,5 +1,3 @@
-from typing import Optional
-
 from dependency_injector import containers, providers
 
 from composition.factories.infrastructure import (
@@ -18,95 +16,94 @@ from composition.factories.infrastructure import (
     task_fire_n_forget_factory,
     task_manager_factory,
 )
-from contracts.infrastructure import FileMetaCacheStorageContract
 from infrastructure.config.minio import MinioConfig
 from infrastructure.config.postgres import PostgresSettings
 from infrastructure.config.redis import RedisConfig
 from infrastructure.coordination.minio_sqla import SqlAlchemyMinioCoordinator
-from infrastructure.transactions.manager import TransactionManager
 
 
 class InfrastructureContainer(containers.DeclarativeContainer):
     """Инфраструктурный DI-контейнер."""
 
     # --- Configs ---
-    postgres_config = providers.Singleton(PostgresSettings)
-    minio_config = providers.Singleton(MinioConfig)
-    redis_config = providers.Singleton(RedisConfig)
-    with_cache = providers.Configuration()
+    config_postgres = providers.Singleton(PostgresSettings)
+    config_minio = providers.Singleton(MinioConfig)
+    config_redis = providers.Singleton(RedisConfig)
+    enable_cache = providers.Configuration()
 
-    # --- Session ---
-    db_engine = providers.Singleton(
+    # --- Clients ---
+    engine_postgres = providers.Singleton(
         create_db_engine,
-        url=postgres_config.provided.url,
+        url=config_postgres.provided.url,
         echo=True,
     )
 
-    db_sessionmaker = providers.Singleton(
+    sessionmaker_postgres = providers.Singleton(
         db_sessionmaker,
-        engine=db_engine,
+        engine=engine_postgres,
         autoflush=False,
         expire_on_commit=False,
     )
 
-    db_session_factory = providers.Factory(
-        db_session_factory, sessionmaker=db_sessionmaker
+    session_factory = providers.Factory(
+        db_session_factory,
+        sessionmaker=sessionmaker_postgres,
     )
 
-    # --- Clients ---
-    minio_client = providers.Singleton(minio_client_factory, config=minio_config)
-
-    redis_client = providers.Singleton(
-        redis_client_factory, config=redis_config, with_cache=with_cache
+    client_minio = providers.Singleton(minio_client_factory, config=config_minio)
+    client_redis = providers.Singleton(
+        redis_client_factory, config=config_redis, with_cache=enable_cache
     )
 
-    # --- Common Storage ---
-    storage_access = providers.Factory(minio_storage_factory, client=minio_client)
-    redis_storage: providers.Factory[Optional[FileMetaCacheStorageContract]] = (
-        providers.Factory(
-            redis_cache_storage_factory,
-            with_cache=with_cache,
-            client=redis_client,
-            prefix="file:meta:",
-        )
-    )
     # --- Transaction Layer ---
-    transaction = providers.ContextLocalSingleton(
+    tx_context = providers.ContextLocalSingleton(
         create_transaction_context,
-        session_factory=db_session_factory,
+        session_factory=session_factory,
     )
-    transaction_manager: providers.Factory[TransactionManager] = providers.Factory(
+    tx_manager = providers.Factory(
         create_transaction_manager,
-        context=transaction,
+        context=tx_context,
+    )
+    dao_sqlalchemy = providers.Factory(
+        sql_filemeta_data_access_factory,
+        context=tx_context,
     )
 
     # --- Tasks ---
-    task_manager = providers.Singleton(task_manager_factory, with_cache=with_cache)
-    scheduler = providers.Singleton(task_fire_n_forget_factory, with_cache=with_cache)
-
-    # --- Cache logic ---
-    invalidator = providers.Factory(
-        cache_invalidator_factory, storage=redis_storage, manager=task_manager
+    task_exec = providers.Singleton(task_manager_factory, with_cache=enable_cache)
+    task_scheduler = providers.Singleton(
+        task_fire_n_forget_factory, with_cache=enable_cache
     )
 
-    # --- Data Access ---
-    sql_data_access = providers.Factory(
-        sql_filemeta_data_access_factory, context=transaction
+    # --- Storages ---
+    storage_minio = providers.Factory(minio_storage_factory, client=client_minio)
+    storage_redis = providers.Factory(
+        redis_cache_storage_factory,
+        with_cache=enable_cache,
+        client=client_redis,
+        prefix="file:meta:",
     )
-    data_access = providers.Factory(
+
+    cache_invalidator = providers.Factory(
+        cache_invalidator_factory,
+        storage=storage_redis,
+        manager=task_exec,
+    )
+
+    dao_data_access = providers.Factory(
         resolve_data_access,
-        with_cache=with_cache,
-        scheduler=scheduler,
-        redis_storage=redis_storage,
-        invalidator=invalidator,
-        sql_data_access=sql_data_access,
+        with_cache=enable_cache,
+        scheduler=task_scheduler,
+        redis_storage=storage_redis,
+        invalidator=cache_invalidator,
+        sql_data_access=dao_sqlalchemy,
         ttl=300,
     )
 
     # --- Composition Root ---
-    coordination: providers.Factory[SqlAlchemyMinioCoordinator] = providers.Factory(
+    coordination_root = providers.Factory(
         SqlAlchemyMinioCoordinator,
-        transaction=transaction_manager,
-        storage=storage_access,
-        data_access=data_access,
+        transaction=tx_manager,
+        storage=storage_minio,
+        data_access=dao_data_access,
     )
