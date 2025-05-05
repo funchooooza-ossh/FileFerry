@@ -38,11 +38,11 @@ spec:
           resources: {}
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
-              name: db-claim0
+              name: postgres-volume
 
       restartPolicy: Always
       volumes:
-        - name: db-claim0
+        - name: postgres-volume
           persistentVolumeClaim:
-            claimName: db-claim0
+            claimName: postgres-pvc
 status: {}

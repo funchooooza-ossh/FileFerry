@@ -12,7 +12,7 @@ build:
 	docker build -t $(DOCKER_IMAGE) ./fileferry
 	kind load docker-image $(DOCKER_IMAGE) --name $(KIND_CLUSTER_NAME)
 # ==== Подготовка окружения для kustomize ====
-prepare-local:
+prepare:
 	@echo "[PREPARE] Обновляем fileferry.env..."
 	@rm -f $(K8S_LOCAL)/fileferry.env
 	@cat ./environments/*.env > $(K8S_LOCAL)/fileferry.env
@@ -29,19 +29,26 @@ kind-down:
 	kind delete cluster --name $(KIND_CLUSTER_NAME)
 
 # ==== Kubernetes ====
-deploy-local:
+deploy:
 	kubectl apply -k $(K8S_LOCAL)
 
-destroy-local:
+destroy:
 	kubectl delete -k $(K8S_LOCAL)
 
 logs:
 	kubectl logs -l io.kompose.service=$(APP_NAME) --tail=100
 
+ps:
+	kubectl get pods
+
 exec:
 	kubectl exec -it $$(kubectl get pod -l io.kompose.service=$(APP_NAME) -o jsonpath="{.items[0].metadata.name}") -- sh
-
+migrate:
+	kubectl exec -it $$(kubectl get pod -l io.kompose.service=$(APP_NAME) -o jsonpath="{.items[0].metadata.name}") -- \
+	alembic upgrade head
 # ==== Полная перезагрузка ====
-restart: destroy-local build deploy-local
+restart: destroy prepare build deploy
+
+start: prepare build deploy
 
 .PHONY: build kind-up kind-down deploy destroy logs exec restart

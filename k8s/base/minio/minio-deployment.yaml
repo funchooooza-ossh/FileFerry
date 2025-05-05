@@ -46,11 +46,11 @@ spec:
           resources: {}
           volumeMounts:
             - mountPath: /data
-              name: minio-claim0
+              name: minio-volume
       hostname: minio
       restartPolicy: Always
       volumes:
-        - name: minio-claim0
+        - name: minio-volume
           persistentVolumeClaim:
-            claimName: minio-claim0
+            claimName: minio-pvc
 status: {}

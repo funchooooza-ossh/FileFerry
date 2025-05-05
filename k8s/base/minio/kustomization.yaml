@@ -2,3 +2,5 @@ resources:
   - minio-claim0-persistentvolumeclaim.yaml
   - minio-deployment.yaml
   - minio-service.yaml
+  - minio-pv.yaml
+  - minio-pvc.yaml
