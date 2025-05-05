@@ -1,9 +1,9 @@
 from typing import Optional, Protocol
 
-from contracts.infrastructure.data_access import (
+from contracts.infrastructure.data.data_access import (
     FileMetaDataAccessContract,
 )
-from contracts.infrastructure.storage import StorageAccessContract
+from contracts.infrastructure.data.storage import StorageAccessContract
 
 
 class OperationCoordinationContract(Protocol):
