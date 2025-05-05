@@ -1,0 +1,6 @@
+resources:
+  - db-deployment.yaml
+  - db-service.yaml
+  - db-claim0-persistentvolumeclaim.yaml
+  - db-pv.yaml
+  - db-pvc.yaml

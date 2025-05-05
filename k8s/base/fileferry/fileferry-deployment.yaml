@@ -49,12 +49,5 @@ spec:
               hostPort: 8000
               protocol: TCP
           resources: {}
-          volumeMounts:
-            - mountPath: /app
-              name: fileferry-claim0
       restartPolicy: Always
-      volumes:
-        - name: fileferry-claim0
-          persistentVolumeClaim:
-            claimName: fileferry-claim0
 status: {}
