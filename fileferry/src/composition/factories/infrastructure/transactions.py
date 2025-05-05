@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from contracts.infrastructure import TransactionContext
-from infrastructure.transactions.context import SqlAlchemyTransactionContext
-from infrastructure.transactions.manager import TransactionManager
+from infrastructure.tx.context import SqlAlchemyTransactionContext
+from infrastructure.tx.manager import TransactionManager
 
 
 def create_transaction_context(
