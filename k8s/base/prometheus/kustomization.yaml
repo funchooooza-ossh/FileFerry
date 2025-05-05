@@ -1,0 +1,13 @@
+resources:
+  - prometheus-claim0-persistentvolumeclaim.yaml
+  - prometheus-claim1-persistentvolumeclaim.yaml
+  - prometheus-deployment.yaml
+  - prometheus-service.yaml
+
+configMapGenerator:
+  - name: prometheus-config
+    files:
+      - prometheus.yml=./prometheus.yml
+  - name: alerts-config
+    files:
+      - alerts.yml=./alerts.yml

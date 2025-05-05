@@ -12,7 +12,7 @@ services:
       - db
       - redis
     env_file:
-      - ./environments/.env
+      - ./environments/fileferry.env
       - ./environments/minio.default.env
       - ./environments/postgres.env
       - ./environments/redis.env

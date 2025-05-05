@@ -1,0 +1,4 @@
+resources:
+  - redis-claim0-persistentvolumeclaim.yaml
+  - redis-deployment.yaml
+  - redis-service.yaml

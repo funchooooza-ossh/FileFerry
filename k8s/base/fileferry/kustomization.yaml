@@ -1,0 +1,4 @@
+resources:
+  - fileferry-service.yaml
+  - fileferry-deployment.yaml
+  - fileferry-claim0-persistentvolumeclaim.yaml

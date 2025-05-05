@@ -35,11 +35,14 @@ spec:
           resources: {}
           volumeMounts:
             - name: prometheus-config
-              mountPath: /etc/prometheus/
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
               readOnly: true
             - name: alerts-config
-              mountPath: /etc/prometheus/alerts/
+              mountPath: /etc/prometheus/alerts.yml
+              subPath: alerts.yml
               readOnly: true
+
 
       restartPolicy: Always
       volumes:
