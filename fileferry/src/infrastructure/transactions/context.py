@@ -16,12 +16,18 @@ class SqlAlchemyTransactionContext(TransactionContext):
     """
 
     def __init__(self, session: AsyncSession) -> None:
-        self.session = session
+        self._session = session
         self._transaction: Optional[AsyncSessionTransaction] = None
+
+    @property
+    def session(self) -> AsyncSession:
+        if self._transaction is None:
+            raise RuntimeError("Attempt to access session before transaction started")
+        return self._session
 
     @wrap_sqlalchemy_failure
     async def begin(self) -> None:
-        self._transaction = await self.session.begin()
+        self._transaction = await self._session.begin()
 
     @wrap_sqlalchemy_failure
     async def commit(self) -> None:
@@ -35,4 +41,4 @@ class SqlAlchemyTransactionContext(TransactionContext):
 
     @wrap_sqlalchemy_failure
     async def close(self) -> None:
-        await self.session.close()
+        await self._session.close()

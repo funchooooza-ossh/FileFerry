@@ -2,6 +2,10 @@ from pydantic_settings import BaseSettings
 
 
 class MinioConfig(BaseSettings):
+    """
+    Конфигурация клиента MiniO
+    """
+
     access: str
     secret: str
     endpoint: str

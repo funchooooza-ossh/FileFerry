@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'fileferry'
+    static_configs:
+      - targets: ['fileferry:8000']
+
+rule_files:
+  - "alerts.yml"

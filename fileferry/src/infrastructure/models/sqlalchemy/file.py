@@ -1,11 +1,16 @@
 from domain.models.dataclasses import FileMeta
-from domain.models.value_objects import ContentType, FileId, FileName, FileSize
 from infrastructure.models.sqlalchemy.base import Base
+from infrastructure.types.filemeta import ORMFileMeta
+from shared.object_mapping.filemeta import FileMetaMapper
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 
 class File(Base):
+    """
+    ORM репрезентация бизнес модели FileMeta для SQLAlchemy
+    """
+
     __tablename__ = "files"
     id: Mapped[str] = mapped_column(String(32), primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -13,18 +18,12 @@ class File(Base):
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     def to_domain(self) -> FileMeta:
-        return FileMeta(
-            FileId(self.id),
-            FileName(self.name),
-            ContentType(self.mime_type),
-            FileSize(self.size),
+        return FileMetaMapper.filemeta_from_orm(
+            ORMFileMeta(
+                id=self.id, name=self.name, size=self.size, mime_type=self.mime_type
+            )
         )
 
     @classmethod
     def from_domain(cls, file_meta: FileMeta) -> "File":
-        return cls(
-            id=file_meta.get_id(),
-            name=file_meta.get_name(),
-            mime_type=file_meta.get_content_type(),
-            size=file_meta.get_size(),
-        )
+        return cls(**FileMetaMapper.filemeta_to_orm(file_meta))

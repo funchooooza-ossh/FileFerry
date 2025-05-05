@@ -1,16 +1,15 @@
 from contracts.application import HealthCheckUseCaseContract
-from contracts.infrastructure import SQLAlchemyMinioAtomicContract
-from domain.models import ComponentStatuses, HealthReport
+from contracts.infrastructure import OperationCoordinationContract
+from shared.types.system_health import SystemHealthReport, from_components
 
 
 class HealthCheckUseCase(HealthCheckUseCaseContract):
-    def __init__(self, atomic: SQLAlchemyMinioAtomicContract) -> None:
-        self._atomic = atomic
+    def __init__(self, coordinator: OperationCoordinationContract) -> None:
+        self._coordinator = coordinator
 
-    async def execute(self) -> HealthReport:
-        async with self._atomic as transaction:
-            db_health = await transaction.data_access.healtcheck()
-            storage_health = await transaction.storage.healtcheck()
+    async def execute(self) -> SystemHealthReport:
+        async with self._coordinator as transaction:
+            dao_health = await transaction.data_access.healthcheck()
+            storage_health = await transaction.file_storage.healthcheck()
 
-            components = ComponentStatuses(db=db_health, storage=storage_health)
-            return HealthReport.generate(components=components)
+            return from_components(dao_status=dao_health, storage_status=storage_health)

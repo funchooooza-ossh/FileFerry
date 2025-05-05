@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from domain.models.dataclasses import FileMeta
+from shared.object_mapping.filemeta import FileMetaMapper
 
 
 class UploadFileResponse(BaseModel):
@@ -14,7 +15,7 @@ class UploadFileResponse(BaseModel):
 
     @classmethod
     def from_domain(cls, meta: FileMeta) -> "UploadFileResponse":
-        return cls.model_validate(meta.as_dict())
+        return cls.model_validate(FileMetaMapper.serialize_filemeta(meta))
 
 
 class DeleteFileResponse(BaseModel):

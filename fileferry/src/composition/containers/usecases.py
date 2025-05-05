@@ -16,7 +16,7 @@ class UsecaseContainer(containers.DeclarativeContainer):
     """Контейнер юзкейсов приложения."""
 
     # Зависимости
-    atomic = providers.Dependency()
+    coordinator = providers.Dependency()
     helper = providers.Singleton(FileHelper)
     policy = providers.Singleton(FilePolicyDefault)
     meta_factory = providers.Object(create_filemeta)
@@ -24,27 +24,27 @@ class UsecaseContainer(containers.DeclarativeContainer):
     # Фабрики
     upload_usecase: providers.Factory[UploadUseCase] = providers.Factory(
         UploadUseCase,
-        atomic=atomic,
+        coordinator=coordinator,
         helper=helper,
         policy=policy,
         meta_factory=meta_factory,
     )
 
     retrieve_usecase: providers.Factory[RetrieveUseCase] = providers.Factory(
-        RetrieveUseCase, atomic=atomic
+        RetrieveUseCase, coordinator=coordinator
     )
 
     delete_usecase: providers.Factory[DeleteUseCase] = providers.Factory(
-        DeleteUseCase, atomic=atomic
+        DeleteUseCase, coordinator=coordinator
     )
 
     update_usecase: providers.Factory[UpdateUseCase] = providers.Factory(
         UpdateUseCase,
-        atomic=atomic,
+        coordinator=coordinator,
         helper=helper,
         policy=policy,
         meta_factory=meta_factory,
     )
     health_usecase: providers.Factory[HealthCheckUseCase] = providers.Factory(
-        HealthCheckUseCase, atomic=atomic
+        HealthCheckUseCase, coordinator=coordinator
     )

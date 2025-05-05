@@ -2,20 +2,20 @@ version: '3.7'
 
 services:
 
-  service:
+  fileferry:
     container_name: fileferry
     build: ./fileferry
     command: uvicorn transport.rest.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./fileferry:/app
-      - ./environments/minio.default.env:/app/minio.env
-      - ./environments/postgres.env:/app/postgres.env
-      - ./environments/redis.env:/app/redis.env
     depends_on:
       - db
       - redis
     env_file:
-      - ./environments/.env
+      - ./environments/fileferry.env
+      - ./environments/minio.default.env
+      - ./environments/postgres.env
+      - ./environments/redis.env
     ports:
       - "8000:8000"
 
@@ -23,9 +23,9 @@ services:
     container_name: db
     image: postgres
     env_file:
-      - ./environments/db.env
+      - ./environments/postgres.env
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./volumes/postgres_data:/var/lib/postgresql/data
 
     ports:
       - "15432:5432"
@@ -36,22 +36,31 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./redis_data:/data
+      - ./volumes/redis_data:/data
     restart: always
     command: [ "redis-server", "--appendonly", "yes" ]
 
   minio:
+    container_name: minio
     image: minio/minio
     hostname: minio
     restart: unless-stopped
     volumes:
-      - ./minio_data:/data
+      - ./volumes/minio_data:/data
     command: server /data --console-address ":9001"
     env_file:
       - ./environments/minio.env
     ports:
       - "9000:9000"
       - "9001:9001"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports:
+      - "9090:9090"
 
 volumes:
   postgres_data:
