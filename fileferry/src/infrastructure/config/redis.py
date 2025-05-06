@@ -14,6 +14,8 @@ class RedisConfig(BaseSettings):
     socket_connect_timeout: int = (
         1  # сколько времени даем на попытку подключение(опять же 1 секунда более чем)
     )
+    cache_prefix: str  # по этому префикс будет лежать кэш
+    cache_ttl: int  # ttl кэша в секундах
 
     class Config:
         env_prefix = "REDIS_"

@@ -35,7 +35,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
     engine_postgres = providers.Singleton(
         create_db_engine,
         url=config_postgres.provided.url,
-        echo=True,
+        echo=config_postgres.provided.echo,
     )
 
     sessionmaker_postgres = providers.Singleton(
@@ -81,7 +81,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         redis_cache_storage_factory,
         with_cache=enable_cache,
         client=client_redis,
-        prefix="file:meta:",
+        prefix=config_redis.provided.cache_prefix,
     )
 
     cache_invalidator = providers.Factory(
@@ -97,7 +97,7 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         redis_storage=storage_redis,
         invalidator=cache_invalidator,
         sql_data_access=dao_sqlalchemy,
-        ttl=300,
+        ttl=config_redis.provided.cache_ttl,
     )
 
     # --- Composition Root ---
