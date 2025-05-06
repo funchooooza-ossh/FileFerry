@@ -5,6 +5,8 @@ from typing import Any, TypeVar, cast
 from loguru import logger
 from redis.exceptions import ConnectionError, RedisError, TimeoutError
 
+logger = logger.bind(name="cache")
+
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 

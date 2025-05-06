@@ -10,6 +10,8 @@ from sqlalchemy.exc import (
 from shared.exceptions.exc_classes.infrastructure import DataAccessError
 from shared.exceptions.mappers.alchemy_errors import SQLAlchemyErrorMapper
 
+logger = logger.bind(name="db")
+
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 

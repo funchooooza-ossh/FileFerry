@@ -9,6 +9,8 @@ from shared.exceptions.exc_classes.infrastructure import StorageError
 from shared.exceptions.mappers.infra_errors import InfraErrorMapper
 from shared.exceptions.mappers.s3_errors import S3ErrorCode, S3ErrorCodeMapper
 
+logger = logger.bind(name="storage")
+
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 

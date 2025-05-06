@@ -8,6 +8,8 @@ from shared.exceptions.exc_classes.application import FileOperationFailed
 from shared.exceptions.exc_classes.infrastructure import InfraError
 from shared.exceptions.mappers.infra_errors import InfraErrorMapper
 
+logger = logger.bind(name="infra")
+
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
 

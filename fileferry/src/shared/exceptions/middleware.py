@@ -17,6 +17,8 @@ from shared.exceptions.mappers.infra_errors import InfraErrorMapper
 from shared.exceptions.mappers.s3_errors import S3ErrorCode
 from transport.rest.dto.base import Response
 
+logger = logger.bind(name="requests")
+
 
 class ApplicationErrorMiddleware(BaseHTTPMiddleware):
     async def dispatch(
@@ -25,10 +27,10 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
         call_next: Callable[[Request], Awaitable[StarletteResponse]],
     ) -> StarletteResponse:
         try:
-            logger.info(f"[REQUEST] Started: {request.method} {request.url.path}")
+            logger.info("[REQUEST] Started")
             response = await call_next(request)
             if response.status_code < 400:
-                logger.info(f"[REQUEST] Finished {request.method} {request.url.path}")
+                logger.info("[REQUEST] Finished")
             return response
 
         except DomainRejectedError as exc:
