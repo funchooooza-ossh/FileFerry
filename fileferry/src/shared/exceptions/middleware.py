@@ -27,24 +27,23 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
         call_next: Callable[[Request], Awaitable[StarletteResponse]],
     ) -> StarletteResponse:
         try:
-            logger.info("[REQUEST] Started")
+            logger.info("[REQUEST] Start")
             response = await call_next(request)
-            if response.status_code < 400:
-                logger.info("[REQUEST] Finished")
+            logger.info(f"[REQUEST][{response.status_code}] Finished ")
             return response
 
-        except DomainRejectedError as exc:
+        except DomainRejectedError:
             # Обрабатываем ошибки доменных правил
-            logger.warning(f"[REQUEST][ERROR] Ошибка доменных правил: {exc}")
+            logger.trace("[REQUEST] validation err")
             return self._create_json_response(
                 status_code=400,
                 msg="Not allowed data",
                 error_type="Policy violation",
             )
 
-        except (InvalidFileParameters, InvalidValueError) as exc:
+        except (InvalidFileParameters, InvalidValueError):
             # Обрабатываем ошибки валидации
-            logger.warning(f"[REQUEST][ERROR] Ошибка валидации: {exc}")
+            logger.trace("[REQUEST] app validation err")
             return self._create_json_response(
                 status_code=400,
                 msg="Invalid data",

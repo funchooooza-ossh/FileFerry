@@ -10,7 +10,7 @@ from sqlalchemy.exc import (
 from shared.exceptions.exc_classes.infrastructure import DataAccessError
 from shared.exceptions.mappers.alchemy_errors import SQLAlchemyErrorMapper
 
-logger = logger.bind(name="db")
+logger = logger.bind(name="trace")
 
 F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 
@@ -18,21 +18,26 @@ F = TypeVar("F", bound=Callable[..., Awaitable[Any]])
 def wrap_sqlalchemy_failure(func: F) -> F:
     @functools.wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        logger.trace(f"[ALCHEMY] → {func.__qualname__}()")
         try:
-            return await func(*args, **kwargs)
+            result = await func(*args, **kwargs)
+            logger.info(f"[ALCHEMY][OK] → {func.__qualname__}()")
+            return result
 
         except DataAccessError:
             raise
 
         except SQLAlchemyError as exc:
-            logger.warning(f"[SQLAlchemy] Error in {func.__qualname__}: {exc}")
+            logger.warning(f"[ALCHEMY][ERR] Error in {func.__qualname__}: {exc}")
 
             raise SQLAlchemyErrorMapper.map_error(exc) from exc
         except RuntimeError as exc:
-            logger.critical(f"[CRITICAL] Runtime error in {func.__qualname__}: {exc}")
+            logger.critical(
+                f"[ALCHEMY][CRITICAL] Runtime error in {func.__qualname__}: {exc}"
+            )
             raise DataAccessError from exc
         except Exception as exc:
-            logger.exception(f"[Unexpected] Error in {func.__qualname__}: {exc}")
+            logger.exception(f"[ALCHEMY][ERR] Error in {func.__qualname__}: {exc}")
             raise DataAccessError from exc
 
     return cast("F", wrapper)

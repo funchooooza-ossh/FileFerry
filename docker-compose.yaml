@@ -5,7 +5,7 @@ services:
   fileferry:
     container_name: fileferry
     build: ./fileferry
-    command: uvicorn transport.rest.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn transport.rest.main:app --host 0.0.0.0 --port 8000 --reload --no-access-log
     volumes:
       - ./fileferry:/app
     depends_on:

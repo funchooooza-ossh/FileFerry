@@ -17,7 +17,7 @@ def extract_bucket_from_headers(
     try:
         return Buckets(bucket)
     except ValueError:
-        logger.warning("[REQUEST][ERROR] Validation error")
+        logger.trace("[REQUEST] Invalid bucket name")
         raise HTTPException(status_code=400, detail="Invalid bucket value") from None
 
 

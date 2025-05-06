@@ -1,9 +1,6 @@
 from typing import Any
 
-from loguru import logger
 from pydantic_settings import BaseSettings
-
-logger = logger.bind(logger_name="core")
 
 
 class Settings(BaseSettings):

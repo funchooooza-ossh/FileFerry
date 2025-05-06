@@ -15,7 +15,7 @@ def filename_formdata(
     try:
         return FileName(name)
     except ValueError:
-        logger.warning("[REQUEST][ERROR] Validation error")
+        logger.trace("[REQUEST] Invalid filename.")
         raise HTTPException(status_code=400, detail="Invalid name value") from None
 
 
@@ -29,7 +29,7 @@ def file_id_from_path(
     try:
         return FileId(file_id)
     except ValueError:
-        logger.warning("[REQUEST][ERROR] Validation error")
+        logger.trace("[REQUEST] Invalid file id.")
         raise HTTPException(status_code=400, detail="Invalid id value") from None
 
 
@@ -45,7 +45,7 @@ def filename_from_query(
     try:
         return FileName(name)
     except ValueError:
-        logger.warning("[REQUEST][ERROR] Validation error")
+        logger.trace("[REQUEST] Invalid filename.")
         raise HTTPException(status_code=400, detail="Invalid name value") from None
 
 

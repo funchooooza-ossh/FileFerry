@@ -1,6 +1,8 @@
 from collections.abc import AsyncIterator
 from typing import Optional
 
+from loguru import logger
+
 from contracts.application import (
     ApplicationAdapterContract,
     DeleteUseCaseContract,
@@ -11,6 +13,8 @@ from contracts.application import (
 from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
 from shared.exceptions.exc_classes.application import ApplicationRunTimeError
+
+logger = logger.bind(name="info")
 
 
 class FileApplicationAdapter(ApplicationAdapterContract):
@@ -37,12 +41,13 @@ class FileApplicationAdapter(ApplicationAdapterContract):
     ) -> FileMeta:
         if not self._upload_usecase:
             raise ApplicationRunTimeError("Upload usecase is not available")
-
-        return await self._upload_usecase.execute(
+        meta = await self._upload_usecase.execute(
             name=name,
             stream=stream,
             bucket=bucket,
         )
+        logger.info(f"[APP] File uploaded: id={meta.get_id()}, size={meta.get_size()}")
+        return meta
 
     async def retrieve(
         self,
@@ -53,10 +58,13 @@ class FileApplicationAdapter(ApplicationAdapterContract):
         if not self._retrieve_usecase:
             raise ApplicationRunTimeError("Retrieve usecase is not available")
 
-        return await self._retrieve_usecase.execute(
+        meta, stream = await self._retrieve_usecase.execute(
             file_id=file_id,
             bucket=bucket,
         )
+
+        logger.info(f"[APP] File retrieved: id={meta.get_id()}, size={meta.get_size()}")
+        return meta, stream
 
     async def delete(
         self,
@@ -71,6 +79,7 @@ class FileApplicationAdapter(ApplicationAdapterContract):
             file_id=file_id,
             bucket=bucket,
         )
+        logger.info(f"[APP] File deleted: id={file_id}")
 
     async def update(
         self,
@@ -82,6 +91,8 @@ class FileApplicationAdapter(ApplicationAdapterContract):
     ) -> FileMeta:
         if not self._update_usecase:
             raise ApplicationRunTimeError("Update usecase is not available")
-        return await self._update_usecase.execute(
+        meta = await self._update_usecase.execute(
             file_id=file_id, name=name, stream=stream, bucket=bucket
         )
+        logger.info(f"[APP] File updated: id={meta.get_id()}, size={meta.get_size()}")
+        return meta

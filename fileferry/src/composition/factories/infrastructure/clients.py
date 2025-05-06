@@ -33,7 +33,10 @@ def db_sessionmaker(
     engine: AsyncEngine, autoflush: bool, expire_on_commit: bool = False
 ) -> async_sessionmaker[AsyncSession]:
     return async_sessionmaker(
-        bind=engine, autoflush=autoflush, expire_on_commit=expire_on_commit
+        bind=engine,
+        autoflush=autoflush,
+        expire_on_commit=expire_on_commit,
+        autocommit=False,
     )
 
 
