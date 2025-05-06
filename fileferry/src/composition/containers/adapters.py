@@ -14,7 +14,7 @@ class AdapterContainer(containers.DeclarativeContainer):
     health_usecase = providers.Dependency()
     snapshot_usecase = providers.Dependency()
 
-    file_application_adapter = providers.Factory(
+    crud_adapter = providers.Factory(
         FileApplicationAdapter,
         upload_usecase=upload_usecase,
         retrieve_usecase=retrieve_usecase,

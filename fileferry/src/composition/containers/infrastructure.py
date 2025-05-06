@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from dependency_injector import containers, providers
 
 from composition.factories.infrastructure import (
@@ -16,19 +18,17 @@ from composition.factories.infrastructure import (
     task_fire_n_forget_factory,
     task_manager_factory,
 )
-from infrastructure.config.minio import MinioConfig
-from infrastructure.config.postgres import PostgresSettings
-from infrastructure.config.redis import RedisConfig
 from infrastructure.coordination.minio_sqla import SqlAlchemyMinioCoordinator
+from infrastructure.utils.file_helper import FileHelper
 
 
 class InfrastructureContainer(containers.DeclarativeContainer):
     """Инфраструктурный DI-контейнер."""
 
     # --- Configs ---
-    config_postgres = providers.Singleton(PostgresSettings)
-    config_minio = providers.Singleton(MinioConfig)
-    config_redis = providers.Singleton(RedisConfig)
+    config_postgres = providers.Configuration()
+    config_minio = providers.Configuration()
+    config_redis = providers.Configuration()
     enable_cache = providers.Configuration()
 
     # --- Clients ---
@@ -107,3 +107,6 @@ class InfrastructureContainer(containers.DeclarativeContainer):
         storage=storage_minio,
         data_access=dao_data_access,
     )
+
+    # --- Helpers ---
+    file_helper: ClassVar[providers.Factory[FileHelper]] = providers.Factory(FileHelper)
