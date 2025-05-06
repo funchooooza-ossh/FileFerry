@@ -8,7 +8,7 @@ from monitoring.healtcheck import (
 )
 from monitoring.latency import record_latency
 from transport.rest.dependencies.server import UptimeDI
-from transport.rest.dto.base import HealthCheck
+from transport.rest.dto.models.metrics import HealthCheck, SnapshotResponse
 
 system_router = APIRouter(prefix="/system")
 
@@ -23,3 +23,8 @@ async def healthcheck(adapter: SystemAdapterDI, uptime: UptimeDI) -> HealthCheck
     service_uptime_seconds.set(float(uptime))
 
     return data
+
+
+@system_router.get("/task_snapshot", tags=["monitoring"])
+async def snapshot(adapter: SystemAdapterDI) -> SnapshotResponse:
+    return SnapshotResponse.from_domain(await adapter.snapshot())

@@ -11,9 +11,9 @@ groups:
 
 
       - alert: FileferryHealthcheckSlow
-        expr: rate(http_request_latency_seconds_sum{path="/system/healthcheck", method="GET"}[1m])
+        expr: rate(fileferry_request_latency_seconds_sum{path="/system/healthcheck", method="GET"}[1m])
               /
-              rate(http_request_latency_seconds_count{path="/system/healthcheck", method="GET"}[1m])
+              rate(fileferry_request_latency_seconds_count{path="/system/healthcheck", method="GET"}[1m])
               > 1
         for: 2m
         labels:
@@ -21,3 +21,21 @@ groups:
         annotations:
           summary: "Healthcheck latency too high"
           description: "Average /system/healthcheck latency > 1s on instance {{ $labels.instance }}."
+
+      - alert: TooManyActiveImportantTasks
+        expr: fileferry_important_tasks_active_count >= 50
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Слишком много активных задач в FileFerry"
+          description: "Активных задач: {{ $value }} (порог: 50)"
+
+      - alert: ImportantTaskTooOld
+        expr: max(fileferry_important_tasks_age_seconds) >= 900
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Задача в FileFerry живёт дольше 15 минут"
+          description: "Возраст самой долгоживущей задачи: {{ $value }} секунд"
