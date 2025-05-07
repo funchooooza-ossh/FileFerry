@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from shared.types.system_health import SystemHealthReport
+from infrastructure.types.health.system_health import SystemHealthReport
 
 
 class HealthCheckUseCaseContract(Protocol):

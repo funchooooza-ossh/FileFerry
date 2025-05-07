@@ -3,8 +3,8 @@ from collections.abc import AsyncIterator
 from typing import Any, Protocol
 
 from domain.models import FileMeta
+from infrastructure.types.health import ComponentStatus
 from shared.enums import Buckets
-from shared.types.component_health import ComponentStatus
 
 
 class StorageAccessContract(Protocol):

@@ -1,11 +1,11 @@
 from contracts.application import SnapshotUseCaseContract
 from contracts.infrastructure import ImportantTaskManagerContract
+from infrastructure.types.task_snapshot import ManagerSnapshot
 from monitoring.cache_background import (
     important_tasks_active,
     important_tasks_age,
     important_tasks_total,
 )
-from shared.types.task_manager import ManagerSnapshot
 
 
 class SnapShotUseCase(SnapshotUseCaseContract):

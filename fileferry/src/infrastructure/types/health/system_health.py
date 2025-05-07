@@ -1,6 +1,6 @@
 from typing import TypedDict, cast
 
-from shared.types.component_health import ComponentState, ComponentStatus
+from infrastructure.types.health.component_health import ComponentState, ComponentStatus
 
 
 class SystemHealthReport(TypedDict):

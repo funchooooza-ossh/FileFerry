@@ -8,9 +8,9 @@ from contracts.infrastructure import StorageAccessContract
 from domain.models import FileMeta
 from infrastructure.exceptions.handlers.s3_handler import wrap_s3_failure
 from infrastructure.http.create_clientsession import create_client_session
+from infrastructure.types.health.component_health import ComponentStatus
 from infrastructure.utils.stream_reader import AsyncStreamReader
 from shared.enums import Buckets
-from shared.types.component_health import ComponentStatus
 
 
 class MiniOStorage(StorageAccessContract):

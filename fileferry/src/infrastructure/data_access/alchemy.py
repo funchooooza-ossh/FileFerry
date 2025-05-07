@@ -7,7 +7,7 @@ from contracts.infrastructure import FileMetaDataAccessContract, TransactionCont
 from domain.models import FileMeta
 from infrastructure.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 from infrastructure.models.sqlalchemy.file import File
-from shared.types.component_health import ComponentState, ComponentStatus
+from infrastructure.types.health import ComponentState, ComponentStatus
 
 
 class SQLAlchemyFileMetaDataAccess(FileMetaDataAccessContract):

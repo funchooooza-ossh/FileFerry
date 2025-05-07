@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from shared.types.system_health import SystemHealthReport
-from shared.types.task_manager import ManagerSnapshot
+from infrastructure.types.health.system_health import SystemHealthReport
+from infrastructure.types.task_snapshot import ManagerSnapshot
 
 
 class HealthCheck(BaseModel):
