@@ -31,7 +31,7 @@ def setup_logging() -> None:
 
     for name in SINKS_REGISTERED:
         create_sink(name, "TRACE")
-        create_sink(name, "INFO")
+        create_sink(name, "INFO", exclude={"scope": METRICS_REGEX})
         create_sink(name, "WARNING")
 
     _logger.configure(patcher=add_request_ctx)  # type: ignore
