@@ -6,10 +6,10 @@ from miniopy_async.error import S3Error
 
 from contracts.infrastructure import StorageAccessContract
 from domain.models import FileMeta
+from infrastructure.exceptions.handlers.s3_handler import wrap_s3_failure
 from infrastructure.http.create_clientsession import create_client_session
 from infrastructure.utils.stream_reader import AsyncStreamReader
 from shared.enums import Buckets
-from shared.exceptions.handlers.s3_handler import wrap_s3_failure
 from shared.types.component_health import ComponentStatus
 
 

@@ -6,7 +6,7 @@ from redis.asyncio import Redis
 
 from contracts.infrastructure import FileMetaCacheStorageContract
 from domain.models import FileMeta
-from shared.exceptions.handlers.redis_handler import wrap_redis_failure
+from infrastructure.exceptions.handlers.redis_handler import wrap_redis_failure
 from shared.object_mapping.filemeta import DTOFileMeta, FileMetaMapper
 from shared.types.component_health import ComponentStatus
 

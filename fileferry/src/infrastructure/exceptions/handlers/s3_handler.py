@@ -5,9 +5,9 @@ from typing import Any, TypeVar, cast
 from loguru import logger
 from miniopy_async.error import S3Error
 
-from shared.exceptions.exc_classes.infrastructure import StorageError
-from shared.exceptions.mappers.infra_errors import InfraErrorMapper
-from shared.exceptions.mappers.s3_errors import S3ErrorCode, S3ErrorCodeMapper
+from infrastructure.exceptions.mappers.infra_errors import InfraErrorMapper
+from infrastructure.exceptions.mappers.s3_errors import S3ErrorCode, S3ErrorCodeMapper
+from shared.exceptions.infrastructure import StorageError
 
 logger = logger.bind(name="trace")
 

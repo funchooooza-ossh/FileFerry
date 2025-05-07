@@ -7,7 +7,7 @@ from sqlalchemy.exc import NoResultFound as SQLAlchemyNoResultFound
 from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from sqlalchemy.exc import ProgrammingError as SQLAlchemyProgrammingError
 
-from shared.exceptions.exc_classes.infrastructure import (
+from shared.exceptions.infrastructure import (
     DataAccessError,
     DisconnectedError,
     IntegrityError,

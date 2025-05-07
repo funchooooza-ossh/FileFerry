@@ -3,7 +3,7 @@ from contracts.application import (
     SnapshotUseCaseContract,
     SystemAdapterContract,
 )
-from shared.exceptions.exc_classes.application import ApplicationRunTimeError
+from shared.exceptions.application import ApplicationRunTimeError
 from shared.types.system_health import SystemHealthReport
 from shared.types.task_manager import ManagerSnapshot
 

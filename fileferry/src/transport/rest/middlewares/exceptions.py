@@ -6,15 +6,15 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response as StarletteResponse
 
-from shared.exceptions.exc_classes.application import (
+from infrastructure.exceptions.mappers.infra_errors import InfraErrorMapper
+from infrastructure.exceptions.mappers.s3_errors import S3ErrorCode
+from shared.exceptions.application import (
     ApplicationRunTimeError,
     DomainRejectedError,
     FileOperationFailed,
     InvalidFileParameters,
     InvalidValueError,
 )
-from shared.exceptions.mappers.infra_errors import InfraErrorMapper
-from shared.exceptions.mappers.s3_errors import S3ErrorCode
 from transport.rest.dto.base import Response
 
 logger = logger.bind(name="requests")

@@ -1,8 +1,8 @@
 from typing import Any, Union
 
-from shared.exceptions.mappers.alchemy_errors import SQLAlchemyErrorCode
-from shared.exceptions.mappers.infra_errors import InfraErrorMapper
-from shared.exceptions.mappers.s3_errors import S3ErrorCode
+from infrastructure.exceptions.mappers.alchemy_errors import SQLAlchemyErrorCode
+from infrastructure.exceptions.mappers.infra_errors import InfraErrorMapper
+from infrastructure.exceptions.mappers.s3_errors import S3ErrorCode
 from transport.rest.dto.base import Response
 
 

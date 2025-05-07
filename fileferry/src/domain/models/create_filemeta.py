@@ -2,7 +2,7 @@ from typing import Optional
 
 from domain.models.dataclasses import FileMeta
 from domain.models.value_objects import ContentType, FileId, FileName, FileSize
-from shared.exceptions.exc_classes.application import InvalidFileParameters
+from shared.exceptions.application import InvalidFileParameters
 
 
 def create_filemeta(

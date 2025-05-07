@@ -12,7 +12,7 @@ from contracts.application import (
 )
 from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
-from shared.exceptions.exc_classes.application import ApplicationRunTimeError
+from shared.exceptions.application import ApplicationRunTimeError
 
 logger = logger.bind(name="info")
 
