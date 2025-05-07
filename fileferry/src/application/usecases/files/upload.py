@@ -8,7 +8,7 @@ from contracts.infrastructure import FileHelperContract, OperationCoordinationCo
 from domain.models import FileMeta, FileName
 from shared.enums import Buckets
 from shared.exceptions.application import DomainRejectedError
-from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.domain import FilePolicyViolationError
 
 
 class UploadUseCase(UploadUseCaseContract):
@@ -32,7 +32,7 @@ class UploadUseCase(UploadUseCaseContract):
         file_meta = self._meta_factory(None, name.value, size, mime)
         try:
             self._policy.is_allowed(file_meta=file_meta)
-        except FilePolicyViolationEror as exc:
+        except FilePolicyViolationError as exc:
             raise DomainRejectedError(message="Policy violation") from exc
         async with self._coordinator as transaction:
             await transaction.data_access.save(file_meta=file_meta)

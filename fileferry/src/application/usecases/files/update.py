@@ -14,7 +14,7 @@ from shared.exceptions.application import (
     ApplicationRunTimeError,
     DomainRejectedError,
 )
-from shared.exceptions.domain import FilePolicyViolationEror
+from shared.exceptions.domain import FilePolicyViolationError
 
 
 class UpdateUseCase(UpdateUseCaseContract):
@@ -47,7 +47,7 @@ class UpdateUseCase(UpdateUseCaseContract):
             meta = self._meta_factory(file_id.value, name.value, size, content_type)
             try:
                 self._policy.is_allowed(meta)
-            except FilePolicyViolationEror as exc:
+            except FilePolicyViolationError as exc:
                 raise DomainRejectedError(message="Policy violation") from exc
 
         async with self._coordinator as transaction:

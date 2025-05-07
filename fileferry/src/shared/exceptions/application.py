@@ -50,9 +50,11 @@ class InvalidValueError(ApplicationError):
     pass
 
 
-class ApplicationRunTimeError(ApplicationError):
+class ApplicationRunTimeError(Exception):
     """
-    Возникает при нарушении логики работы слоя приложения
+    Исключение, сигнализирующее о нарушении инвариантов или
+    неожиданных условиях в приложении.
+    Используется для отладки и логирования логических ошибок.
     """
 
     pass
