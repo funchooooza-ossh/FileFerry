@@ -3,7 +3,7 @@ from contracts.infrastructure import (
     FileMetaCacheStorageContract,
     FileMetaDataAccessContract,
     FireAndForgetTasksContract,
-    TransactionContext,
+    TransactionContextContract,
 )
 from infrastructure.data_access.alchemy import SQLAlchemyFileMetaDataAccess
 from infrastructure.data_access.redis import CachedFileMetaDataAccess
@@ -26,7 +26,7 @@ def cache_aside_factory(
 
 
 def sql_filemeta_data_access_factory(
-    context: TransactionContext,
+    context: TransactionContextContract,
 ) -> SQLAlchemyFileMetaDataAccess:
     return SQLAlchemyFileMetaDataAccess(context)
 

@@ -7,8 +7,8 @@ from sqlalchemy.exc import (
     SQLAlchemyError,
 )
 
-from shared.exceptions.exc_classes.infrastructure import DataAccessError
-from shared.exceptions.mappers.alchemy_errors import SQLAlchemyErrorMapper
+from infrastructure.exceptions.mappers.alchemy_errors import SQLAlchemyErrorMapper
+from shared.exceptions.infrastructure import DataAccessError
 
 logger = logger.bind(name="trace")
 

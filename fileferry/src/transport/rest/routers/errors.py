@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from shared.exceptions.mappers.infra_errors import InfraErrorMapper
+from infrastructure.exceptions.mappers.infra_errors import InfraErrorMapper
 
 problem_router = APIRouter(prefix="/problems")
 

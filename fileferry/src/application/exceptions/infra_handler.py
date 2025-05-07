@@ -4,9 +4,9 @@ from typing import Any, TypeVar, cast
 
 from loguru import logger
 
-from shared.exceptions.exc_classes.application import FileOperationFailed
-from shared.exceptions.exc_classes.infrastructure import InfraError
-from shared.exceptions.mappers.infra_errors import InfraErrorMapper
+from infrastructure.exceptions.mappers.infra_errors import InfraErrorMapper
+from shared.exceptions.application import FileOperationFailed
+from shared.exceptions.infrastructure import InfraError
 
 logger = logger.bind(name="trace")
 

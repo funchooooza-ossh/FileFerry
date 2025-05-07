@@ -11,7 +11,7 @@ class DomainError(Exception):
         self.type = self.__class__.__name__
 
 
-class FilePolicyViolationEror(DomainError):
+class FilePolicyViolationError(DomainError):
     """
     Ошибка валидации.
     """

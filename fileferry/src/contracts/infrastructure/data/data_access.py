@@ -2,7 +2,7 @@
 from typing import Any, Protocol
 
 from domain.models import FileMeta
-from shared.types.component_health import ComponentStatus
+from infrastructure.types.health import ComponentStatus
 
 
 class DataAccessContract(Protocol):

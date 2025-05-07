@@ -3,9 +3,9 @@ from contracts.application import (
     SnapshotUseCaseContract,
     SystemAdapterContract,
 )
-from shared.exceptions.exc_classes.application import ApplicationRunTimeError
-from shared.types.system_health import SystemHealthReport
-from shared.types.task_manager import ManagerSnapshot
+from infrastructure.types.health.system_health import SystemHealthReport
+from infrastructure.types.task_snapshot import ManagerSnapshot
+from shared.exceptions.application import ApplicationRunTimeError
 
 
 class SystemAdapter(SystemAdapterContract):

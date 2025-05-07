@@ -1,6 +1,6 @@
 from contracts.application import HealthCheckUseCaseContract
 from contracts.infrastructure import OperationCoordinationContract
-from shared.types.system_health import SystemHealthReport, from_components
+from infrastructure.types.health import SystemHealthReport, from_components
 
 
 class HealthCheckUseCase(HealthCheckUseCaseContract):

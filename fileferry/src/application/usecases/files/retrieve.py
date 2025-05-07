@@ -1,10 +1,10 @@
 from collections.abc import AsyncIterator
 
+from application.exceptions.infra_handler import wrap_infrastructure_failures
 from contracts.application.usecases import RetrieveUseCaseContract
 from contracts.infrastructure import OperationCoordinationContract
 from domain.models import FileId, FileMeta
 from shared.enums import Buckets
-from shared.exceptions.handlers.infra_handler import wrap_infrastructure_failures
 
 
 class RetrieveUseCase(RetrieveUseCaseContract):

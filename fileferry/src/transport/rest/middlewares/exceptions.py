@@ -6,21 +6,21 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response as StarletteResponse
 
-from shared.exceptions.exc_classes.application import (
+from infrastructure.exceptions.mappers.infra_errors import InfraErrorMapper
+from infrastructure.exceptions.mappers.s3_errors import S3ErrorCode
+from shared.exceptions.application import (
     ApplicationRunTimeError,
     DomainRejectedError,
     FileOperationFailed,
     InvalidFileParameters,
     InvalidValueError,
 )
-from shared.exceptions.mappers.infra_errors import InfraErrorMapper
-from shared.exceptions.mappers.s3_errors import S3ErrorCode
 from transport.rest.dto.base import Response
 
 logger = logger.bind(name="requests")
 
 
-class ApplicationErrorMiddleware(BaseHTTPMiddleware):
+class FinalizeErrorMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
         request: Request,
@@ -63,6 +63,15 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
             # Обрабатываем инфраструктурные ошибки
             logger.warning(f"[REQUEST][ERROR] Ошибка инфраструктуры: {exc}")
             return self._handle_infrastructure_error(exc, request)
+        except BaseException as exc:
+            logger.exception(f"Unhandled runtime exceptiongroup: {exc}")
+            return JSONResponse(
+                status_code=500,
+                content=Response.failure(
+                    msg="Internal Server Error", type="Undocumentend error"
+                ).model_dump(),
+                media_type="application/json",
+            )
 
     def _create_json_response(
         self, status_code: int, msg: str, error_type: str

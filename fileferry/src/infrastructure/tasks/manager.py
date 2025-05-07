@@ -4,7 +4,7 @@ from collections.abc import Callable, Coroutine
 from typing import Any, Optional
 
 from contracts.infrastructure import ImportantTaskManagerContract
-from shared.types.task_manager import ManagerSnapshot
+from infrastructure.types.task_snapshot import ManagerSnapshot
 
 
 class ImportantTaskManager(ImportantTaskManagerContract):

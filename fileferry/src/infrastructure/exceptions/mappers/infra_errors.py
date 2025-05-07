@@ -1,6 +1,8 @@
 from fastapi import status  # импортируем статус-коды Starlette
 
-from shared.exceptions.exc_classes.infrastructure import (
+from infrastructure.exceptions.mappers.alchemy_errors import SQLAlchemyErrorCode
+from infrastructure.exceptions.mappers.s3_errors import S3ErrorCode
+from shared.exceptions.infrastructure import (
     AccessDeniedError,
     BucketNotEmptyError,
     DataAccessError,
@@ -23,8 +25,6 @@ from shared.exceptions.exc_classes.infrastructure import (
     ProgrammingError,
     StorageError,
 )
-from shared.exceptions.mappers.alchemy_errors import SQLAlchemyErrorCode
-from shared.exceptions.mappers.s3_errors import S3ErrorCode
 
 
 class InfraErrorMapper:

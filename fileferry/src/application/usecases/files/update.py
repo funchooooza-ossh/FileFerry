@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterator, Callable
 from typing import Optional
 
+from application.exceptions.infra_handler import wrap_infrastructure_failures
 from contracts.application import UpdateUseCaseContract
 from contracts.domain import PolicyContract
 from contracts.infrastructure import (
@@ -9,12 +10,11 @@ from contracts.infrastructure import (
 )
 from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
-from shared.exceptions.exc_classes.application import (
+from shared.exceptions.application import (
     ApplicationRunTimeError,
     DomainRejectedError,
 )
-from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
-from shared.exceptions.handlers.infra_handler import wrap_infrastructure_failures
+from shared.exceptions.domain import FilePolicyViolationError
 
 
 class UpdateUseCase(UpdateUseCaseContract):
@@ -47,7 +47,7 @@ class UpdateUseCase(UpdateUseCaseContract):
             meta = self._meta_factory(file_id.value, name.value, size, content_type)
             try:
                 self._policy.is_allowed(meta)
-            except FilePolicyViolationEror as exc:
+            except FilePolicyViolationError as exc:
                 raise DomainRejectedError(message="Policy violation") from exc
 
         async with self._coordinator as transaction:

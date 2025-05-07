@@ -12,7 +12,7 @@ from contracts.infrastructure.helper import FileHelperContract
 from contracts.infrastructure.tasks.consistence import CacheInvalidatorContract
 from contracts.infrastructure.tasks.manager import ImportantTaskManagerContract
 from contracts.infrastructure.tasks.scheduler import FireAndForgetTasksContract
-from contracts.infrastructure.tx.transaction import TransactionContext
+from contracts.infrastructure.tx.transaction import TransactionContextContract
 from contracts.infrastructure.tx.transaction_manager import TransactionManagerContract
 
 __all__ = (
@@ -24,6 +24,6 @@ __all__ = (
     "ImportantTaskManagerContract",
     "OperationCoordinationContract",
     "StorageAccessContract",
-    "TransactionContext",
+    "TransactionContextContract",
     "TransactionManagerContract",
 )
