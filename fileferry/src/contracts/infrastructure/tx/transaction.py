@@ -3,7 +3,7 @@ from typing import Protocol
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class TransactionContext(Protocol):
+class TransactionContextContract(Protocol):
     """Контекст управления транзакцией."""
 
     _session: AsyncSession

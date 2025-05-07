@@ -2,11 +2,11 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncSessionTransaction
 
-from contracts.infrastructure import TransactionContext
+from contracts.infrastructure import TransactionContextContract
 from infrastructure.exceptions.handlers.alchemy_handler import wrap_sqlalchemy_failure
 
 
-class SqlAlchemyTransactionContext(TransactionContext):
+class SqlAlchemyTransactionContext(TransactionContextContract):
     """
     Контекст управления сессией SQLAlchemy, а также объектом session.begin(),
     который являет собой транзакцию (AsyncSessionTransaction).

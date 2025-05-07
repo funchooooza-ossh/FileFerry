@@ -1,5 +1,5 @@
 from contracts.infrastructure import (
-    TransactionContext,
+    TransactionContextContract,
     TransactionManagerContract,
 )
 
@@ -10,7 +10,7 @@ class TransactionManager(TransactionManagerContract):
     Инкапсулирует работу с контекстом транзакции.
     """
 
-    def __init__(self, context: TransactionContext) -> None:
+    def __init__(self, context: TransactionContextContract) -> None:
         self._context = context
         self._started = False
 
