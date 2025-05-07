@@ -4,7 +4,7 @@ from starlette.types import ASGIApp
 
 from composition.create_app import create_app
 from transport.rest.middlewares import (
-    ApplicationErrorMiddleware,
+    FinalizeErrorMiddleware,
     HttpRequestLatencyMiddleware,
     LoggingMiddleware,
 )
@@ -12,7 +12,7 @@ from transport.rest.routers.root import root_router
 
 app = create_app(
     middlewares=[
-        ApplicationErrorMiddleware,
+        FinalizeErrorMiddleware,
         LoggingMiddleware,
         HttpRequestLatencyMiddleware,
     ],

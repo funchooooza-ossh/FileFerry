@@ -20,7 +20,7 @@ from transport.rest.dto.base import Response
 logger = logger.bind(name="requests")
 
 
-class ApplicationErrorMiddleware(BaseHTTPMiddleware):
+class FinalizeErrorMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
         request: Request,
@@ -63,6 +63,15 @@ class ApplicationErrorMiddleware(BaseHTTPMiddleware):
             # Обрабатываем инфраструктурные ошибки
             logger.warning(f"[REQUEST][ERROR] Ошибка инфраструктуры: {exc}")
             return self._handle_infrastructure_error(exc, request)
+        except BaseException as exc:
+            logger.exception(f"Unhandled runtime exceptiongroup: {exc}")
+            return JSONResponse(
+                status_code=500,
+                content=Response.failure(
+                    msg="Internal Server Error", type="Undocumentend error"
+                ).model_dump(),
+                media_type="application/json",
+            )
 
     def _create_json_response(
         self, status_code: int, msg: str, error_type: str
