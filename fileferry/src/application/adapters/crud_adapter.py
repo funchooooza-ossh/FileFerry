@@ -18,7 +18,29 @@ logger = logger.bind(name="info")
 
 
 class FileApplicationAdapter(ApplicationAdapterContract):
-    """Адаптер для операций над файлами."""
+    """
+    FileApplicationAdapter — это адаптер для операций с файлами, который реализует доступ
+    к CRUD-операциям через необходимые use case. Он предоставляет методы для загрузки,
+    получения, удаления и обновления файлов.
+    Атрибуты:
+        _upload_usecase (Optional[UploadUseCaseContract]): Use case для обработки загрузки файлов.
+        _retrieve_usecase (Optional[RetrieveUseCaseContract]): Use case для получения файлов.
+        _delete_usecase (Optional[DeleteUseCaseContract]): Use case для удаления файлов.
+        _update_usecase (Optional[UpdateUseCaseContract]): Use case для обновления файлов.
+    Методы:
+        upload(name: FileName, stream: AsyncIterator[bytes], bucket: Buckets) -> FileMeta:
+            Загружает файл в указанный bucket. Вызывает ApplicationRunTimeError, если
+            use case для загрузки недоступен.
+        retrieve(file_id: FileId, bucket: Buckets) -> tuple[FileMeta, AsyncIterator[bytes]]:
+            Получает файл и его метаданные из указанного bucket. Вызывает
+            ApplicationRunTimeError, если use case для получения недоступен.
+        delete(file_id: FileId, bucket: Buckets) -> None:
+            Удаляет файл из указанного bucket. Вызывает ApplicationRunTimeError, если
+            use case для удаления недоступен.
+        update(bucket: Buckets, file_id: FileId, name: FileName, stream: Optional[AsyncIterator[bytes]] = None) -> FileMeta:
+            Обновляет метаданные файла и, при необходимости, его содержимое в указанном bucket.
+            Вызывает ApplicationRunTimeError, если use case для обновления недоступен.
+    """
 
     def __init__(
         self,

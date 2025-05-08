@@ -9,6 +9,26 @@ from shared.exceptions.application import ApplicationRunTimeError
 
 
 class SystemAdapter(SystemAdapterContract):
+    """
+    Адаптер для операций, связанных с системой, реализующий интерфейс SystemAdapterContract.
+
+    Этот класс служит мостом между уровнем приложения и вариантами использования для проверки
+    состояния системы и управления снимками.
+
+    Атрибуты:
+        _health_usecase (HealthCheckUseCaseContract): Вариант использования, отвечающий за выполнение проверки состояния.
+        _snapshot_usecase (SnapshotUseCaseContract): Вариант использования, отвечающий за управление снимками.
+
+    Методы:
+        healthcheck() -> SystemHealthReport:
+            Выполняет проверку состояния системы с использованием предоставленного варианта использования.
+            Вызывает ApplicationRunTimeError, если вариант использования проверки состояния недоступен.
+
+        snapshot() -> ManagerSnapshot:
+            Получает снимок состояния системы с использованием предоставленного варианта использования.
+            Вызывает ApplicationRunTimeError, если вариант использования управления снимками недоступен.
+    """
+
     def __init__(
         self,
         health_usecase: HealthCheckUseCaseContract,

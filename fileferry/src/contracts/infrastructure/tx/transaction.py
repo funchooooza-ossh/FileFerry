@@ -1,16 +1,14 @@
-from typing import Protocol
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Protocol
 
 
 class TransactionContextContract(Protocol):
     """Контекст управления транзакцией."""
 
-    _session: AsyncSession
+    _session: Any  # тип сессии не задан явно, здесь может быть что угодно.
 
     async def begin(self) -> None: ...
     async def commit(self) -> None: ...
     async def rollback(self) -> None: ...
     async def close(self) -> None: ...
     @property
-    def session(self) -> AsyncSession: ...
+    def session(self) -> Any: ...

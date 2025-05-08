@@ -5,7 +5,6 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_debug: bool
-    configuration: str
     cache_enabled: bool
 
     class Config:
