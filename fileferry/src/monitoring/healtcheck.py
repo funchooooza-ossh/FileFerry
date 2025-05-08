@@ -1,6 +1,6 @@
 from prometheus_client import Counter, Gauge, Histogram
 
-from shared.types.component_health import ComponentState
+from infrastructure.types.health.component_health import ComponentState
 
 healthcheck_latency_seconds = Histogram(
     "fileferry_healthcheck_latency", "Latency of healthcheck endpoint in seconds"

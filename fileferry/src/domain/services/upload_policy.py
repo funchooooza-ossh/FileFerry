@@ -1,6 +1,6 @@
 from contracts.domain import PolicyContract
 from domain.models import FileMeta
-from shared.exceptions.exc_classes.domain import FilePolicyViolationEror
+from shared.exceptions.domain import FilePolicyViolationError
 
 
 class FilePolicyDefault(PolicyContract):
@@ -12,5 +12,5 @@ class FilePolicyDefault(PolicyContract):
             file_meta.get_content_type() in cls.FORBIDDEN_TYPES
             or file_meta.get_size() <= 0
         ):
-            raise FilePolicyViolationEror("Невалидный файл")
+            raise FilePolicyViolationError("Невалидный файл")
         return True

@@ -1,34 +1,37 @@
-import contextvars
+import re
 import sys
 from typing import Any
 
 from loguru import logger as _logger
 
-request_id_ctx_var: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "request_id", default="-"
-)
+from shared.logging.context import get_request_id, get_scope
+from shared.logging.formatters import METRICS_REGEX, STDOUT_FORMAT
+from shared.logging.sinks import SINKS_REGISTERED, create_sink
 
-LOG_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-    "<level>{level: <8}</level> | "
-    "<cyan>{extra[request_id]}</cyan> | "
-    "<blue>{name}:{function}:{line}</blue> | "
-    "<level>{message}</level>"
-)
+
+def add_request_ctx(record: dict[str, Any]) -> None:
+    record["extra"]["request_id"] = get_request_id()
+    record["extra"]["short_request_id"] = record["extra"]["request_id"][:8]
+    record["extra"]["scope"] = get_scope()
+    record["extra"].setdefault("name", "default")
 
 
 def setup_logging() -> None:
     _logger.remove()
+
     _logger.add(
         sys.stdout,
-        format=LOG_FORMAT,
+        format=STDOUT_FORMAT,
         level="INFO",
         enqueue=True,
         backtrace=True,
         diagnose=False,
+        filter=lambda r: not re.search(METRICS_REGEX, r["extra"].get("scope", "")),
     )
 
-    def add_request_id(record: dict[str, Any]) -> None:
-        record["extra"]["request_id"] = request_id_ctx_var.get()
+    for name in SINKS_REGISTERED:
+        create_sink(name, "TRACE")
+        create_sink(name, "INFO", exclude={"scope": METRICS_REGEX})
+        create_sink(name, "WARNING")
 
-    _logger.configure(patcher=add_request_id)  # type: ignore
+    _logger.configure(patcher=add_request_ctx)  # type: ignore

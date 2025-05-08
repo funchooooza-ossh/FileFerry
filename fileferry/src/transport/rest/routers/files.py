@@ -2,12 +2,12 @@ from fastapi import APIRouter, File, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
 from composition.di import AdapterDI
-from shared.io.upload_stream import file_to_iterator
 from transport.rest.dependencies import (
     BucketDI,
     FormFilenameDI,
     PathFileIdDI,
     QueryFilenameDI,
+    file_to_iterator,
 )
 from transport.rest.docs.generate_docs import ALL_RESPONSES, NON_SPECIFIED_RESPONSES
 from transport.rest.dto.base import Response

@@ -11,6 +11,7 @@ class DBSettings(BaseSettings):
     db: str
     port: str
     host: str
+    echo: bool
 
     def __repr__(self) -> str:
         return "<DBSettings [secure]>"

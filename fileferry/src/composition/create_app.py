@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 from fastapi import APIRouter, FastAPI
 
-from composition.containers.registry import get_container
+from composition.containers.application import ApplicationContainer
 from shared.config import settings
 from shared.logging.configuration import setup_logging
 
@@ -14,7 +14,7 @@ def create_app(
     middlewares: Sequence[type],
 ) -> FastAPI:
     setup_logging()
-    container = get_container(settings.configuration)()
+    container = ApplicationContainer(config_app=settings)
     app = FastAPI(
         debug=settings.app_debug,
         title="FileFerry Service",

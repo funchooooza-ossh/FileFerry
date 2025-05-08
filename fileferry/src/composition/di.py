@@ -12,15 +12,15 @@ if TYPE_CHECKING:
 
 
 @inject
-def provide_adapter(
+def provide_crud_adapter(
     container: Annotated[
         "AdapterContainer", Depends(Provide[ApplicationContainer.adapters])
     ],
 ) -> FileApplicationAdapter:
-    return container.file_application_adapter()
+    return container.crud_adapter()
 
 
-AdapterDI = Annotated["FileApplicationAdapter", Depends(provide_adapter)]
+AdapterDI = Annotated["FileApplicationAdapter", Depends(provide_crud_adapter)]
 
 
 @inject
