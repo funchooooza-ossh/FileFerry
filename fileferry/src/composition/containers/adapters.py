@@ -5,6 +5,22 @@ from application.adapters.system_adapter import SystemAdapter
 
 
 class AdapterContainer(containers.DeclarativeContainer):
+    """
+    AdapterContainer - это контейнер, который предоставляет зависимости и фабрики для адаптеров приложения.
+
+    Атрибуты:
+        upload_usecase (Dependency): Зависимость для использования сценария загрузки.
+        retrieve_usecase (Dependency): Зависимость для использования сценария получения данных.
+        delete_usecase (Dependency): Зависимость для использования сценария удаления.
+        update_usecase (Dependency): Зависимость для использования сценария обновления.
+        health_usecase (Dependency): Зависимость для использования сценария проверки состояния системы.
+        snapshot_usecase (Dependency): Зависимость для использования сценария создания снимков.
+
+    Фабрики:
+        crud_adapter (Factory): Фабрика для создания экземпляров FileApplicationAdapter с предоставленными зависимостями.
+        system_adapter (Factory): Фабрика для создания экземпляров SystemAdapter с предоставленными зависимостями.
+    """
+
     """Контейнер адаптеров."""
 
     upload_usecase = providers.Dependency()

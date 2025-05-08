@@ -11,7 +11,24 @@ from application.usecases import (
 
 
 class UsecaseContainer(containers.DeclarativeContainer):
-    """Контейнер юзкейсов приложения."""
+    """
+    Класс UsecaseContainer предоставляет контейнер для управления зависимостями и фабриками различных вариантов использования (use cases).
+
+    Атрибуты:
+        coordination_root (providers.Dependency): Зависимость, представляющая корневой координатор.
+        task_exec (providers.Dependency): Зависимость, представляющая менеджер задач.
+        file_helper (providers.Dependency): Зависимость, предоставляющая вспомогательные функции для работы с файлами.
+        default_policy (providers.Dependency): Зависимость, представляющая политику по умолчанию.
+        meta_factory (providers.Dependency): Зависимость, предоставляющая фабрику метаданных.
+
+    Фабрики:
+        upload_usecase (providers.Factory[UploadUseCase]): Фабрика для создания экземпляров UploadUseCase.
+        retrieve_usecase (providers.Factory[RetrieveUseCase]): Фабрика для создания экземпляров RetrieveUseCase.
+        delete_usecase (providers.Factory[DeleteUseCase]): Фабрика для создания экземпляров DeleteUseCase.
+        update_usecase (providers.Factory[UpdateUseCase]): Фабрика для создания экземпляров UpdateUseCase.
+        health_usecase (providers.Factory[HealthCheckUseCase]): Фабрика для создания экземпляров HealthCheckUseCase.
+        snapshot_usecase (providers.Factory[SnapShotUseCase]): Фабрика для создания экземпляров SnapShotUseCase.
+    """
 
     # Зависимости
     coordination_root = providers.Dependency()

@@ -12,6 +12,24 @@ from shared.exceptions.domain import FilePolicyViolationError
 
 
 class UploadUseCase(UploadUseCaseContract):
+    class UploadUseCase:
+        """
+        Класс UploadUseCase реализует сценарий загрузки файла с проверкой политики
+        и сохранением метаданных файла.
+
+        Атрибуты:
+            coordinator (OperationCoordinationContract): Контракт для управления
+                транзакциями и координацией операций.
+            helper (FileHelperContract): Контракт для анализа и обработки файлов.
+            policy (PolicyContract): Контракт для проверки политики загрузки файлов.
+            meta_factory (Callable): Фабрика для создания объекта метаданных файла.
+
+        Методы:
+            execute(name, stream, bucket):
+                Выполняет процесс загрузки файла, включая анализ, проверку политики,
+                сохранение метаданных и загрузку файла в хранилище.
+        """
+
     def __init__(
         self,
         coordinator: OperationCoordinationContract,

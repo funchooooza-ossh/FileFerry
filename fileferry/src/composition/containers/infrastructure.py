@@ -23,7 +23,49 @@ from infrastructure.utils.file_helper import FileHelper
 
 
 class InfrastructureContainer(containers.DeclarativeContainer):
-    """Инфраструктурный DI-контейнер."""
+    """
+    Класс InfrastructureContainer представляет собой декларативный контейнер для управления зависимостями
+    и конфигурацией инфраструктуры приложения. Он использует библиотеку dependency-injector для определения
+    и предоставления различных компонентов, таких как базы данных, клиенты, хранилища и задачи.
+
+    Атрибуты:
+        config_postgres: Конфигурация для подключения к PostgreSQL.
+        config_minio: Конфигурация для клиента MinIO.
+        config_redis: Конфигурация для клиента Redis.
+        enable_cache: Флаг, указывающий, включено ли кэширование.
+
+    Клиенты:
+        engine_postgres: Singleton для создания SQLAlchemy Engine с использованием конфигурации PostgreSQL.
+        sessionmaker_postgres: Singleton для создания фабрики сессий SQLAlchemy.
+        session_factory: Factory для создания сессий базы данных.
+        client_minio: Singleton для создания клиента MinIO.
+        client_redis: Singleton для создания клиента Redis с поддержкой кэширования.
+
+    Транзакционный слой:
+        tx_context: ContextLocalSingleton для управления контекстом транзакций.
+        tx_manager: Factory для создания менеджера транзакций.
+        dao_sqlalchemy: Factory для создания объекта доступа к данным с использованием SQLAlchemy.
+
+    Задачи:
+        task_exec: Singleton для управления задачами с поддержкой кэширования.
+        task_scheduler: Singleton для выполнения задач в режиме fire-and-forget.
+
+    Хранилища:
+        storage_minio: Factory для создания хранилища MinIO.
+        storage_redis: Factory для создания Redis-хранилища с поддержкой кэширования.
+        cache_invalidator: Factory для создания объекта, отвечающего за инвалидирование кэша.
+
+    Доступ к данным:
+        dao_data_access: Factory для разрешения доступа к данным с поддержкой кэширования,
+                         планировщика задач, Redis-хранилища и SQLAlchemy.
+
+    Корень композиции:
+        coordination_root: Factory для создания координатора, который объединяет транзакции,
+                           хранилище и доступ к данным.
+
+    Вспомогательные компоненты:
+        file_helper: Factory для создания вспомогательного объекта FileHelper.
+    """
 
     # --- Configs ---
     config_postgres = providers.Configuration()
