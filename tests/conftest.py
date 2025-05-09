@@ -1,1 +1,1 @@
-pytest_plugins = ["fixtures.base"]
+pytest_plugins = ["fixtures.base", "fixtures.value_objects"]
