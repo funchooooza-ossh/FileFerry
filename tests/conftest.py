@@ -1,1 +1,11 @@
-pytest_plugins = ["fixtures.base", "fixtures.value_objects", "fixtures.domain_models"]
+pytest_plugins = [
+    "fixtures.base",
+    "fixtures.domain.value_objects",
+    "fixtures.domain.domain_models",
+    "fixtures.infrastructure.sqlalchemy",
+    "mocks.infrastructure.coordinator",
+    "mocks.infrastructure.data_access",
+    "mocks.infrastructure.filehelper",
+    "mocks.domain.meta_factory",
+    "mocks.domain.policy",
+]

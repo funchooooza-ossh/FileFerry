@@ -1,6 +1,8 @@
+import asyncio
 import random
 import string
 import uuid
+from collections.abc import AsyncIterator
 
 import pytest
 
@@ -73,3 +75,17 @@ def negative_filesize() -> int:
 @pytest.fixture(scope="function")
 def empty_value() -> None:
     return None
+
+
+async def async_byte_stream(
+    chunks: list[bytes], delay: float = 0.01
+) -> AsyncIterator[bytes]:
+    for chunk in chunks:
+        await asyncio.sleep(delay)
+        yield chunk
+
+
+@pytest.fixture
+async def stream() -> AsyncIterator[bytes]:
+    chunks = [b"chunk1", b"chunk2", b"chunk3", b"chunk4"]
+    return async_byte_stream(chunks)
