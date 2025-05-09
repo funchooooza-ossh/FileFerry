@@ -4,6 +4,7 @@ pytest_plugins = [
     "fixtures.domain.domain_models",
     "fixtures.infrastructure.sqlalchemy",
     "mocks.infrastructure.coordinator",
+    "mocks.infrastructure.tx.context",
     "mocks.infrastructure.data_access",
     "mocks.infrastructure.filehelper",
     "mocks.domain.meta_factory",

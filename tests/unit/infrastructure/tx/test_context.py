@@ -15,7 +15,7 @@ async def test_tx_context(session: AsyncSession):
 
     await ctx.close()
 
-    assert not ctx.session.in_transaction()
+    assert not ctx._session.in_transaction()  # type: ignore
 
 
 @pytest.mark.unit
