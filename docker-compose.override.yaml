@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  service:
+  fileferry:
     command: >
       sh -c "pytest -v --tb=short --disable-warnings --maxfail=3"
     volumes:

@@ -24,7 +24,7 @@ class FileId(DomainValueObject[str]):
     def __post_init__(self) -> None:
         try:
             uuid.UUID(self._value)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError("Invalid UUID") from None
 
     @staticmethod
@@ -37,8 +37,8 @@ class FileName(DomainValueObject[str]):
     _value: str
 
     def __post_init__(self) -> None:
-        if not self._value:
-            raise ValueError("File name cannot be empty")
+        if not isinstance(self._value, str) or not self._value.strip():  # type: ignore silly pylance think we cant init dataclass with misstype
+            raise ValueError("TypeError or empty string detected.")
         if len(self._value) > 255:
             raise ValueError("File name too long")
         if "/" in self._value or "\\" in self._value:
@@ -47,8 +47,10 @@ class FileName(DomainValueObject[str]):
 
 @dataclass(frozen=True)
 class ContentType(DomainValueObject[str]):
+    _value: str
+
     def __post_init__(self) -> None:
-        if not self._value or "/" not in self._value:
+        if not isinstance(self._value, str) or "/" not in self._value:  # type: ignore
             raise ValueError("Invalid MIME type format")
 
         main_type, _, sub_type = self._value.partition("/")
@@ -58,8 +60,10 @@ class ContentType(DomainValueObject[str]):
 
 @dataclass(frozen=True)
 class FileSize(DomainValueObject[int]):
+    _value: int
+
     def __post_init__(self) -> None:
+        if not isinstance(self._value, int):  # type: ignore
+            raise ValueError("File size must be an integer")
         if self._value <= 0:
             raise ValueError("File size must be positive")
-        # if self.value > 10 * 1024 * 1024 * 1024:  # 10 GB, например
-        # raise ValueError("File size exceeds maximum allowed limit")
