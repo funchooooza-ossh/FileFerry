@@ -8,6 +8,7 @@ pytest_plugins = [
     "mocks.infrastructure.tx.context",
     "mocks.infrastructure.data_access",
     "mocks.infrastructure.filehelper",
+    "mocks.infrastructure.minio_client",
     "mocks.domain.meta_factory",
     "mocks.domain.policy",
 ]

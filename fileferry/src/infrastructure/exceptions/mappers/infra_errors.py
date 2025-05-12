@@ -33,19 +33,19 @@ class InfraErrorMapper:
     _type_to_code: dict[
         type[StorageError | DataAccessError], S3ErrorCode | SQLAlchemyErrorCode
     ] = {
-        AccessDeniedError: S3ErrorCode.ACCESS_DENIED,
-        NoSuchBucketError: S3ErrorCode.NO_SUCH_BUCKET,
-        NoSuchKeyError: S3ErrorCode.NO_SUCH_KEY,
-        InvalidAccessKeyIdError: S3ErrorCode.INVALID_ACCESS_KEY_ID,
-        EntityTooLargeError: S3ErrorCode.ENTITY_TOO_LARGE,
-        InternalError: S3ErrorCode.INTERNAL_ERROR,
-        InvalidBucketNameError: S3ErrorCode.INVALID_BUCKET_NAME,
-        InvalidObjectStateError: S3ErrorCode.INVALID_OBJECT_STATE,
-        InvalidRangeError: S3ErrorCode.INVALID_RANGE,
-        MalformedXMLStorageError: S3ErrorCode.MALFORMED_XML,
-        MissingContentLengthError: S3ErrorCode.MISSING_CONTENT_LENGTH,
-        PreconditionFailedError: S3ErrorCode.PRECONDITION_FAILED,
-        BucketNotEmptyError: S3ErrorCode.BUCKET_NOT_EMPTY,
+        AccessDeniedError: S3ErrorCode.AccessDenied,
+        NoSuchBucketError: S3ErrorCode.NoSuchBucket,
+        NoSuchKeyError: S3ErrorCode.NoSuchKey,
+        InvalidAccessKeyIdError: S3ErrorCode.InvalidAccessKeyID,
+        EntityTooLargeError: S3ErrorCode.EntityTooLarge,
+        InternalError: S3ErrorCode.InternalError,
+        InvalidBucketNameError: S3ErrorCode.InvalidBucketName,
+        InvalidObjectStateError: S3ErrorCode.InvalidObjectState,
+        InvalidRangeError: S3ErrorCode.InvalidRange,
+        MalformedXMLStorageError: S3ErrorCode.MalformedXML,
+        MissingContentLengthError: S3ErrorCode.MissingContentLength,
+        PreconditionFailedError: S3ErrorCode.PreconditionFailed,
+        BucketNotEmptyError: S3ErrorCode.BucketNotEmpty,
         #       #       #       #       #       #       #       #
         IntegrityError: SQLAlchemyErrorCode.INTEGRITY_ERROR,
         OperationalError: SQLAlchemyErrorCode.OPERATIONAL_ERROR,
@@ -56,19 +56,19 @@ class InfraErrorMapper:
     }
 
     _str_type_to_code: dict[str, S3ErrorCode | SQLAlchemyErrorCode] = {
-        "AccessDeniedError": S3ErrorCode.ACCESS_DENIED,
-        "NoSuchBucketError": S3ErrorCode.NO_SUCH_BUCKET,
-        "NoSuchKeyError": S3ErrorCode.NO_SUCH_KEY,
-        "InvalidAccessKeyIdError": S3ErrorCode.INVALID_ACCESS_KEY_ID,
-        "EntityTooLargeError": S3ErrorCode.ENTITY_TOO_LARGE,
-        "InternalError": S3ErrorCode.INTERNAL_ERROR,
-        "InvalidBucketNameError": S3ErrorCode.INVALID_BUCKET_NAME,
-        "InvalidObjectStateError": S3ErrorCode.INVALID_OBJECT_STATE,
-        "InvalidRangeError": S3ErrorCode.INVALID_RANGE,
-        "MalformedXMLStorageError": S3ErrorCode.MALFORMED_XML,
-        "MissingContentLengthError": S3ErrorCode.MISSING_CONTENT_LENGTH,
-        "PreconditionFailedError": S3ErrorCode.PRECONDITION_FAILED,
-        "BucketNotEmptyError": S3ErrorCode.BUCKET_NOT_EMPTY,
+        "AccessDeniedError": S3ErrorCode.AccessDenied,
+        "NoSuchBucketError": S3ErrorCode.NoSuchBucket,
+        "NoSuchKeyError": S3ErrorCode.NoSuchKey,
+        "InvalidAccessKeyIdError": S3ErrorCode.InvalidAccessKeyID,
+        "EntityTooLargeError": S3ErrorCode.EntityTooLarge,
+        "InternalError": S3ErrorCode.InternalError,
+        "InvalidBucketNameError": S3ErrorCode.InvalidBucketName,
+        "InvalidObjectStateError": S3ErrorCode.InvalidObjectState,
+        "InvalidRangeError": S3ErrorCode.InvalidRange,
+        "MalformedXMLStorageError": S3ErrorCode.MalformedXML,
+        "MissingContentLengthError": S3ErrorCode.MissingContentLength,
+        "PreconditionFailedError": S3ErrorCode.PreconditionFailed,
+        "BucketNotEmptyError": S3ErrorCode.BucketNotEmpty,
         #       #       #       #       #       #       #       #
         "IntegrityError": SQLAlchemyErrorCode.INTEGRITY_ERROR,
         "OperationalError": SQLAlchemyErrorCode.OPERATIONAL_ERROR,
@@ -80,19 +80,19 @@ class InfraErrorMapper:
     _code_to_type: dict[
         S3ErrorCode | SQLAlchemyErrorCode, type[StorageError | DataAccessError]
     ] = {
-        S3ErrorCode.ACCESS_DENIED: AccessDeniedError,
-        S3ErrorCode.NO_SUCH_BUCKET: NoSuchBucketError,
-        S3ErrorCode.NO_SUCH_KEY: NoSuchKeyError,
-        S3ErrorCode.INVALID_ACCESS_KEY_ID: InvalidAccessKeyIdError,
-        S3ErrorCode.ENTITY_TOO_LARGE: EntityTooLargeError,
-        S3ErrorCode.INTERNAL_ERROR: InternalError,
-        S3ErrorCode.INVALID_BUCKET_NAME: InvalidBucketNameError,
-        S3ErrorCode.INVALID_OBJECT_STATE: InvalidObjectStateError,
-        S3ErrorCode.INVALID_RANGE: InvalidRangeError,
-        S3ErrorCode.MALFORMED_XML: MalformedXMLStorageError,
-        S3ErrorCode.MISSING_CONTENT_LENGTH: MissingContentLengthError,
-        S3ErrorCode.PRECONDITION_FAILED: PreconditionFailedError,
-        S3ErrorCode.BUCKET_NOT_EMPTY: BucketNotEmptyError,
+        S3ErrorCode.AccessDenied: AccessDeniedError,
+        S3ErrorCode.NoSuchBucket: NoSuchBucketError,
+        S3ErrorCode.NoSuchKey: NoSuchKeyError,
+        S3ErrorCode.InvalidAccessKeyID: InvalidAccessKeyIdError,
+        S3ErrorCode.EntityTooLarge: EntityTooLargeError,
+        S3ErrorCode.InternalError: InternalError,
+        S3ErrorCode.InvalidBucketName: InvalidBucketNameError,
+        S3ErrorCode.InvalidObjectState: InvalidObjectStateError,
+        S3ErrorCode.InvalidRange: InvalidRangeError,
+        S3ErrorCode.MalformedXML: MalformedXMLStorageError,
+        S3ErrorCode.MissingContentLength: MissingContentLengthError,
+        S3ErrorCode.PreconditionFailed: PreconditionFailedError,
+        S3ErrorCode.BucketNotEmpty: BucketNotEmptyError,
         #       #       #       #       #       #       #       #
         SQLAlchemyErrorCode.INTEGRITY_ERROR: IntegrityError,
         SQLAlchemyErrorCode.OPERATIONAL_ERROR: OperationalError,
@@ -103,19 +103,19 @@ class InfraErrorMapper:
     }
 
     _code_to_message: dict[S3ErrorCode | SQLAlchemyErrorCode, str] = {
-        S3ErrorCode.ACCESS_DENIED: "Доступ к ресурсу был запрещен.",
-        S3ErrorCode.NO_SUCH_BUCKET: "Указанный бакет не существует.",
-        S3ErrorCode.NO_SUCH_KEY: "Указанный объект не найден в хранилище.",
-        S3ErrorCode.INVALID_ACCESS_KEY_ID: "Неверный идентификатор ключа доступа.",
-        S3ErrorCode.ENTITY_TOO_LARGE: "Объект слишком большой для загрузки.",
-        S3ErrorCode.INTERNAL_ERROR: "Внутренняя ошибка хранилища.",
-        S3ErrorCode.INVALID_BUCKET_NAME: "Неверное имя бакета.",
-        S3ErrorCode.INVALID_OBJECT_STATE: "Неверное состояние объекта.",
-        S3ErrorCode.INVALID_RANGE: "Неверный диапазон для объекта.",
-        S3ErrorCode.MALFORMED_XML: "Неправильный формат XML.",
-        S3ErrorCode.MISSING_CONTENT_LENGTH: "Отсутствует длина содержимого.",
-        S3ErrorCode.PRECONDITION_FAILED: "Не выполнено условие предварительной проверки.",
-        S3ErrorCode.BUCKET_NOT_EMPTY: "Бакет не пуст, невозможно выполнить операцию.",
+        S3ErrorCode.AccessDenied: "Доступ к ресурсу был запрещен.",
+        S3ErrorCode.NoSuchBucket: "Указанный бакет не существует.",
+        S3ErrorCode.NoSuchKey: "Указанный объект не найден в хранилище.",
+        S3ErrorCode.InvalidAccessKeyID: "Неверный идентификатор ключа доступа.",
+        S3ErrorCode.EntityTooLarge: "Объект слишком большой для загрузки.",
+        S3ErrorCode.InternalError: "Внутренняя ошибка хранилища.",
+        S3ErrorCode.InvalidBucketName: "Неверное имя бакета.",
+        S3ErrorCode.InvalidObjectState: "Неверное состояние объекта.",
+        S3ErrorCode.InvalidRange: "Неверный диапазон для объекта.",
+        S3ErrorCode.MalformedXML: "Неправильный формат XML.",
+        S3ErrorCode.MissingContentLength: "Отсутствует длина содержимого.",
+        S3ErrorCode.PreconditionFailed: "Не выполнено условие предварительной проверки.",
+        S3ErrorCode.BucketNotEmpty: "Бакет не пуст, невозможно выполнить операцию.",
         #       #       #       #       #       #       #       #       #       #       #
         SQLAlchemyErrorCode.INTEGRITY_ERROR: "Ошибка целостности данных в базе.",
         SQLAlchemyErrorCode.OPERATIONAL_ERROR: "Операционная ошибка при взаимодействии с базой данных.",
@@ -128,19 +128,19 @@ class InfraErrorMapper:
 
     # Новый маппинг ошибок на статус-коды Starlette
     _code_to_http_status: dict[S3ErrorCode | SQLAlchemyErrorCode, int] = {
-        S3ErrorCode.ACCESS_DENIED: status.HTTP_403_FORBIDDEN,  # 403 для AccessDenied
-        S3ErrorCode.NO_SUCH_BUCKET: status.HTTP_404_NOT_FOUND,  # 404 для NoSuchBucket
-        S3ErrorCode.NO_SUCH_KEY: status.HTTP_404_NOT_FOUND,  # 404 для NoSuchKey
-        S3ErrorCode.INVALID_ACCESS_KEY_ID: status.HTTP_400_BAD_REQUEST,  # 400 для InvalidAccessKeyId
-        S3ErrorCode.ENTITY_TOO_LARGE: status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,  # 413 для EntityTooLarge
-        S3ErrorCode.INTERNAL_ERROR: status.HTTP_500_INTERNAL_SERVER_ERROR,  # 500 для InternalError
-        S3ErrorCode.INVALID_BUCKET_NAME: status.HTTP_400_BAD_REQUEST,  # 400 для InvalidBucketName
-        S3ErrorCode.INVALID_OBJECT_STATE: status.HTTP_400_BAD_REQUEST,  # 400 для InvalidObjectState
-        S3ErrorCode.INVALID_RANGE: status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE,  # 416 для InvalidRange
-        S3ErrorCode.MALFORMED_XML: status.HTTP_400_BAD_REQUEST,  # 400 для MalformedXML
-        S3ErrorCode.MISSING_CONTENT_LENGTH: status.HTTP_400_BAD_REQUEST,  # 400 для MissingContentLength
-        S3ErrorCode.PRECONDITION_FAILED: status.HTTP_412_PRECONDITION_FAILED,  # 412 для PreconditionFailed
-        S3ErrorCode.BUCKET_NOT_EMPTY: status.HTTP_409_CONFLICT,  # 409 для BucketNotEmpty
+        S3ErrorCode.AccessDenied: status.HTTP_403_FORBIDDEN,  # 403 для AccessDenied
+        S3ErrorCode.NoSuchBucket: status.HTTP_404_NOT_FOUND,  # 404 для NoSuchBucket
+        S3ErrorCode.NoSuchKey: status.HTTP_404_NOT_FOUND,  # 404 для NoSuchKey
+        S3ErrorCode.InvalidAccessKeyID: status.HTTP_400_BAD_REQUEST,  # 400 для InvalidAccessKeyId
+        S3ErrorCode.EntityTooLarge: status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,  # 413 для EntityTooLarge
+        S3ErrorCode.InternalError: status.HTTP_500_INTERNAL_SERVER_ERROR,  # 500 для InternalError
+        S3ErrorCode.InvalidBucketName: status.HTTP_400_BAD_REQUEST,  # 400 для InvalidBucketName
+        S3ErrorCode.InvalidObjectState: status.HTTP_400_BAD_REQUEST,  # 400 для InvalidObjectState
+        S3ErrorCode.InvalidRange: status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE,  # 416 для InvalidRange
+        S3ErrorCode.MalformedXML: status.HTTP_400_BAD_REQUEST,  # 400 для MalformedXML
+        S3ErrorCode.MissingContentLength: status.HTTP_400_BAD_REQUEST,  # 400 для MissingContentLength
+        S3ErrorCode.PreconditionFailed: status.HTTP_412_PRECONDITION_FAILED,  # 412 для PreconditionFailed
+        S3ErrorCode.BucketNotEmpty: status.HTTP_409_CONFLICT,  # 409 для BucketNotEmpty
         #       #       #       #       #       #       #       #       #       #       #       #       #
         SQLAlchemyErrorCode.INTEGRITY_ERROR: status.HTTP_409_CONFLICT,  # 409 для IntegrityError
         SQLAlchemyErrorCode.OPERATIONAL_ERROR: status.HTTP_503_SERVICE_UNAVAILABLE,  # 503 для OperationalError
@@ -157,7 +157,7 @@ class InfraErrorMapper:
         for exc_type, code in cls._type_to_code.items():
             if isinstance(exc, exc_type):
                 return code
-        return S3ErrorCode.UNKNOWN
+        return S3ErrorCode.Unknown
 
     @classmethod
     def get_message(cls, exc: Exception) -> str:
@@ -190,7 +190,7 @@ class InfraErrorMapper:
 
     @classmethod
     def map_str_to_rfc7807(cls, exc: str) -> dict[str, str | int | None]:
-        code = cls._str_type_to_code.get(exc, S3ErrorCode.UNKNOWN)
+        code = cls._str_type_to_code.get(exc, S3ErrorCode.Unknown)
         message = cls._code_to_message.get(code)
         status_code = cls._code_to_http_status.get(code)
 

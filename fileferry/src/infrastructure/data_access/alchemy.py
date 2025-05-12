@@ -67,7 +67,11 @@ class SQLAlchemyFileMetaDataAccess(FileMetaDataAccessContract):
 
             status: ComponentState = "ok" if latency <= 100.0 else "degraded"
 
-            return ComponentStatus(status=status, latency_ms=latency, details={"version": version})
+            return ComponentStatus(
+                status=status, latency_ms=latency, details={"version": version}
+            )
 
         except Exception as exc:
-            return ComponentStatus(status="down", error=str(exc), details={"version": "unknown"})
+            return ComponentStatus(
+                status="down", error=str(exc), details={"version": "unknown"}
+            )

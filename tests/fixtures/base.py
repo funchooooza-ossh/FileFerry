@@ -89,3 +89,9 @@ async def async_byte_stream(
 async def stream() -> AsyncIterator[bytes]:
     chunks = [b"chunk1", b"chunk2", b"chunk3", b"chunk4"]
     return async_byte_stream(chunks)
+
+
+@pytest.fixture
+async def chunks() -> list[bytes]:
+    chunks = [b"chunk1", b"chunk2", b"chunk3", b"chunk4"]
+    return chunks
