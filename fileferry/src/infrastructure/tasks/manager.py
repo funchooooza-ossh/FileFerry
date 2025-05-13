@@ -88,6 +88,11 @@ class ImportantTaskManager(ImportantTaskManagerContract):
 
 
 class NoOpImportantTaskManager(ImportantTaskManagerContract):
+    """
+    Класс затычка, на случай, если выключен кэш.
+    Не лучшее рещение, но в целом сносное.
+    """
+
     async def schedule(
         self,
         key: str,
