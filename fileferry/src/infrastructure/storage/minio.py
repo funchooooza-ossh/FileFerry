@@ -18,9 +18,7 @@ class MiniOStorage(StorageAccessContract):
         self._client = client
 
     @wrap_s3_failure
-    async def upload(
-        self, *, file_meta: FileMeta, stream: AsyncIterator[bytes], bucket: Buckets
-    ) -> None:
+    async def upload(self, *, file_meta: FileMeta, stream: AsyncIterator[bytes], bucket: Buckets) -> None:
         stream_reader = AsyncStreamReader(stream)
         await self._client.put_object(
             bucket_name=bucket.value,
@@ -35,9 +33,7 @@ class MiniOStorage(StorageAccessContract):
     async def retrieve(self, *, file_id: str, bucket: Buckets) -> AsyncIterator[bytes]:
         async def stream() -> AsyncIterator[bytes]:
             async with create_client_session() as session:
-                response = await self._client.get_object(
-                    bucket_name=bucket, object_name=file_id, session=session
-                )
+                response = await self._client.get_object(bucket_name=bucket, object_name=file_id, session=session)
                 async with response:
                     async for chunk in response.content.iter_chunked(4096):
                         yield chunk
