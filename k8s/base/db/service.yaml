@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fileferry-db
+  namespace: kube-system
+spec:
+  type: ClusterIP
+  selector:
+    app: fileferry-db
+  ports:
+    - name: "entry"
+      port: 5432
+      targetPort: entry
+

@@ -19,7 +19,7 @@ services:
     ports:
       - "8000:8000"
 
-  db:
+  fileferry-db:
     container_name: db
     image: postgres
     env_file:
@@ -30,7 +30,7 @@ services:
     ports:
       - "15432:5432"
 
-  redis:
+  fileferry-redis:
     container_name: redis
     image: redis:7
     ports:
@@ -40,7 +40,7 @@ services:
     restart: always
     command: [ "redis-server", "--appendonly", "yes" ]
 
-  minio:
+  fileferry-minio:
     container_name: minio
     image: minio/minio
     hostname: minio
@@ -53,14 +53,6 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
-    ports:
-      - "9090:9090"
 
 volumes:
   postgres_data:

@@ -10,4 +10,4 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: "/mnt/data/postgres"
+    path: "/data/fileferry/postgres"

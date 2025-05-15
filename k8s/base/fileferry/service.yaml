@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fileferry
+  namespace: kube-system
+spec:
+  type: ClusterIP
+  selector:
+    app: fileferry
+  ports:
+    - name: "entry"
+      port: 8000
+      targetPort: entry

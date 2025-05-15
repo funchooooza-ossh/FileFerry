@@ -1,7 +1,0 @@
-resources:
-  - ../../base
-
-configMapGenerator:
-  - name: fileferry-env
-    envs:
-      - ./fileferry.env
