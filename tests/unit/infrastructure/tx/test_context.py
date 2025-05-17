@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock
+
 import pytest
 from infrastructure.tx.context import SqlAlchemyTransactionContext
 from sqlalchemy import text
@@ -43,3 +45,27 @@ async def test_tx_context_usage(session: AsyncSession):
     assert version is not None
 
     await ctx.close()
+
+
+@pytest.mark.unit
+@pytest.mark.asyncio
+async def test_commit_does_nothing_when_transaction_is_none():
+    session = AsyncMock()
+    ctx = SqlAlchemyTransactionContext(session=session)
+
+    ctx._transaction = None  # type: ignore
+    await ctx.commit()
+
+    session.commit.assert_not_called()
+
+
+@pytest.mark.unit
+@pytest.mark.asyncio
+async def test_rollback_does_nothing_when_transaction_is_none():
+    session = AsyncMock()
+    ctx = SqlAlchemyTransactionContext(session=session)
+
+    ctx._transaction = None  # type: ignore
+    await ctx.rollback()
+
+    session.rollback.assert_not_called()
