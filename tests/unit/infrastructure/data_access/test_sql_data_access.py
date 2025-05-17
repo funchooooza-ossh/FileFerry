@@ -152,6 +152,7 @@ async def test_sqlalchemy_error_mapping(
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "latency, version, exception, expected_status, expected_version",
     [

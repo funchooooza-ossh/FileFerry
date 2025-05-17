@@ -4,6 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+@pytest.mark.asyncio
 @pytest.mark.unit
 async def test_tx_context(session: AsyncSession):
     ctx = SqlAlchemyTransactionContext(session=session)
@@ -18,6 +19,7 @@ async def test_tx_context(session: AsyncSession):
     assert not ctx._session.in_transaction()  # type: ignore
 
 
+@pytest.mark.asyncio
 @pytest.mark.unit
 async def test_tx_context_raises_runtime_error(session: AsyncSession):
     ctx = SqlAlchemyTransactionContext(session=session)
@@ -28,6 +30,7 @@ async def test_tx_context_raises_runtime_error(session: AsyncSession):
         session = ctx.session
 
 
+@pytest.mark.asyncio
 @pytest.mark.unit
 async def test_tx_context_usage(session: AsyncSession):
     ctx = SqlAlchemyTransactionContext(session=session)

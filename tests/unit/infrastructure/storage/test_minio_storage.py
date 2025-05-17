@@ -56,6 +56,7 @@ async def test_miniostorage_delete(mock_minio_client: AsyncMock, filemeta: FileM
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "method_name, exception, expected_error, mock_method_name",
     [
@@ -156,6 +157,7 @@ async def test_s3_error_mapping(
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "latency_seconds, buckets, exception, expected_status, expected_error, expected_details",
     [

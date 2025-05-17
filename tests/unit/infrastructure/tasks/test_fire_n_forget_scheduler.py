@@ -22,6 +22,7 @@ async def test_fire_n_forget_schedule():
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_schedule_limit(caplog: pytest.LogCaptureFixture) -> None:
     scheduler = AsyncioFireAndForget(max_tasks=1)
 
@@ -38,6 +39,7 @@ async def test_schedule_limit(caplog: pytest.LogCaptureFixture) -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_shutdown_cancels_tasks(caplog: pytest.LogCaptureFixture) -> None:
     scheduler = AsyncioFireAndForget()
 
@@ -56,6 +58,7 @@ async def test_shutdown_cancels_tasks(caplog: pytest.LogCaptureFixture) -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_shutdown_timeout_logged(caplog: pytest.LogCaptureFixture) -> None:
     scheduler = AsyncioFireAndForget()
 

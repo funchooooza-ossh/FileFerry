@@ -5,7 +5,7 @@ import pytest
 from infrastructure.storage.minio import MiniOStorage
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def mock_minio_storage(stream: AsyncIterator[bytes]) -> MiniOStorage:
     storage = AsyncMock()
     storage.upload = AsyncMock()

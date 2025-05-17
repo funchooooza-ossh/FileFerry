@@ -85,6 +85,7 @@ def test_cache_serialize_and_deserialize(
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "exception, expected_result, expected_log_part",
     [
@@ -127,6 +128,7 @@ async def test_redis_get_with_wrapper(
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "exception, expected_exception, expected_log_part",
     [
@@ -175,6 +177,7 @@ async def test_redis_delete_with_raising(
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "ping_result, info_result, latency, exception, expected_status, expected_error, expected_version",
     [

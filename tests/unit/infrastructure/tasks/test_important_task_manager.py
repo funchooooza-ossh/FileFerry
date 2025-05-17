@@ -5,6 +5,7 @@ from infrastructure.tasks.manager import ImportantTaskManager
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_schedule_and_snapshot() -> None:
     manager = ImportantTaskManager()
 
@@ -20,6 +21,7 @@ async def test_schedule_and_snapshot() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_deduplication() -> None:
     manager = ImportantTaskManager()
 
@@ -35,6 +37,7 @@ async def test_deduplication() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_max_tasks_limit() -> None:
     manager = ImportantTaskManager(max_tasks=2)
 
@@ -52,6 +55,7 @@ async def test_max_tasks_limit() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_on_done_callback_called() -> None:
     manager = ImportantTaskManager()
     called: list[tuple[str, Exception | None]] = []
@@ -70,6 +74,7 @@ async def test_on_done_callback_called() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.unit
 async def test_shutdown_cancels_tasks() -> None:
     manager = ImportantTaskManager()
 

@@ -28,7 +28,9 @@ class CacheInvalidator(CacheInvalidatorContract):
         self._manager = task_manager
         self._retry_interval = retry_interval
 
-    async def invalidate(self, file_id: str, max_retry_seconds: int) -> asyncio.Event:
+    async def invalidate(
+        self, file_id: str, max_retry_seconds: int | float
+    ) -> asyncio.Event:
         done = asyncio.Event()
         deadline = asyncio.get_running_loop().time() + max_retry_seconds
 

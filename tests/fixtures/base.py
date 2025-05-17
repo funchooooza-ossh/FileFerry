@@ -85,13 +85,13 @@ async def async_byte_stream(
         yield chunk
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def stream() -> AsyncIterator[bytes]:
     chunks = [b"chunk1", b"chunk2", b"chunk3", b"chunk4"]
     return async_byte_stream(chunks)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def chunks() -> list[bytes]:
     chunks = [b"chunk1", b"chunk2", b"chunk3", b"chunk4"]
     return chunks

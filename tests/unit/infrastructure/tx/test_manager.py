@@ -3,6 +3,7 @@ from infrastructure.tx.context import SqlAlchemyTransactionContext
 from infrastructure.tx.manager import TransactionManager
 
 
+@pytest.mark.asyncio
 @pytest.mark.unit
 async def test_transaction_manager(tx_context: SqlAlchemyTransactionContext):
     manager = TransactionManager(context=tx_context)
@@ -22,6 +23,7 @@ async def test_transaction_manager(tx_context: SqlAlchemyTransactionContext):
     assert not manager._context._session.in_transaction()  # type: ignore
 
 
+@pytest.mark.asyncio
 @pytest.mark.unit
 async def test_manager_double_start_raises_error(
     tx_context: SqlAlchemyTransactionContext,
