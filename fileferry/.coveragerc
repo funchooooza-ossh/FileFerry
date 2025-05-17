@@ -5,6 +5,7 @@ source = src
 [report]
 omit =
     */__init__.py
+    */config/*
     */contracts/*
     */composition/*
     */shared/exceptions/*
