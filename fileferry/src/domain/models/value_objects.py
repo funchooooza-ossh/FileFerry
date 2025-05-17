@@ -15,7 +15,7 @@ class DomainValueObject(ABC, Generic[T]):
         return self._value
 
     @abstractmethod
-    def __post_init__(self) -> None:
+    def __post_init__(self) -> None:  # pragma: no cover
         pass
 
 

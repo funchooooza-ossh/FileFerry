@@ -33,6 +33,24 @@ async def test_cache_get(
 
 @pytest.mark.unit
 @pytest.mark.asyncio
+async def test_cache_get_miss_returns_none(
+    mock_redis_client: AsyncMock,
+    cache_prefix: str,
+    filemeta: FileMeta,
+):
+    mock_redis_client.get.return_value = None
+    storage = RedisFileMetaCacheStorage(client=mock_redis_client, prefix=cache_prefix)
+
+    result = await storage.get(filemeta.get_id())
+
+    assert result is None
+    mock_redis_client.get.assert_awaited_once_with(
+        f"{cache_prefix}:{filemeta.get_id()}"
+    )
+
+
+@pytest.mark.unit
+@pytest.mark.asyncio
 async def test_cache_set(
     mock_redis_client: AsyncMock,
     cache_prefix: str,
