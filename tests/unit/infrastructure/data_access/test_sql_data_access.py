@@ -6,6 +6,7 @@ from domain.models import FileMeta
 from infrastructure.data_access.alchemy import SQLAlchemyFileMetaDataAccess
 from infrastructure.tx.context import SqlAlchemyTransactionContext
 from shared.exceptions.infrastructure import (
+    DataAccessError,
     DisconnectedError,
     MultipleResultsFoundError,
     NoResultFoundError,
@@ -114,6 +115,9 @@ async def test_sql_data_access_save_update(
         ("get", NoResultFound, NoResultFoundError, "execute"),
         ("get", MultipleResultsFound, MultipleResultsFoundError, "execute"),
         ("get", DisconnectionError, DisconnectedError, "execute"),
+        ("get", DataAccessError, DataAccessError, "execute"),
+        ("get", Exception, DataAccessError, "execute"),
+        ("get", RuntimeError, DataAccessError, "execute"),
     ],
 )
 async def test_sqlalchemy_error_mapping(

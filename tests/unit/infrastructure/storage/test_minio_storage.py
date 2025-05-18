@@ -107,6 +107,7 @@ async def test_miniostorage_delete(mock_minio_client: AsyncMock, filemeta: FileM
             NoSuchKeyError,
             "put_object",
         ),
+        ("upload", Exception(), StorageError, "put_object"),
     ],
 )
 async def test_s3_error_mapping(

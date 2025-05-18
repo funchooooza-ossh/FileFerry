@@ -86,3 +86,91 @@ async def test_shutdown_cancels_tasks() -> None:
     await manager.shutdown()
 
     assert manager.snapshot().get("active_task_count") == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_skip_if_key_already_scheduled():
+    manager = ImportantTaskManager()
+
+    triggered = 0
+
+    async def task_factory():
+        nonlocal triggered
+        triggered += 1
+        await asyncio.sleep(0.01)
+
+    await manager.schedule("same", task_factory)
+    await manager.schedule("same", task_factory)
+    await asyncio.sleep(0.05)
+
+    assert triggered == 1
+    assert manager.snapshot().get("total_task_count") == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_task_removal_from_internal_maps():
+    manager = ImportantTaskManager()
+
+    async def quick_task():
+        await asyncio.sleep(0.01)
+
+    await manager.schedule("removable", quick_task)
+    await asyncio.sleep(0.05)
+
+    snapshot = manager.snapshot()
+    assert "removable" not in snapshot.get("task_keys")
+    assert manager._count() == 0  # type: ignore
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_age_returns_zero_if_key_missing():
+    manager = ImportantTaskManager()
+    age = manager._age("nonexistent")  # type: ignore
+    assert age == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_on_done_called_with_exception():
+    manager = ImportantTaskManager()
+    result: list[tuple[str, Exception | None]] = []
+
+    async def failing_task():
+        raise RuntimeError("boom")
+
+    def on_done(key: str, exc: Exception | None):
+        result.append((key, exc))
+
+    await manager.schedule("fail", failing_task, on_done)
+    await asyncio.sleep(0.05)
+
+    assert result
+    assert result[0][0] == "fail"
+    assert isinstance(result[0][1], RuntimeError)
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_total_task_count_increments():
+    manager = ImportantTaskManager()
+
+    async def t1():
+        pass
+
+    async def t2():
+        pass
+
+    async def t3():
+        pass
+
+    await manager.schedule("a", t1)
+    await manager.schedule("b", t2)
+    await manager.schedule("c", t3)
+
+    await asyncio.sleep(0.05)
+    snapshot = manager.snapshot()
+
+    assert snapshot.get("total_task_count") == 3

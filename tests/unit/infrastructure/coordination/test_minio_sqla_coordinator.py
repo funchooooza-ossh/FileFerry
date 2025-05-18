@@ -166,3 +166,34 @@ async def test_coordinator_starts_transaction_with_sql(
     async with coordinator as cord:
         assert cord._transaction._started  # type: ignore
         assert cord.data_access.session.in_transaction()  # type: ignore
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_commit_exits_gracefully_when_transaction_is_none(
+    mock_minio_storage: AsyncMock,
+    sql_dao: AsyncMock,
+):
+    coordinator = SqlAlchemyMinioCoordinator(
+        transaction=None,  # type: ignore
+        storage=mock_minio_storage,
+        data_access=sql_dao,
+    )
+
+    # метод должен завершиться без исключений
+    await coordinator.commit()
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+async def test_rollback_exits_gracefully_when_transaction_is_none(
+    mock_minio_storage: AsyncMock,
+    sql_dao: AsyncMock,
+):
+    coordinator = SqlAlchemyMinioCoordinator(
+        transaction=None,  # type: ignore
+        storage=mock_minio_storage,
+        data_access=sql_dao,
+    )
+
+    await coordinator.rollback()

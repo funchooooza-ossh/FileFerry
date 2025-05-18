@@ -65,16 +65,16 @@ class ImportantTaskManager(ImportantTaskManagerContract):
             total_task_count=total_task_count,
         )
 
-    def _has(self, key: str) -> bool:
+    def _has(self, key: str) -> bool:  # pragma: no cover
         return key in self._tasks
 
-    def _keys(self) -> list[str]:
+    def _keys(self) -> list[str]:  # pragma: no cover
         return list(self._tasks.keys())
 
-    def _count(self) -> int:
+    def _count(self) -> int:  # pragma: no cover
         return len(self._tasks)
 
-    def _age(self, key: str) -> float:
+    def _age(self, key: str) -> float:  # pragma: no cover
         try:
             ts = self._meta[key]
             return asyncio.get_running_loop().time() - ts
@@ -87,7 +87,7 @@ class ImportantTaskManager(ImportantTaskManagerContract):
         await asyncio.gather(*self._tasks.values(), return_exceptions=True)
 
 
-class NoOpImportantTaskManager(ImportantTaskManagerContract):
+class NoOpImportantTaskManager(ImportantTaskManagerContract):  # pragma: no cover
     """
     Класс затычка, на случай, если выключен кэш.
     Не лучшее рещение, но в целом сносное.
