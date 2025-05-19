@@ -7,7 +7,7 @@ from infrastructure.coordination.minio_sqla import SqlAlchemyMinioCoordinator
 @pytest.fixture(scope="function")
 def mock_coordinator() -> SqlAlchemyMinioCoordinator:
     coordinator = AsyncMock()
-    coordinator.storage = AsyncMock()
+    coordinator.file_storage = AsyncMock()
     coordinator.data_access = AsyncMock()
     coordinator._transaction = AsyncMock()
 

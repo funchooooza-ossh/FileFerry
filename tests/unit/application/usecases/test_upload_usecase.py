@@ -1,11 +1,27 @@
 from collections.abc import AsyncIterator
+from typing import Type
 from unittest.mock import AsyncMock
 
 import pytest
+from application.exceptions.infra_handler import wrap_infrastructure_failures
 from application.usecases.files.upload import UploadUseCase
 from domain.models import FileMeta
 from shared.enums import Buckets
-from shared.exceptions.application import DomainRejectedError
+from shared.exceptions.application import DomainRejectedError, FileOperationFailed
+from shared.exceptions.infrastructure import (
+    AccessDeniedError,
+    EntityTooLargeError,
+    InfraError,
+    IntegrityError,
+    InternalError,
+    InvalidAccessKeyIdError,
+    InvalidBucketNameError,
+    NoResultFoundError,
+    NoSuchBucketError,
+    NoSuchKeyError,
+    OperationalError,
+    ProgrammingError,
+)
 
 
 @pytest.mark.asyncio
@@ -85,3 +101,52 @@ async def test_upload_raises_domain_rejected_on_policy_violation(
         filepolicy_mock_raises_error.is_allowed.assert_called_once_with(
             file_meta=filemeta
         )
+
+        mock_coordinator.__aenter__.assert_not_called()
+        mock_coordinator.__aexit__.assert_not_called()
+        mock_coordinator.data_access.save.assert_not_called()
+        mock_coordinator.file_storage.upload.assert_not_called()
+
+
+@pytest.mark.asyncio
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "exc_type, expected_status, expected_message_fragment",
+    [
+        (AccessDeniedError, 403, "Доступ к ресурсу был запрещен"),
+        (NoSuchBucketError, 404, "Указанный бакет не существует"),
+        (NoSuchKeyError, 404, "Указанный объект не найден в хранилище"),
+        (InvalidAccessKeyIdError, 400, "Неверный идентификатор ключа доступа"),
+        (EntityTooLargeError, 413, "Объект слишком большой для загрузки"),
+        (InternalError, 500, "Внутренняя ошибка хранилища"),
+        (InvalidBucketNameError, 400, "Неверное имя бакета"),
+        (IntegrityError, 409, "Ошибка целостности данных в базе"),
+        (NoResultFoundError, 404, "Результат не найден в базе данных"),
+        (ProgrammingError, 400, "Ошибка в SQL-запросе или работе ORM"),
+        (
+            OperationalError,
+            503,
+            "Операционная ошибка при взаимодействии с базой данных",
+        ),
+    ],
+)
+async def test_wrap_infrastructure_failures_decorator_raises_mapped_domain_error(
+    exc_type: Type[InfraError],
+    expected_status: int,
+    expected_message_fragment: str,
+) -> None:
+    @wrap_infrastructure_failures
+    async def failing_function() -> None:
+        raise exc_type()
+
+    with pytest.raises(FileOperationFailed) as exc_info:
+        await failing_function()
+
+    exc = exc_info.value
+    assert isinstance(exc, FileOperationFailed)
+    assert exc.status_code == expected_status
+    assert (
+        expected_message_fragment in str(exc)
+        or expected_message_fragment in exc.message  # type: ignore
+    )
+    assert exc.type == exc_type.__name__
