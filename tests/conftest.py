@@ -15,6 +15,7 @@ pytest_plugins = [
     "mocks.infrastructure.tx.manager",
     "mocks.infrastructure.data_access",
     "mocks.infrastructure.filehelper",
+    "mocks.infrastructure.coordinator",
     "mocks.infrastructure.minio.client",
     "mocks.infrastructure.minio.storage",
     "mocks.infrastructure.redis.client",
