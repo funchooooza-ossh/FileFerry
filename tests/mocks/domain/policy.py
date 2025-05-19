@@ -15,5 +15,7 @@ def filepolicy_mock_true() -> PolicyContract:
 @pytest.fixture(scope="function")
 def filepolicy_mock_raises_error() -> PolicyContract:
     policy = MagicMock()
-    policy.side_effect = FilePolicyViolationError("Невалидный файл")
+    policy.is_allowed = MagicMock(
+        side_effect=FilePolicyViolationError("Невалидный файл")
+    )
     return policy
