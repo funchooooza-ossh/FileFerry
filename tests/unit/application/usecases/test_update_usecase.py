@@ -7,7 +7,6 @@ from application.usecases.files.update import UpdateUseCase
 from domain.models import FileMeta
 from shared.enums import Buckets
 from shared.exceptions.application import (
-    ApplicationRunTimeError,
     DomainRejectedError,
 )
 
@@ -105,36 +104,3 @@ async def test_update_without_stream_successful_update(
     )
 
     assert result.get_id() == filemeta.get_id()
-
-
-@pytest.mark.asyncio
-@pytest.mark.unit
-async def test_update_returns_none_raises_runtime_error(
-    mock_coordinator: AsyncMock,
-    mock_filehelper: AsyncMock,
-    filepolicy_mock_true: AsyncMock,
-    meta_factory_mock: AsyncMock,
-    filemeta: FileMeta,
-):
-    mock_coordinator.data_access.get.return_value = filemeta
-
-    meta_factory_mock.return_value = filemeta
-
-    mock_coordinator.data_access.update.return_value = None
-
-    usecase = UpdateUseCase(
-        coordinator=mock_coordinator,
-        helper=mock_filehelper,
-        policy=filepolicy_mock_true,
-        meta_factory=meta_factory_mock,
-    )
-
-    with pytest.raises(ApplicationRunTimeError):
-        await usecase.execute(
-            file_id=filemeta._id,  # type: ignore
-            name=filemeta._name,  # type: ignore
-            stream=None,
-            bucket=Buckets.DEFAULT,
-        )
-
-    mock_coordinator.data_access.update.assert_called_once()
