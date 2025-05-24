@@ -11,7 +11,6 @@ from contracts.infrastructure import (
 from domain.models import FileId, FileMeta, FileName
 from shared.enums import Buckets
 from shared.exceptions.application import (
-    ApplicationRunTimeError,
     DomainRejectedError,
 )
 from shared.exceptions.domain import FilePolicyViolationError
@@ -82,8 +81,4 @@ class UpdateUseCase(UpdateUseCaseContract):
                     file_id.value, name.value, meta.get_size(), meta.get_content_type()
                 )
             meta = await transaction.data_access.update(meta=meta)
-            if not meta:
-                raise ApplicationRunTimeError(
-                    "[CRITICAL] Logical error in update usecase. Meta is None"
-                ) from None
             return meta

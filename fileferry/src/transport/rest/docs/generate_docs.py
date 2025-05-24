@@ -67,8 +67,8 @@ ALL_RESPONSES: dict[int | str, dict[str, Any]] | None = (
 NON_SPECIFIED_RESPONSES: dict[int | str, dict[str, Any]] | None = (
     generate_infrastructure_responses(
         exclude_codes={
-            S3ErrorCode.NO_SUCH_KEY,
-            S3ErrorCode.NO_SUCH_BUCKET,
+            S3ErrorCode.NoSuchKey,
+            S3ErrorCode.NoSuchBucket,
             SQLAlchemyErrorCode.NO_RESULT,
         }
     )

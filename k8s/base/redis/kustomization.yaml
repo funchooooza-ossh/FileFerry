@@ -1,4 +1,5 @@
+namespace: kube-system
+
 resources:
-  - redis-claim0-persistentvolumeclaim.yaml
-  - redis-deployment.yaml
-  - redis-service.yaml
+  - deployment.yaml
+  - service.yaml

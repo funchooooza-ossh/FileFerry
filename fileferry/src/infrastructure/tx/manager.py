@@ -24,6 +24,7 @@ class TransactionManager(TransactionManagerContract):
         if not self._started:
             return
         await self._context.close()
+        self._started = False
 
     async def apply(self) -> None:
         if not self._started:

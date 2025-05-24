@@ -27,8 +27,9 @@ def wrap_s3_failure(func: F) -> F:
             code = (
                 S3ErrorCodeMapper.from_string(exc.code)
                 if exc.code
-                else S3ErrorCode.UNKNOWN
+                else S3ErrorCode.Unknown
             )
+            logger.info(f"ERR CODE: {exc.code} - {code}")
             raise InfraErrorMapper.map_code_to_error(code) from exc
         except Exception as exc:
             logger.exception(f"[S3][ERR] Error in {func.__qualname__}: {exc!s}")

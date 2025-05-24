@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fileferry-redis
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fileferry-redis
+  template:
+    metadata:
+      labels:
+        app: fileferry-redis
+    spec:
+      containers:
+        - name: fileferry-redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: entry
+              protocol: TCP
+          resources: {}

@@ -16,6 +16,7 @@ def create_app(
     setup_logging()
     container = ApplicationContainer(config_app=settings)
     app = FastAPI(
+        root_path="/fileferry",
         debug=settings.app_debug,
         title="FileFerry Service",
         docs_url="/docs" if settings.app_debug else None,

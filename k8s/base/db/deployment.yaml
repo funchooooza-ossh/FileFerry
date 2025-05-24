@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fileferry-db
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fileferry-db
+  template:
+    metadata:
+      labels:
+        app: fileferry-db
+    spec:
+      containers:
+        - name: fileferry-db
+          image: postgres:16-alpine
+          envFrom:
+            - configMapRef:
+                name: postgres-env
+          ports:
+            - name: entry
+              containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - name: postgres-volume
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U "$POSTGRES_USER"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U "$POSTGRES_USER"
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: postgres-volume
+          persistentVolumeClaim:
+            claimName: postgres-pvc
