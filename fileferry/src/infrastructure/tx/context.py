@@ -16,7 +16,7 @@ class SqlAlchemyTransactionContext(TransactionContextContract):
     """
 
     def __init__(self, session: AsyncSession) -> None:
-        self._session = session
+        self._session: AsyncSession = session
         self._transaction: Optional[AsyncSessionTransaction] = None
 
     @property
@@ -42,3 +42,4 @@ class SqlAlchemyTransactionContext(TransactionContextContract):
     @wrap_sqlalchemy_failure
     async def close(self) -> None:
         await self._session.close()
+        self._transaction = None

@@ -89,7 +89,7 @@ class FinalizeErrorMiddleware(BaseHTTPMiddleware):
         """Обработка инфраструктурных ошибок с использованием InfraErrorMapper."""
         # Получаем код ошибки через InfraErrorMapper
         code = InfraErrorMapper.get_str_type_to_code().get(
-            exc.type, S3ErrorCode.UNKNOWN
+            exc.type, S3ErrorCode.Unknown
         )
         http_status = InfraErrorMapper.get_code_to_http_status().get(code, 400)
         message = InfraErrorMapper.get_code_to_message().get(code, "Unknown error")

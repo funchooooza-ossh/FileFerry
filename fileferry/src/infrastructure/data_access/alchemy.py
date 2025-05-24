@@ -72,4 +72,6 @@ class SQLAlchemyFileMetaDataAccess(FileMetaDataAccessContract):
             )
 
         except Exception as exc:
-            return ComponentStatus(status="down", error=str(exc))
+            return ComponentStatus(
+                status="down", error=str(exc), details={"version": "unknown"}
+            )

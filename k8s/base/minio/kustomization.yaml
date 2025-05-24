@@ -1,6 +1,7 @@
+namespace: kube-system
+
 resources:
-  - minio-claim0-persistentvolumeclaim.yaml
-  - minio-deployment.yaml
-  - minio-service.yaml
-  - minio-pv.yaml
-  - minio-pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - pv.yaml
+  - pvc.yaml
