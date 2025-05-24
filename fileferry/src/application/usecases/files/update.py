@@ -72,9 +72,13 @@ class UpdateUseCase(UpdateUseCaseContract):
 
         async with self._coordinator as transaction:
             if meta and stream:
-                await transaction.file_storage.upload(file_meta=meta, stream=stream, bucket=bucket)
+                await transaction.file_storage.upload(
+                    file_meta=meta, stream=stream, bucket=bucket
+                )
             else:
                 meta = await transaction.data_access.get(file_id=file_id.value)
-                meta = self._meta_factory(file_id.value, name.value, meta.get_size(), meta.get_content_type())
+                meta = self._meta_factory(
+                    file_id.value, name.value, meta.get_size(), meta.get_content_type()
+                )
             meta = await transaction.data_access.update(meta=meta)
             return meta

@@ -29,7 +29,7 @@ async def problem_detail(error_code: str, request: Request) -> JSONResponse:
         return JSONResponse(
             status_code=404,
             content={
-                "type": f"https://example.com/problems/{normalized_code}",
+                "type": "https://http.cat/404",
                 "title": "Undocummented error",
                 "status": 404,
                 "detail": "Unknown error",
@@ -41,7 +41,7 @@ async def problem_detail(error_code: str, request: Request) -> JSONResponse:
     return JSONResponse(
         status_code=status,
         content={
-            "type": f"https://example.com/problems/{normalized_code}",
+            "type": f"https://http.cat/{status}",
             "title": matching_code.value,
             "status": status,
             "detail": message,

@@ -17,30 +17,31 @@
 
 ## Архитектурный стиль
 Выбран по понятным причинам "Порты и адаптеры" с четким разбиением на слои:
-
+```text
                     +---------------------------+
-                    |       Transport Layer      |
-                    |     (FastAPI, DTOs, DI)     |
+                    |       Transport Layer     |
+                    |     (FastAPI, DTOs, DI)   |
+                    +-------------+-------------+
+                                  |
+                    +-------------v--------------+
+                    |     Application Layer      |
+                    | (UseCases + Adapters + UoW)|
                     +-------------+--------------+
                                   |
                     +-------------v--------------+
-                    |     Application Layer       |
-                    | (UseCases + Adapters + UoW)  |
+                    |         Domain Layer       |
+                    | (Entities, ValueObjects,   |
+                    |  Policies, Domain Services)|
                     +-------------+--------------+
                                   |
-                    +-------------v--------------+
-                    |         Domain Layer        |
-                    | (Entities, ValueObjects,    |
-                    |  Policies, Domain Services) |
                     +-------------+--------------+
-                                  |
-          +----------+------------+-------------+-----------+
-          |          |                          |           |
-+---------v-+  +------v-------+        +---------v-+   +-----v-------+
-| Postgres  |  | MinIO Storage|        | (Future)  |   | (Future)    |
-| SQL Repo  |  | File Storage |        | MongoDB   |   | SFTP Client |
-| Adapter   |  | Adapter      |        | Adapter   |   | Adapter     |
-+-----------+  +--------------+        +-----------+   +------------+
+                    |                             |
+             +------v------+              +-------v--------+
+             |  Postgres   |              |  MinIO Storage |
+             |  SQL Repo   |              |  File Storage  |
+             |  Adapter    |              |  Adapter       |
+             +-------------+              +----------------+
+```
 
 
 ## Основные компоненты.
