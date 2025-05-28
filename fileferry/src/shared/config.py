@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     app_debug: bool
     cache_enabled: bool
+    main_route: str
 
     class Config:
         env_file = ".env"
