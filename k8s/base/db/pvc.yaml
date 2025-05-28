@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pvc
+  name: fileferry-postgres-pvc
   namespace: kube-system
 spec:
   storageClassName: postgres
-  volumeName: postgres-pv
+  volumeName: fileferry-postgres-pv
   accessModes:
     - ReadWriteOnce
   resources:

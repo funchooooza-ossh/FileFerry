@@ -18,13 +18,13 @@ spec:
           image: postgres:16-alpine
           envFrom:
             - configMapRef:
-                name: postgres-env
+                name: fileferry-postgres-env
           ports:
             - name: entry
               containerPort: 5432
               protocol: TCP
           volumeMounts:
-            - name: postgres-volume
+            - name: fileferry-postgres-volume
               mountPath: /var/lib/postgresql/data
           livenessProbe:
             exec:
@@ -43,6 +43,6 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
       volumes:
-        - name: postgres-volume
+        - name: fileferry-postgres-volume
           persistentVolumeClaim:
-            claimName: postgres-pvc
+            claimName: fileferry-postgres-pvc

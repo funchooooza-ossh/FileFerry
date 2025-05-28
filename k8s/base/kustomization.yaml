@@ -16,45 +16,10 @@ configMapGenerator:
       - environments/minio.default.env
       - environments/postgres.env
       - environments/redis.env
-  - name: postgres-env
+  - name: fileferry-postgres-env
     envs:
       - environments/postgres.env
-  - name: minio-env
+  - name: fileferry-minio-env
     envs:
       - environments/minio.env
 
-
-
-
-# replacements:
-#   - source:
-#       kind: ConfigMap
-#       name: fileferry-env
-#       fieldPath: metadata.name
-#     targets:
-#       - select:
-#           kind: Deployment
-#           name: fileferry
-#         fieldPaths:
-#           - spec.template.spec.containers[0].envFrom[0].configMapRef.name
-
-#   - source:
-#       kind: ConfigMap
-#       name: postgres.env
-#       fieldPath: metadata.name
-#     targets:
-#       - select:
-#           kind: Deployment
-#           name: fileferry-db
-#         fieldPaths:
-#           - spec.template.spec.containers[0].envFrom[0].configMapRef.name
-#   - source:
-#       kind: ConfigMap
-#       name: minio.env
-#       fieldPath: metadata.name
-#     targets:
-#       - select:
-#           kind: Deployment
-#           name: fileferry-minio
-#         fieldPaths:
-#           - spec.template.spec.containers[0].envFrom[0].configMapRef.name

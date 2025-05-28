@@ -23,7 +23,7 @@ spec:
             - ":9001"
           envFrom:
             - configMapRef:
-                name: minio-env
+                name: fileferry-minio-env
           ports:
             - name: api
               containerPort: 9000
